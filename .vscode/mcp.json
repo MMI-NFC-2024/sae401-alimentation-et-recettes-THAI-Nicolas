@@ -1,0 +1,15 @@
+{
+  "servers": {
+    "pocketbase-server": {
+      "command": "node",
+      "args": [
+        "C:\\chemin\\vers\\ton\\projet\\pocketbase-mcp\\build\\index.js"
+      ],
+      "env": {
+        "POCKETBASE_URL": "http://127.0.0.1:8090",
+        "POCKETBASE_ADMIN_EMAIL": "nicolas.thai@edu.univ-fcomte.fr",
+        "POCKETBASE_ADMIN_PASSWORD": "sae401PWD2026"
+      }
+    }
+  }
+}
