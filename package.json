@@ -6,11 +6,13 @@
     "dev": "astro dev",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "typegen": "npx pocketbase-typegen --db ./backend/pocketbase/pb_data/data.db --out ./src/pocketbase-types.ts"
   },
   "dependencies": {
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^6.0.2",
+    "pocketbase": "^0.26.8",
     "tailwindcss": "^4.2.1"
   }
 }
