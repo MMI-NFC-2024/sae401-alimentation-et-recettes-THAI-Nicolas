@@ -3,7 +3,7 @@
     "pocketbase-server": {
       "command": "node",
       "args": [
-        "C:\\chemin\\vers\\ton\\projet\\pocketbase-mcp\\build\\index.js"
+        "C:\\Users\\thain\\Documents\\COURS\\DEV-PRACHT\\expose_shadcn_bryan_nicolas\\pocketbase-mcp\\build\\index.js"
       ],
       "env": {
         "POCKETBASE_URL": "http://127.0.0.1:8090",

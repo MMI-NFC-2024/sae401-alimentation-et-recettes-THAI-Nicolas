@@ -146,7 +146,21 @@ export type EtapesRecord = {
 	updated: IsoAutoDateString
 }
 
+export enum IngredientsCategorieOptions {
+	"Légumes & Fruits" = "Légumes & Fruits",
+	"Viandes & Volailles" = "Viandes & Volailles",
+	"Poissons & Crustacés" = "Poissons & Crustacés",
+	"Produits laitiers" = "Produits laitiers",
+	"Protéines Végétales" = "Protéines Végétales",
+	"Légumineuses" = "Légumineuses",
+	"Féculents & Céréales" = "Féculents & Céréales",
+	"Oléagineux & Graines" = "Oléagineux & Graines",
+	"Matières grasses" = "Matières grasses",
+	"Condiments & Epices" = "Condiments & Epices",
+	"Autres" = "Autres",
+}
 export type IngredientsRecord = {
+	categorie?: IngredientsCategorieOptions
 	created: IsoAutoDateString
 	glucides_100g?: number
 	id: string
@@ -177,7 +191,7 @@ export enum RecettesObjectifSanteOptions {
 }
 export type RecettesRecord = {
 	categorie?: RecettesCategorieOptions
-	conseils_chef?: HTMLString
+	conseils_coach?: HTMLString
 	created: IsoAutoDateString
 	description?: HTMLString
 	difficulte?: RecettesDifficulteOptions
