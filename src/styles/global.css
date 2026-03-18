@@ -46,10 +46,10 @@
     font-size: clamp(0.95rem, 0.35vw + 0.88rem, 1.2rem);
   }
   section {
-    @apply px-8 md:px-12 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 2xl:py-24;
+    @apply px-16 md:px-20 lg:px-24 xl:px-28 2xl:px-32 pb-20 pt-8 md:pb-24 md:pt-16 lg:pb-28 lg:pt-20 xl:pb-32 xl:pt-24 2xl:pb-44 2xl:pt-32;
   }
   .green-section {
-    @apply bg-primary text-secondary py-20 md:pt-12 lg:pt-16 xl:pt-20 2xl:pt-24 pb-12 px-8 md:px-12 lg:px-20 2xl:px-32;
+    @apply bg-primary text-secondary;
   }
   .btn-wrapper {
     @apply flex justify-center my-12 md:my-16 lg:my-20 2xl:my-28;
@@ -57,8 +57,11 @@
   .text-content {
     @apply flex flex-col mt-10 gap-4 md:gap-6 lg:gap-8 2xl:gap-10;
   }
-  .ul-flex {
-    @apply flex flex-col items-center md:flex-row md:flex-wrap md:justify-center my-8 md:my-12 lg:my-16 2xl:my-24 gap-12 md:gap-16 lg:gap-16 2xl:gap-32;
+  .content-container {
+    @apply w-full mx-auto max-w-330;
+  }
+  .ul-grid {
+    @apply grid grid-cols-1 gap-8 md:gap-12 lg:gap-16 md:grid-cols-2 lg:grid-cols-3 mt-12 md:mt-16 lg:mt-20;
   }
   .btn {
     @apply bg-accent1 text-primary font-afacad font-bold py-3 px-6 rounded-full transition-all duration-300 border-2 border-primary shadow-[4px_6px_0_0_var(--color-primary)];

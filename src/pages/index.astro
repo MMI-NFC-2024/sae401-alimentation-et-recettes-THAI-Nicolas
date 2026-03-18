@@ -4,75 +4,105 @@ import Bananelangue from '../assets/personnages/languebanane.webp';
 import PriseDeMasse from '../assets/personnages/prise-de-masse.webp';
 import PerteDePoids from '../assets/personnages/perte-de-poids.webp';
 import MeMaintenir from '../assets/personnages/me-maintenir.webp';
-import ComposantObjectif from '../components/ui/ComposantObjectif.astro';
+import CardObjectif from '../components/ui/CardObjectif.astro';
+import CardArticle from '../components/ui/CardArticle.astro';
+
+
+// Fonctions "Nos conseils nutritionnels"
+import { getLatestArticles } from '../lib/services/articles.service';
+const { articles, fetchError: articlesFetchError } = await getLatestArticles(Astro.locals.pb, 3);
 ---
 
 <Layout>
 	<section>
-		
-		
-		<header class="text-center">
-			<h1 class="">Vos objectifs alimentaires à portée de <span class="text-accent1">langue</span> !!</h1>
-			<div>
-			<img src={Bananelangue.src} alt="Bananelangue" class="w-full scale-105 h-full object-contain absolute -left-20 mt-16" />
-		</div>
-		</header>
-		<div class="flex flex-col justify-center items-center">
-			<p class="py-8 text-center">Adieu la frustration. Profitez de nos recettes gourmandes et de conseils nutritionnels experts pour nourrir votre progression avec plaisir. </p>
-			
-			<a href="#" class="btn my-6">Commencer l'aventure</a>
+		<div class="content-container">
+			<header class="text-center">
+				<h1 class="">Vos objectifs alimentaires à portée de <span class="text-accent1">langue</span> !!</h1>
+				<div>
+					<img src={Bananelangue.src} alt="Bananelangue" class="w-full scale-105 h-full object-contain absolute -left-20 mt-16" />
+				</div>
+			</header>
+			<div class="flex flex-col justify-center items-center">
+				<p class="py-8 text-center">Adieu la frustration. Profitez de nos <b>recettes gourmandes</b> et de <b>conseils nutritionnels experts</b> pour nourrir votre progression avec plaisir. </p>
+				<a href="#" class="btn my-6">Commencer l'aventure</a>
+			</div>
 		</div>
 	</section>
 
 	<section class="green-section mt-130">
-		<header class="">
-			<h2 class="text-center ">Choisis ton objectif santé </h2>
-		</header>
+		<div class="content-container">
+			<header class="">
+				<h2 class="text-center ">Choisis ton objectif santé </h2>
+			</header>
 
-		<ul class="ul-flex  gap-16">
-			<li class="">
-				<ComposantObjectif
-					title="Prise de masse"
-					description="Optimise ta prise de masse avec des recettes riches en proteines et en calories."
-					hashtag="#priseDeMasse"
-					character={PriseDeMasse}
-				/>
-			</li>
-			<li class="">
-				<ComposantObjectif
-					title="Perte de poids"
-					description="Atteins ton objectif de perte de poids avec des recettes equilibrees et gourmandes."
-					hashtag="#perteDePoids"
-					character={PerteDePoids}
-				/>
-			</li>
-			<li class="">
-				<ComposantObjectif
-					title="Maintien de poids"
-					description="Garde un poids stable avec des conseils nutritionnels adaptes a ton quotidien."
-					hashtag="#maintienDePoids"
-					character={MeMaintenir}
-				/>
-			</li>
-		</ul>
+			<ul class="ul-grid">
+				<li class="w-full h-full">
+					<CardObjectif
+						title="Prise de masse"
+						description="Optimise ta prise de masse avec des recettes riches en proteines et en calories."
+						hashtag="#priseDeMasse"
+						character={PriseDeMasse}
+					/>
+				</li>
+				<li class="w-full h-full">
+					<CardObjectif
+						title="Perte de poids"
+						description="Atteins ton objectif de perte de poids avec des recettes equilibrees et gourmandes."
+						hashtag="#perteDePoids"
+						character={PerteDePoids}
+					/>
+				</li>
+				<li class="w-full h-full md:col-span-2 md:max-w-md md:mx-auto lg:col-span-1 lg:max-w-none">
+					<CardObjectif
+						title="Maintien de poids"
+						description="Garde un poids stable avec des conseils nutritionnels adaptes a ton quotidien."
+						hashtag="#maintienDePoids"
+						character={MeMaintenir}
+					/>
+				</li>
+			</ul>
+		</div>
 	</section>
 
 	<section>
-		<header>
-			<h2 class="text-center">Nos recettes "slurps"</h2>
-		</header>
+		<div class="content-container">
+			<header>
+				<h2 class="text-center">Nos recettes "slurps"</h2>
+			</header>
+		</div>
 	</section>
 
 	<section>
-		<header class="text-content">
-			<h2 class="text-center">Nos conseils nutritionnels</h2>
-			<p class="text-center">Le secret de vos records est dans l'assiette. Découvrez comment allier nutrition sportive et gourmandise sans compromis</p>
-		</header>
+		<div class="content-container">
+			<header class="text-content">
+				<h2 class="text-center">Nos conseils nutritionnels</h2>
+				<p class="text-center">Le secret de vos performances est dans l'assiette. Découvrez comment allier nutrition sportive et gourmandise sans compromis</p>
+			</header>
 
-		<ul>
+			{articles.length > 0 ? (
+				<ul class="ul-grid">
+					{articles.map((article, index) => (
+						<li
+							class:list={[
+								'w-full',
+								articles.length % 2 === 1 && index === articles.length - 1 && 'md:col-span-2 md:max-w-md md:mx-auto lg:col-span-1 lg:max-w-none'
+							]}
+						>
+							<CardArticle article={article} />
+						</li>
+					))}
+				</ul>
+			) : (
+				<p class="mt-8 text-center">
+					{articlesFetchError
+						? 'Les conseils sont temporairement indisponibles. Reessaie dans quelques instants.'
+						: 'Aucun article trouve pour le moment.'}
+				</p>
+			)}
 
-		</ul>
-
-		 
+			<div class="flex justify-center mt-8">
+				<a href="/articles" class="btn">Voir tous les conseils</a>
+			</div>
+		</div>
 	</section>
 </Layout>

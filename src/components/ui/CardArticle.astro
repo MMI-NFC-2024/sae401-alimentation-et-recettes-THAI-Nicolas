@@ -1,0 +1,31 @@
+---
+import type { ArticlesResponse } from '../../pocketbase-types';
+import ImgPB from './ImgPB.astro';
+
+interface Props {
+    article: ArticlesResponse;
+}
+
+const { article } = Astro.props as Readonly<Props>;
+const title = article.titre ?? 'Article';
+const href = `/articles/${article.slug ?? article.id}`;
+---
+
+<article class="h-full">
+    <a href={href} class="w-full h-full max-w-md md:max-w-none mx-auto flex flex-col">
+        <ImgPB
+            record={article}
+            image={article.image}
+            alt={`Image de l'article ${title}`}
+            thumb="800x500"
+            classPicture="w-full aspect-[4/3] overflow-hidden rounded-2xl"
+            classImg="w-full h-full"
+        />
+        <div class="mt-4 flex flex-col items-center text-center gap-3 md:gap-4">
+            <h3 class="leading-[1.2]">
+                {title}
+            </h3>
+            <p>{article.resume ?? ''}</p>
+        </div>
+    </a>
+</article>

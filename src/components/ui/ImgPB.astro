@@ -1,0 +1,34 @@
+---
+import type { BaseSystemFields, FileNameString } from '../../pocketbase-types';
+
+interface Props {
+    record: BaseSystemFields;
+    image?: FileNameString;
+    alt?: string;
+    classPicture?: string;
+    classImg?: string;
+    thumb?: string;
+}
+
+const {
+    record,
+    image,
+    alt = 'Image',
+    classPicture = '',
+    classImg = '',
+    thumb = '1024x1024',
+} = Astro.props as Props;
+
+const pb = Astro.locals.pb;
+const imageUrl = image ? pb.files.getURL(record, image, { thumb }) : null;
+---
+
+{imageUrl ? (
+    <div class={classPicture}>
+        <img class={classImg} alt={alt} src={imageUrl} loading="lazy" />
+    </div>
+) : (
+    <div class={`${classPicture} w-full h-full flex items-center justify-center bg-gray-200 rounded-2xl`}>
+        <span class="text-gray-500">Image non disponible</span>
+    </div>
+)}
