@@ -6,10 +6,15 @@ import PerteDePoids from '../assets/personnages/perte-de-poids.webp';
 import MeMaintenir from '../assets/personnages/me-maintenir.webp';
 import CardObjectif from '../components/ui/CardObjectif.astro';
 import CardArticle from '../components/ui/CardArticle.astro';
+import LiquidWave from '../components/ui/LiquidWave.astro';
 
+// Fonctions "Nos recettes"
+import { getLatestRecettes } from '../lib/services/recettes.service';
+const { recettes, fetchError: recettesFetchError } = await getLatestRecettes(Astro.locals.pb, 4);
 
 // Fonctions "Nos conseils nutritionnels"
 import { getLatestArticles } from '../lib/services/articles.service';
+import CardRecette from '../components/ui/CardRecette.astro';
 const { articles, fetchError: articlesFetchError } = await getLatestArticles(Astro.locals.pb, 3);
 ---
 
@@ -39,36 +44,55 @@ const { articles, fetchError: articlesFetchError } = await getLatestArticles(Ast
 				<li class="w-full h-full">
 					<CardObjectif
 						title="Prise de masse"
-						description="Optimise ta prise de masse avec des recettes riches en proteines et en calories."
-						hashtag="#priseDeMasse"
+						description="Prends du volume musculaire avec des recettes riches en protéines et en calories"
+						hashtag="#highprotein"
 						character={PriseDeMasse}
 					/>
 				</li>
 				<li class="w-full h-full">
 					<CardObjectif
 						title="Perte de poids"
-						description="Atteins ton objectif de perte de poids avec des recettes equilibrees et gourmandes."
-						hashtag="#perteDePoids"
+						description="Réduis ta masse grasse sans privation, grâce à des plats calibrés et rassasiants."
+						hashtag="#lowkcalories"
 						character={PerteDePoids}
 					/>
 				</li>
 				<li class="w-full h-full md:col-span-2 md:max-w-md md:mx-auto lg:col-span-1 lg:max-w-none">
 					<CardObjectif
 						title="Maintien de poids"
-						description="Garde un poids stable avec des conseils nutritionnels adaptes a ton quotidien."
-						hashtag="#maintienDePoids"
+						description="Maintiens ton poids de forme et ton niveau d'énergie avec une alimentation équilibrée."
+						hashtag="#zen"
 						character={MeMaintenir}
 					/>
 				</li>
 			</ul>
 		</div>
 	</section>
-
+	<LiquidWave />
 	<section>
 		<div class="content-container">
 			<header>
 				<h2 class="text-center">Nos recettes "slurps"</h2>
 			</header>
+		
+		<ul class="ul-grid md:grid-cols-2 lg:grid-cols-4">
+			{recettes.length > 0 ? (
+				recettes.map((recette) => (
+					<li class="w-full h-full">
+						<CardRecette recette={recette} />
+					</li>
+				))
+			) : (
+				<p class="mt-8 text-center">
+					{recettesFetchError
+						? 'Les recettes sont temporairement indisponibles. Reessaie dans quelques instants.'
+						: 'Aucune recette trouve pour le moment.'}
+				</p>
+			)}
+		</ul>
+		<div class="flex justify-center mt-8">
+				<a href="/articles" class="btn">Voir toute les recettes.</a>
+		</div>
 		</div>
 	</section>
 

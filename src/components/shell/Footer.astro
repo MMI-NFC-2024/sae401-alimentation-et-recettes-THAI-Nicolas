@@ -1,0 +1,86 @@
+---
+import LogoNegatif from '../../assets/icones/logo-negatif.webp'
+---
+<footer class="bg-primary  pt-20 md:pt-8 lg:pt-10 pb-20 px-12">
+    <div class="content-container grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8 py-12 md:items-center md:justify-center ">
+
+        <!-- Colonne 1 -->
+        <div class="flex flex-col items-center md:items-start">
+                <a href="/" class="mb-6">
+                    <div class="text-secondary">
+                        <img class="h-16 md:h-20 w-auto " src={LogoNegatif.src} alt="Logo Slurpy" />
+                    </div> 
+                </a>
+                <p class="text-secondary text-center md:text-left opacity-70">
+                    Vos objectifs alimentaires à portée de langue.
+                </p>
+                <div class="text-secondary">
+                    <a href="">
+                        Insta
+                    </a>
+                    <a href="">
+                        Facebook
+                    </a>
+                </div>
+            </div>
+        <!-- Colonne 2 -->
+
+        <div class="flex flex-col items-center justify-center">
+                <h3 class="text-secondary mb-8 ">Navigation</h3>
+                <nav class="flex flex-col gap-4 text-center">
+                    <a href="/recettes" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
+                        Nos recettes
+                    </a>
+                    <a href="/articles" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
+                        Nos articles
+                    </a>
+                    <a href="/" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
+                        A propos
+                    </a>
+                    <a href="/contact" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
+                        Nous contacter
+                    </a>
+                </nav>
+        </div>
+
+        <!-- Colonne 3 -->
+
+        <div class="flex flex-col items-center justify-center">
+                <h3 class="text-secondary mb-8 ">Légalités</h3>
+                <nav class="flex flex-col gap-4 text-center">
+                    <a href="/recettes" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
+                        Mentions légales
+                    </a>
+                    <a href="/articles" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
+                        Confidentialité
+                    </a>
+                    <a href="/" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
+                        Cookies
+                    </a>
+                    <a href="/contact" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
+                        CGU
+                    </a>
+                </nav>
+        </div>
+
+         <!-- Colonne 4 -->
+
+         <div class="flex flex-col items-center justify-center text-secondary text-center">
+            <h3>S'abonner à la newsletter</h3>
+            <p>Reçois chaque semaine nos nouvelles recettes et des conseils exclusifs pour tes objectifs.</p>
+            <div>
+                <input type="email" placeholder="Entrer votre email" class="p-2 rounded-l-md border border-gray-300 focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
+                <button class="btn rounded-r-md">S'abonner !</button>
+            </div>
+         </div>
+
+         <!-- Séparateur -->
+        <div class="border-t border-secondary/60"></div>
+
+        <!-- Copyright -->
+            <p class="text-secondary text-sm opacity-90 text-center md:text-left">
+                © 2026 Slurpy. Tous droits réservés. Les textes, images et autres contenus du site sont protégés par le droit d'auteur et ne peuvent être reproduits sans autorisation.
+            </p>
+
+    </div>
+</footer>
