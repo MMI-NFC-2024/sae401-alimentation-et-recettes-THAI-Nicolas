@@ -11,6 +11,7 @@ export enum Collections {
 	Mfas = "_mfas",
 	Otps = "_otps",
 	Superusers = "_superusers",
+	Articles = "articles",
 	Avis = "avis",
 	Composition = "composition",
 	Etapes = "etapes",
@@ -96,6 +97,23 @@ export type SuperusersRecord = {
 	tokenKey: string
 	updated: IsoAutoDateString
 	verified?: boolean
+}
+
+export enum ArticlesTypeOptions {
+	"conseil" = "conseil",
+	"fiche_aliment" = "fiche_aliment",
+}
+export type ArticlesRecord = {
+	contenu?: HTMLString
+	created: IsoAutoDateString
+	id: string
+	image?: FileNameString
+	ingredient_lie?: RecordIdString
+	resume?: string
+	slug?: string
+	titre?: string
+	type?: ArticlesTypeOptions
+	updated: IsoAutoDateString
 }
 
 export type AvisRecord = {
@@ -201,6 +219,7 @@ export type RecettesRecord = {
 	objectif_sante?: RecettesObjectifSanteOptions
 	portions?: number
 	regimes?: RecordIdString[]
+	slug?: string
 	temps_total?: number
 	titre?: string
 	total_glucides?: number
@@ -240,6 +259,7 @@ export type ExternalauthsResponse<Texpand = unknown> = Required<ExternalauthsRec
 export type MfasResponse<Texpand = unknown> = Required<MfasRecord> & BaseSystemFields<Texpand>
 export type OtpsResponse<Texpand = unknown> = Required<OtpsRecord> & BaseSystemFields<Texpand>
 export type SuperusersResponse<Texpand = unknown> = Required<SuperusersRecord> & AuthSystemFields<Texpand>
+export type ArticlesResponse<Texpand = unknown> = Required<ArticlesRecord> & BaseSystemFields<Texpand>
 export type AvisResponse<Texpand = unknown> = Required<AvisRecord> & BaseSystemFields<Texpand>
 export type CompositionResponse<Texpand = unknown> = Required<CompositionRecord> & BaseSystemFields<Texpand>
 export type EtapesResponse<Texpand = unknown> = Required<EtapesRecord> & BaseSystemFields<Texpand>
@@ -256,6 +276,7 @@ export type CollectionRecords = {
 	_mfas: MfasRecord
 	_otps: OtpsRecord
 	_superusers: SuperusersRecord
+	articles: ArticlesRecord
 	avis: AvisRecord
 	composition: CompositionRecord
 	etapes: EtapesRecord
@@ -271,6 +292,7 @@ export type CollectionResponses = {
 	_mfas: MfasResponse
 	_otps: OtpsResponse
 	_superusers: SuperusersResponse
+	articles: ArticlesResponse
 	avis: AvisResponse
 	composition: CompositionResponse
 	etapes: EtapesResponse

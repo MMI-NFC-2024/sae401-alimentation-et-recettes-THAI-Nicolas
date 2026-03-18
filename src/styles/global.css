@@ -1,1 +1,78 @@
 @import "tailwindcss";
+
+/* Import Barlow en local (seulement en black) */
+@import "@fontsource/barlow/900.css";
+
+/* Import Afacad en local (seulement en bold et regular) */
+@import "@fontsource/afacad/400.css";
+@import "@fontsource/afacad/700.css";
+
+@theme {
+  /* Les couleurs */
+  --color-primary: #275933;
+  --color-secondary: #fef7e7;
+  --color-accent1: #fdb700;
+  --color-accent2: #f44f31;
+
+  /* Les polices */
+  --font-barlow: "Barlow", sans-serif;
+  --font-afacad: "Afacad", sans-serif;
+}
+
+@layer base {
+  main {
+    @apply overflow-hidden;
+  }
+  body {
+    @apply font-afacad text-primary bg-secondary;
+    font-size: clamp(0.95rem, 0.25vw + 0.9rem, 1.125rem);
+  }
+  h1 {
+    @apply font-barlow uppercase;
+    font-size: clamp(2rem, 4.8vw + 1rem, 5.75rem);
+  }
+
+  h2 {
+    @apply font-barlow uppercase;
+    font-size: clamp(1.5rem, 3.2vw + 0.95rem, 3.75rem);
+  }
+
+  h3 {
+    @apply font-barlow uppercase;
+    font-size: clamp(1.125rem, 1.8vw + 0.8rem, 2rem);
+  }
+
+  p {
+    font-size: clamp(0.95rem, 0.35vw + 0.88rem, 1.2rem);
+  }
+  section {
+    @apply px-8 md:px-12 lg:px-20 2xl:px-32 pt-12 md:pt-16 lg:pt-20 2xl:pt-24;
+  }
+  .green-section {
+    @apply bg-primary text-secondary pt-8 md:pt-12 lg:pt-16 xl:pt-20 2xl:pt-24 pb-12 px-8 md:px-12 lg:px-20 2xl:px-32;
+  }
+  .btn-wrapper {
+    @apply flex justify-center my-12 md:my-16 lg:my-20 2xl:my-28;
+  }
+  .text-content {
+    @apply flex flex-col mt-10 gap-4 md:gap-6 lg:gap-8 2xl:gap-10;
+  }
+  .ul-flex {
+    @apply flex flex-col items-center md:flex-row md:flex-wrap md:justify-center my-8 md:my-12 lg:my-16 2xl:my-24 gap-12 md:gap-16 lg:gap-16 2xl:gap-32;
+  }
+  .btn {
+    @apply bg-accent1 text-primary font-afacad font-bold py-3 px-6 rounded-full transition-colors duration-300 border-2 border-primary shadow-[4px_6px_0_0_var(--color-primary)];
+    font-size: clamp(0.95rem, 0.3vw + 0.88rem, 1.125rem);
+    padding-block: clamp(0.65rem, 0.25vw + 0.58rem, 0.9rem);
+    padding-inline: clamp(1.1rem, 0.9vw + 0.85rem, 1.8rem);
+  }
+  .btn:hover {
+    @apply scale-105;
+  }
+  .btn-outline {
+    @apply bg-transparent text-primary font-afacad font-bold py-3 px-6 rounded-full transition-colors duration-300 border-2 border-primary shadow-[4px_6px_0_0_var(--color-primary)];
+    font-size: clamp(0.95rem, 0.3vw + 0.88rem, 1.125rem);
+    padding-block: clamp(0.65rem, 0.25vw + 0.58rem, 0.9rem);
+    padding-inline: clamp(1.1rem, 0.9vw + 0.85rem, 1.8rem);
+  }
+}

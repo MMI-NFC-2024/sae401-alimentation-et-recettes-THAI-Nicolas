@@ -11,6 +11,8 @@
   },
   "dependencies": {
     "@astrojs/node": "^10.0.0",
+    "@fontsource/afacad": "^5.2.10",
+    "@fontsource/barlow": "^5.2.8",
     "@tailwindcss/vite": "^4.2.1",
     "astro": "^6.0.2",
     "pocketbase": "^0.26.8",
