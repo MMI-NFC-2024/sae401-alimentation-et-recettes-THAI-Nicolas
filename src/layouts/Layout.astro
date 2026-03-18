@@ -4,15 +4,16 @@ import Header from '../components/shell/Header.astro'
 import Footer from '../components/shell/Footer.astro'
 
 const {
-  title = 'Slurpy |  ',
-  description = '',
-  keywords = '',
+	title = 'SLURPY. | Recettes healthy, régimes et conseils nutritionnels',
+	description = 'Vos objectifs alimentaires à portee de langue. Adieu la frustration : profitez de recettes gourmandes, de conseils nutritionnels experts, de fiches d\'aliments et d\'un calculateur de portions/calories pour progresser avec plaisir.',
+	keywords = 'slurpy, recettes healthy, regimes alimentaires, conseils nutritionnels, fiches aliments, calculateur calories, calculateur portions, nutrition sportive, perte de poids, prise de masse, alimentation equilibree',
   ogImage = '/og-image.png',
   ogType = 'website',
   canonical,
 } = Astro.props;
 
-// const canonicalURL = canonical || new URL(Astro.url.pathname, Astro.site).href
+const canonicalURL = canonical ?? Astro.url.href;
+const ogImageURL = ogImage.startsWith('http') ? ogImage : new URL(ogImage, canonicalURL).href;
 ---
 
 <!doctype html>
@@ -25,6 +26,7 @@ const {
 		<meta name="generator" content={Astro.generator} />
 
 		<meta name="color-scheme" content="light dark" />
+		<meta name="theme-color" content="#275933" />
 		<meta name="referrer" content="strict-origin-when-cross-origin" />
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
 
@@ -34,23 +36,23 @@ const {
 		<meta name="keywords" content={keywords} />
 		<meta name="author" content="Nicolas THAI" />
 		<meta name="robots" content="index, follow" />
-		<!-- <link rel="canonical" href={canonicalURL} /> -->
+		<link rel="canonical" href={canonicalURL} />
 		<link rel="sitemap" href="/sitemap-index.xml" />
 
 		<!-- Open Graph (Facebook, LinkedIn) -->
 		<meta property="og:type" content={ogType} />
 		<meta property="og:title" content={title} />
 		<meta property="og:description" content={description} />
-		<!-- <meta property="og:image" content={new URL(ogImage, Astro.site).href} /> -->
-		<!-- <meta property="og:url" content={canonicalURL} />  -->
+		<meta property="og:image" content={ogImageURL} />
+		<meta property="og:url" content={canonicalURL} />
 		<meta property="og:locale" content="fr_FR" />
-		<meta property="og:site_name" content="Slurpy - " />
+		<meta property="og:site_name" content="SLURPY." />
 
 		<!-- Twitter Cards -->
 		<meta name="twitter:card" content="summary_large_image" />
 		<meta name="twitter:title" content={title} />
 		<meta name="twitter:description" content={description} />
-		<!-- <meta name="twitter:image" content={new URL(ogImage, Astro.site).href} />  -->
+		<meta name="twitter:image" content={ogImageURL} />
 	</head>
 	<body>
 		<Header />
