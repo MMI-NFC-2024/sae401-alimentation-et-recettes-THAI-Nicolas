@@ -24,13 +24,13 @@ import ComposantObjectif from '../components/ui/ComposantObjectif.astro';
 		</div>
 	</section>
 
-	<section class="mt-110">
-		<header>
-			<h2 class="text-center">Choisis ton objectif santé </h2>
+	<section class="green-section mt-130">
+		<header class="">
+			<h2 class="text-center ">Choisis ton objectif santé </h2>
 		</header>
 
-		<ul class="mt-8 grid w-full grid-cols-1 place-items-center gap-6 md:grid-cols-2 lg:grid-cols-3">
-			<li>
+		<ul class="ul-flex  gap-16">
+			<li class="">
 				<ComposantObjectif
 					title="Prise de masse"
 					description="Optimise ta prise de masse avec des recettes riches en proteines et en calories."
@@ -38,7 +38,7 @@ import ComposantObjectif from '../components/ui/ComposantObjectif.astro';
 					character={PriseDeMasse}
 				/>
 			</li>
-			<li>
+			<li class="">
 				<ComposantObjectif
 					title="Perte de poids"
 					description="Atteins ton objectif de perte de poids avec des recettes equilibrees et gourmandes."
@@ -46,7 +46,7 @@ import ComposantObjectif from '../components/ui/ComposantObjectif.astro';
 					character={PerteDePoids}
 				/>
 			</li>
-			<li>
+			<li class="">
 				<ComposantObjectif
 					title="Maintien de poids"
 					description="Garde un poids stable avec des conseils nutritionnels adaptes a ton quotidien."
@@ -55,5 +55,24 @@ import ComposantObjectif from '../components/ui/ComposantObjectif.astro';
 				/>
 			</li>
 		</ul>
+	</section>
+
+	<section>
+		<header>
+			<h2 class="text-center">Nos recettes "slurps"</h2>
+		</header>
+	</section>
+
+	<section>
+		<header class="text-content">
+			<h2 class="text-center">Nos conseils nutritionnels</h2>
+			<p class="text-center">Le secret de vos records est dans l'assiette. Découvrez comment allier nutrition sportive et gourmandise sans compromis</p>
+		</header>
+
+		<ul>
+
+		</ul>
+
+		 
 	</section>
 </Layout>

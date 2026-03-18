@@ -46,10 +46,10 @@
     font-size: clamp(0.95rem, 0.35vw + 0.88rem, 1.2rem);
   }
   section {
-    @apply px-8 md:px-12 lg:px-20 2xl:px-32 pt-12 md:pt-16 lg:pt-20 2xl:pt-24;
+    @apply px-8 md:px-12 lg:px-20 2xl:px-32 py-12 md:py-16 lg:py-20 2xl:py-24;
   }
   .green-section {
-    @apply bg-primary text-secondary pt-8 md:pt-12 lg:pt-16 xl:pt-20 2xl:pt-24 pb-12 px-8 md:px-12 lg:px-20 2xl:px-32;
+    @apply bg-primary text-secondary py-20 md:pt-12 lg:pt-16 xl:pt-20 2xl:pt-24 pb-12 px-8 md:px-12 lg:px-20 2xl:px-32;
   }
   .btn-wrapper {
     @apply flex justify-center my-12 md:my-16 lg:my-20 2xl:my-28;
