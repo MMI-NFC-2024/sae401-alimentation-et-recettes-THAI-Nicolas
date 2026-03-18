@@ -1,0 +1,59 @@
+---
+interface Props {
+  title: string;
+  colorA?: string;
+  colorB?: string;
+  tileSize?: number;
+  sideWidth?: number;
+  sideWidthMobile?: number;
+  className?: string;
+}
+
+const {
+  title,
+  colorA = '#275933',
+  colorB = '#fef7e7',
+  tileSize = 20,
+  sideWidth,
+  sideWidthMobile,
+  className = ''
+} = Astro.props as Props;
+
+const resolveColor = (value: string) => {
+  const trimmed = value.trim();
+  if (trimmed === 'var(--color-primary)') return '#275933';
+  if (trimmed === 'var(--color-secondary)') return '#fef7e7';
+  if (trimmed === 'var(--color-accent1)') return '#fdb700';
+  if (trimmed === 'var(--color-accent2)') return '#f44f31';
+  return trimmed;
+};
+
+const fillA = resolveColor(colorA);
+const fillB = resolveColor(colorB);
+const patternSize = tileSize * 2;
+const sideWidthDesktop = sideWidth ?? patternSize;
+const sideWidthSm = sideWidthMobile ?? sideWidthDesktop;
+
+const svgPattern = `<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><rect width='20' height='20' fill='${fillA}'/><rect x='20' width='20' height='20' fill='${fillB}'/><rect y='20' width='20' height='20' fill='${fillB}'/><rect x='20' y='20' width='20' height='20' fill='${fillA}'/></svg>`;
+const patternUrl = `url("data:image/svg+xml,${encodeURIComponent(svgPattern)}")`;
+---
+
+<div
+  class:list={[
+    'w-full h-32 md:h-40 lg:h-44 xl:h-54 grid items-stretch grid-cols-[var(--damier-side-width-mobile)_1fr_var(--damier-side-width-mobile)] md:grid-cols-[var(--damier-side-width)_1fr_var(--damier-side-width)]',
+    className
+  ]}
+  style={`--damier-pattern: ${patternUrl}; --damier-pattern-size: ${patternSize}px; --damier-side-width: ${sideWidthDesktop}px; --damier-side-width-mobile: ${sideWidthSm}px;`}
+>
+  <div
+    class="pointer-events-none bg-(image:--damier-pattern) bg-repeat bg-size-[var(--damier-pattern-size)_var(--damier-pattern-size)] bg-top-left"
+    aria-hidden="true"
+  ></div>
+  <div class="bg-primary text-secondary flex items-center justify-center lg:justify-start min-h-[clamp(92px,14vw,150px)] px-[clamp(1.2rem,3.2vw,3rem)] py-[clamp(1.2rem,2vw,2rem)]">
+    <h1 class="text-3xl md:text-4xl lg:text-5xl xl:text-6xl lg:text-left m-0 xl:ml-40 leading-none">{title}</h1>
+  </div>
+  <div
+    class="pointer-events-none bg-(image:--damier-pattern) bg-repeat bg-size-[var(--damier-pattern-size)_var(--damier-pattern-size)] bg-top-left"
+    aria-hidden="true"
+  ></div>
+</div>

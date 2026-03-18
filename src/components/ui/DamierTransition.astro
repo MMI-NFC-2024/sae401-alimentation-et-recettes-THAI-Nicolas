@@ -1,0 +1,52 @@
+---
+interface Props {
+  colorA?: string;
+  colorB?: string;
+  tileSize?: number;
+  rows?: number;
+  className?: string;
+}
+
+const {
+  colorA = '#275933',
+  colorB = '#fef7e7',
+  tileSize = 24,
+  rows = 4,
+  className = ''
+} = Astro.props as Props;
+
+const resolveColor = (value: string) => {
+  const trimmed = value.trim();
+  if (trimmed === 'var(--color-primary)') return '#275933';
+  if (trimmed === 'var(--color-secondary)') return '#fef7e7';
+  if (trimmed === 'var(--color-accent1)') return '#fdb700';
+  if (trimmed === 'var(--color-accent2)') return '#f44f31';
+  return trimmed;
+};
+
+const fillA = resolveColor(colorA);
+const fillB = resolveColor(colorB);
+
+const svgPattern = `<svg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'><rect width='20' height='20' fill='${fillA}'/><rect x='20' width='20' height='20' fill='${fillB}'/><rect y='20' width='20' height='20' fill='${fillB}'/><rect x='20' y='20' width='20' height='20' fill='${fillA}'/></svg>`;
+const patternUrl = `url("data:image/svg+xml,${encodeURIComponent(svgPattern)}")`;
+---
+
+<div
+  class:list={['damier-transition', className]}
+  style={`--damier-pattern: ${patternUrl}; --damier-cell-size: ${tileSize}px; --damier-rows: ${rows};`}
+  aria-hidden="true"
+></div>
+
+<style>
+  .damier-transition {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    height: calc(var(--damier-cell-size) * var(--damier-rows));
+    background-image: var(--damier-pattern);
+    background-repeat: repeat;
+    background-size: calc(var(--damier-cell-size) * 2) calc(var(--damier-cell-size) * 2);
+    background-position: left top;
+    pointer-events: none;
+  }
+</style>

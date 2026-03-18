@@ -58,7 +58,7 @@
     @apply flex flex-col mt-10 gap-4 md:gap-6 lg:gap-8 2xl:gap-10;
   }
   .content-container {
-    @apply w-full mx-auto max-w-330;
+    @apply w-full mx-auto max-w-375;
   }
   .ul-grid {
     @apply grid grid-cols-1 gap-8 md:gap-12 lg:gap-16 md:grid-cols-2 lg:grid-cols-3 mt-12 md:mt-16 lg:mt-20;
