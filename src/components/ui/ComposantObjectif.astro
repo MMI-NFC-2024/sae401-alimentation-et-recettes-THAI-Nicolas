@@ -1,0 +1,25 @@
+---
+import type { ImageMetadata } from 'astro';
+
+interface Props {
+    title: string;
+    description: string;
+    hashtag: string;
+    character: ImageMetadata;
+}
+
+const { title, description, hashtag, character } = Astro.props as Props;
+---
+
+<article class="rounded-2xl border-2 border-primary bg-secondary p-5 shadow-[4px_6px_0_0_var(--color-primary)] max-w-sm w-full">
+    <img
+        src={character.src}
+        alt={title}
+        class="w-full h-52 rounded-xl object-cover"
+        loading="lazy"
+    />
+    <h3 class="mt-4">{title}</h3>
+    <p class="mt-2">{description}</p>
+    <span class="mt-3 inline-block text-sm font-bold text-primary">{hashtag}</span>
+</article>
+

@@ -1,0 +1,159 @@
+---
+import LogoPositif from '../../assets/icones/logo-positif.webp'
+import LogoNegatif from '../../assets/icones/logo-negatif.webp'
+---
+
+<header>
+    <div class="flex items-center justify-between py-8 px-6 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:px-8 xl:px-12 2xl:px- ">
+        <!-- Navigation principale (desktop) -->
+        <nav class="hidden lg:flex items-center gap-8 justify-self-start" aria-label="Menu de navigation principal">
+            <a href="/recettes" aria-label="Lien vers la page de nos recettes" class="text-primary  hover:mb-2 transition-all duration-75 text-xl">Nos recettes</a>
+            <a href="/articles" aria-label="Lien vers la page de nos conseils" class="text-primary hover:mb-2 transition-all duration-75 text-xl">Nos conseils</a>
+            <a href="/contact" aria-label="Lien vers la page de contact" class="text-primary hover:mb-2 transition-all duration-75 text-xl">Nous contacter</a>
+        </nav>
+
+        <a href="/" class="logo lg:justify-self-center" aria-label="Retour à la page d'accueil">
+            <img src={LogoPositif.src} class="w-28 logo-negatif" alt="Logo Slurpy" />
+        </a>
+
+        <div class="hidden lg:flex justify-self-end">
+            <a href="/auth/login" class="btn" aria-label="Lien vers la page de connexion">Se connecter</a>
+        </div>
+        
+
+        <!-- Burger menu mobile -->
+        <button type="button" id="open-menu" class="flex flex-col gap-1.5 mr-4 items-end z-50 relative lg:hidden" aria-label="Ouvrir le menu de navigation" aria-expanded="false" aria-controls="menu-overlay">
+            <span class="burger-line burger-line-1 border w-6 transition-all duration-300 ease-in-out"></span>
+            <span class="burger-line burger-line-2 border w-6 transition-all duration-300 ease-in-out"></span>
+            <span class="burger-line burger-line-3 border w-6 transition-all duration-300 ease-in-out"></span>
+        </button>
+    </div>
+
+    <!-- Menu mobile overlay -->
+    <nav id="menu-overlay" class="lg:hidden fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true" aria-label="Menu de navigation mobile">
+        <div class="menu-navigation-overlay"></div>
+        
+        <div class="menu-content">
+            <div class="flex flex-col items-center justify-center gap-24 h-full mt-8 md:mt-0">
+                <ul class="flex flex-col items-center justify-center gap-12">
+                    <li><a href="/recettes" aria-label="Lien vers la page de nos recettes" class="text-secondary text-2xl" >Nos recettes</a></li>
+                    <li><a href="/articles" aria-label="Lien vers la page de nos conseils" class="text-secondary text-2xl" >Nos conseils</a></li>
+                    <li><a href="/contact" aria-label="Lien vers la page de contact" class="text-secondary text-2xl">Nous contacter</a></li>
+                </ul>
+
+                <a href="/auth/login" class="btn text-xl">Se connecter</a>
+
+                <a href="/" aria-label="Retour à l'accueil">
+                    <img src={LogoNegatif.src} class="w-32" alt="Logo Slurpy" />
+                </a>
+
+            </div>
+        </div>
+     </nav>
+</header>
+
+<script>
+    const menuButton = document.querySelector<HTMLButtonElement>('#open-menu');
+    const menuOverlay = document.querySelector<HTMLElement>('#menu-overlay');
+
+    if (menuButton && menuOverlay) {
+        const setMenuState = (isOpen: boolean) => {
+            menuOverlay.classList.toggle('is-open', isOpen);
+            menuButton.classList.toggle('menu-open', isOpen);
+            menuButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+            menuOverlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
+            document.body.style.overflow = isOpen ? 'hidden' : '';
+        };
+
+        menuButton.addEventListener('click', () => {
+            setMenuState(!menuOverlay.classList.contains('is-open'));
+        });
+
+        menuOverlay.addEventListener('click', (event) => {
+            const target = event.target as HTMLElement;
+            if (target.id === 'menu-overlay' || target.classList.contains('menu-navigation-overlay')) {
+                setMenuState(false);
+            }
+        });
+
+        menuOverlay.querySelectorAll('a').forEach((link) => {
+            link.addEventListener('click', () => setMenuState(false));
+        });
+
+        document.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') setMenuState(false);
+        });
+    }
+</script>
+
+<style>
+    #menu-overlay {
+        visibility: hidden;
+        opacity: 0;
+        z-index: 40;
+        transition: opacity 0.3s ease-in-out;
+    }
+
+    /* Menu ouvert - visible et interactif */
+    #menu-overlay.is-open {
+        visibility: visible;
+        opacity: 1;
+        pointer-events: auto;
+    }
+    
+    /* Contenu du menu */
+    .menu-content {
+        opacity: 0;
+        position: relative;
+        z-index: 1;
+        width: 100%;
+        height: 100%;
+    }
+    
+    #menu-overlay.is-open .menu-content {
+        opacity: 1;
+        transition: opacity 0.25s ease-in-out 0.08s;
+    }
+     /* Animation du burger vers croix */
+    #open-menu.menu-open .burger-line-1 {
+        transform: rotate(45deg) translateY(7.5px);
+        width: 1.5rem; /* w-6 */
+    }
+    
+    #open-menu.menu-open .burger-line-2 {
+        opacity: 0;
+        transform: translateX(10px);
+    }
+    
+    #open-menu.menu-open .burger-line-3 {
+        transform: rotate(-45deg) translateY(-11px) translateX(4px);
+        width: 1.5rem; /* w-6 */
+    }
+    
+    /* Burger devient blanc quand le menu est ouvert */
+    #open-menu.menu-open .burger-line {
+        border-color: white;
+    }
+    
+    #open-menu.menu-open {
+        transform: translateY(0);
+    }
+    
+    /* Fond du menu mobile */
+    .menu-navigation-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: var(--color-primary);
+        opacity: 0;
+        pointer-events: none;
+        z-index: 0;
+        transition: opacity 0.2s ease-in-out;
+    }
+
+    #menu-overlay.is-open .menu-navigation-overlay {
+        opacity: 1;
+    }
+</style>

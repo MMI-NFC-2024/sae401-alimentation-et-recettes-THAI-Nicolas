@@ -1,10 +1,59 @@
 ---
 import Layout from '../layouts/Layout.astro';
+import Bananelangue from '../assets/personnages/languebanane.webp';
+import PriseDeMasse from '../assets/personnages/prise-de-masse.webp';
+import PerteDePoids from '../assets/personnages/perte-de-poids.webp';
+import MeMaintenir from '../assets/personnages/me-maintenir.webp';
+import ComposantObjectif from '../components/ui/ComposantObjectif.astro';
 ---
 
 <Layout>
-	<h1 class="">Slurpy Slurpou</h1>
-	<p class="text-center">Welcome to the Slurpy Slurpou website! This is a place where you can find all the latest news and updates about our delicious slurpou dishes. Stay tuned for new recipes, special offers, and more!</p>
-	<a href="" class="btn">Voir les recettes.</a>
-	<a href="" class="btn-outline">Voir les recettes.</a>
+	<section>
+		
+		
+		<header class="text-center">
+			<h1 class="">Vos objectifs alimentaires à portée de <span class="text-accent1">langue</span> !!</h1>
+			<div>
+			<img src={Bananelangue.src} alt="Bananelangue" class="w-full scale-105 h-full object-contain absolute -left-20 mt-16" />
+		</div>
+		</header>
+		<div class="flex flex-col justify-center items-center">
+			<p class="py-8 text-center">Adieu la frustration. Profitez de nos recettes gourmandes et de conseils nutritionnels experts pour nourrir votre progression avec plaisir. </p>
+			
+			<a href="#" class="btn my-6">Commencer l'aventure</a>
+		</div>
+	</section>
+
+	<section class="mt-110">
+		<header>
+			<h2 class="text-center">Choisis ton objectif santé </h2>
+		</header>
+
+		<ul class="mt-8 grid w-full grid-cols-1 place-items-center gap-6 md:grid-cols-2 lg:grid-cols-3">
+			<li>
+				<ComposantObjectif
+					title="Prise de masse"
+					description="Optimise ta prise de masse avec des recettes riches en proteines et en calories."
+					hashtag="#priseDeMasse"
+					character={PriseDeMasse}
+				/>
+			</li>
+			<li>
+				<ComposantObjectif
+					title="Perte de poids"
+					description="Atteins ton objectif de perte de poids avec des recettes equilibrees et gourmandes."
+					hashtag="#perteDePoids"
+					character={PerteDePoids}
+				/>
+			</li>
+			<li>
+				<ComposantObjectif
+					title="Maintien de poids"
+					description="Garde un poids stable avec des conseils nutritionnels adaptes a ton quotidien."
+					hashtag="#maintienDePoids"
+					character={MeMaintenir}
+				/>
+			</li>
+		</ul>
+	</section>
 </Layout>
