@@ -64,7 +64,7 @@
     @apply grid grid-cols-1 gap-8 md:gap-12 lg:gap-16 md:grid-cols-2 lg:grid-cols-3 mt-12 md:mt-16 lg:mt-20;
   }
   .btn {
-    @apply bg-accent1 text-primary font-afacad font-bold py-3 px-6 rounded-full transition-all duration-300 border-2 border-primary shadow-[4px_6px_0_0_var(--color-primary)];
+    @apply bg-accent1 text-primary font-afacad font-bold py-3 px-6 rounded-full transition-all duration-300 border-2 cursor-pointer border-primary shadow-[4px_6px_0_0_var(--color-primary)];
     font-size: clamp(0.95rem, 0.3vw + 0.88rem, 1.125rem);
     padding-block: clamp(0.65rem, 0.25vw + 0.58rem, 0.9rem);
     padding-inline: clamp(1.1rem, 0.9vw + 0.85rem, 1.8rem);
