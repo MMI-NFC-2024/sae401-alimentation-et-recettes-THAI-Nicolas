@@ -3,19 +3,44 @@ import Layout from "../layouts/Layout.astro"
 import DamierHero from "../components/ui/DamierHero.astro"
 ---
 
-<Layout title="Contact | ">
-    <section class="p-0">
-        <header>
-            <DamierHero title="Contactez-nous" />
-        </header>
-        
-    </section>
-
-    <section class="content-container py-16">
-        <h2 class="text-3xl mb-6">Nous contacter</h2>
-        <p class="mb-4">Vous pouvez nous contacter via les moyens suivants :</p>
-        <ul class="list-disc list-inside mb-4">
-            <li>Email : <a href="mailto:contact@slurpy.com" class="text-primary hover:underline">contact@slurpy.com</a></li>
-        </ul>
-    </section>
+<Layout title="Contactez-nous - Slurpy"
+    description="Contactez-nous pour toute question ou suggestion concernant Slurpy, votre compagnon de nutrition et de recettes personnalisé. Nous sommes là pour vous aider à atteindre vos objectifs alimentaires avec plaisir et efficacité."
+    keywords="contact, support, questions, suggestions, aide, assistance, feedback, contactez-nous, slurpy support"
+    ogImage="/og-image-contact.png"
+    ogType="website"
+>
+    <main>
+        <section class="p-0">
+            <header>
+                <DamierHero title="Contactez-nous" />
+            </header>
+            <div>
+                <h2>Des questions ?</h2>
+                <form action="">
+                    <div>
+                        <div>
+                            <label for="name">Nom</label>
+                            <input type="text" id="name" name="name" required />
+                        </div>
+                        <div>
+                            <label for="firstName">Prénom</label>
+                            <input type="text" id="firstName" name="firstName" required />
+                        </div>
+                    </div>
+                    <div>
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required />
+                    </div>
+                    <div>
+                        <label for="message">Message</label>
+                        <textarea id="message" name="message" required></textarea>
+                    </div>
+                </form>
+            </div>
+        </section>
+        <div class="w-full h-20 md:h-24 lg:h-28 xl:h-32 bg-accent1 flex items-center justify-center gap-4 md:gap-8 lg:gap-12 xl:gap-16 font-barlow uppercase">
+            <p>Rejoignez l’aventure slurpy dès maintenant </p>
+            <a href="/auth/register" class="btn">Créer mon compte</a>
+        </div>
+    </main>
 </Layout>

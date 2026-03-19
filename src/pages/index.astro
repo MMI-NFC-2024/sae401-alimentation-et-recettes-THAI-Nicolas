@@ -20,140 +20,134 @@ const { articles, fetchError: articlesFetchError } = await getLatestArticles(Ast
 ---
 
 <Layout>
-	<section>
-		<div class="content-container">
-			<header class="text-center">
-				<h1 class="text-center md:text-right text-5xl xl:text-7xl">Vos objectifs alimentaires à portée de <span class="text-accent1">langue</span> !!</h1>
-				<div>
-					<img src={Bananelangue.src} alt="Bananelangue" class="w-full h-full object-contain absolute -left-20 mt-16 xl:m-0 xl:-left-180 xl:top-50" />
+	<main>
+		<section>
+			<div class="content-container">
+				<header class="text-center">
+					<h1 class="text-center md:text-right text-5xl xl:text-7xl">Vos objectifs alimentaires à portée de <span class="text-accent1">langue</span> !!</h1>
+					<div>
+						<img src={Bananelangue.src} alt="Bananelangue" class="w-full h-full object-contain absolute -left-20 mt-16 xl:m-0 xl:-left-180 xl:top-50" />
+					</div>
+				</header>
+				<div class="flex flex-col justify-center items-center md:items-end md:justify-end">
+					<p class="py-8 text-center md:text-right text-xl xl:text-3xl">Adieu la frustration. Profitez de nos <b>recettes gourmandes</b> et de <b>conseils nutritionnels experts</b> pour nourrir votre progression avec plaisir. </p>
+					<a href="#" class="btn my-6 text-2xl">Commencer l'aventure</a>
 				</div>
-			</header>
-			<div class="flex flex-col justify-center items-center md:items-end md:justify-end">
-				<p class="py-8 text-center md:text-right text-xl xl:text-3xl">Adieu la frustration. Profitez de nos <b>recettes gourmandes</b> et de <b>conseils nutritionnels experts</b> pour nourrir votre progression avec plaisir. </p>
-				<a href="#" class="btn my-6 text-2xl">Commencer l'aventure</a>
 			</div>
-		</div>
-	</section>
-
-	<section class="green-section mt-90 pt-0! overflow-hidden">
-		<DamierTransition rows={4} tileSize={28} />
-		<div class="content-container pt-8 md:pt-16 lg:pt-20 xl:pt-24 2xl:pt-32">
-			<header class="">
-				<h2 class="text-center ">Choisis ton objectif santé </h2>
-			</header>
-
-			<ul class="ul-grid">
-				<li class="w-full h-full">
-					<CardObjectif
-						title="Prise de masse"
-						description="Prends du volume musculaire avec des recettes riches en protéines et en calories"
-						hashtag="#highprotein"
-						character={PriseDeMasse}
-					/>
-				</li>
-				<li class="w-full h-full">
-					<CardObjectif
-						title="Perte de poids"
-						description="Réduis ta masse grasse sans privation, grâce à des plats calibrés et rassasiants."
-						hashtag="#lowkcalories"
-						character={PerteDePoids}
-					/>
-				</li>
-				<li class="w-full h-full md:col-span-2 md:max-w-md md:mx-auto lg:col-span-1 lg:max-w-none">
-					<CardObjectif
-						title="Maintien de poids"
-						description="Maintiens ton poids de forme et ton niveau d'énergie avec une alimentation équilibrée."
-						hashtag="#zen"
-						character={MeMaintenir}
-					/>
-				</li>
-			</ul>
-		</div>
-	</section>
-	<LiquidWave />
-	<section>
-		<div class="content-container">
-			<header>
-				<h2 class="text-center">Nos recettes "slurps"</h2>
-			</header>
-		
-		<ul class="ul-grid md:grid-cols-2 lg:grid-cols-4">
-			{recettes.length > 0 ? (
-				recettes.map((recette) => (
-					<li class="w-full h-full">
-						<CardRecette recette={recette} />
-					</li>
-				))
-			) : (
-				<p class="mt-8 text-center">
-					{recettesFetchError
-						? 'Les recettes sont temporairement indisponibles. Reessaie dans quelques instants.'
-						: 'Aucune recette trouve pour le moment.'}
-				</p>
-			)}
-		</ul>
-		<div class="flex justify-center mt-8">
-				<a href="/articles" class="btn">Voir toute les recettes.</a>
-		</div>
-		</div>
-	</section>
-
-	<section>
-		<div class="content-container">
-			<header class="text-content">
-				<h2 class="text-center">Nos conseils nutritionnels</h2>
-				<p class="text-center">Le secret de vos performances est dans l'assiette. Découvrez comment allier nutrition sportive et gourmandise sans compromis</p>
-			</header>
-
-			{articles.length > 0 ? (
+		</section>
+		<section class="green-section mt-90 pt-0! overflow-hidden">
+			<DamierTransition rows={4} tileSize={28} />
+			<div class="content-container pt-8 md:pt-16 lg:pt-20 xl:pt-24 2xl:pt-32">
+				<header class="">
+					<h2 class="text-center ">Choisis ton objectif santé </h2>
+				</header>
 				<ul class="ul-grid">
-					{articles.map((article, index) => (
-						<li
-							class:list={[
-								'w-full',
-								articles.length % 2 === 1 && index === articles.length - 1 && 'md:col-span-2 md:max-w-md md:mx-auto lg:col-span-1 lg:max-w-none'
-							]}
-						>
-							<CardArticle article={article} />
-						</li>
-					))}
+					<li class="w-full h-full">
+						<CardObjectif
+							title="Prise de masse"
+							description="Prends du volume musculaire avec des recettes riches en protéines et en calories"
+							hashtag="#highprotein"
+							character={PriseDeMasse}
+						/>
+					</li>
+					<li class="w-full h-full">
+						<CardObjectif
+							title="Perte de poids"
+							description="Réduis ta masse grasse sans privation, grâce à des plats calibrés et rassasiants."
+							hashtag="#lowkcalories"
+							character={PerteDePoids}
+						/>
+					</li>
+					<li class="w-full h-full md:col-span-2 md:max-w-md md:mx-auto lg:col-span-1 lg:max-w-none">
+						<CardObjectif
+							title="Maintien de poids"
+							description="Maintiens ton poids de forme et ton niveau d'énergie avec une alimentation équilibrée."
+							hashtag="#zen"
+							character={MeMaintenir}
+						/>
+					</li>
 				</ul>
-			) : (
-				<p class="mt-8 text-center">
-					{articlesFetchError
-						? 'Les conseils sont temporairement indisponibles. Reessaie dans quelques instants.'
-						: 'Aucun article trouve pour le moment.'}
-				</p>
-			)}
-
+			</div>
+		</section>
+		<LiquidWave />
+		<section>
+			<div class="content-container">
+				<header>
+					<h2 class="text-center">Nos recettes "slurps"</h2>
+				</header>
+		
+		
+				{recettes.length > 0 ? (
+					<ul class="ul-grid md:grid-cols-2 lg:grid-cols-4">
+						{recettes.map((recette) => (
+							<li class="w-full h-full">
+								<CardRecette recette={recette} />
+							</li>
+						))}
+					</ul>
+				) : (
+					<p class="mt-8 text-center">
+						{recettesFetchError
+							? 'Les recettes sont temporairement indisponibles. Reessaie dans quelques instants.'
+							: 'Aucune recette trouve pour le moment.'}
+					</p>
+				)}
+		
 			<div class="flex justify-center mt-8">
-				<a href="/articles" class="btn">Voir tous les conseils</a>
+					<a href="/articles" class="btn">Voir toute les recettes.</a>
 			</div>
-		</div>
-	</section>
-
-	<section>
-
-		<div class="content-container">
-			<div class="flex items-center gap-4 xl:gap-8 justify-center">
-				<span class="border flex-1"></span>
-				<h3 class=" text-center">Des questions ?</h3>
-				<span class="border flex-1"></span>
 			</div>
-
+		</section>
+		<section>
+			<div class="content-container">
+				<header class="text-content">
+					<h2 class="text-center">Nos conseils nutritionnels</h2>
+					<p class="text-center">Le secret de vos performances est dans l'assiette. Découvrez comment allier nutrition sportive et gourmandise sans compromis</p>
+				</header>
+				{articles.length > 0 ? (
+					<ul class="ul-grid">
+						{articles.map((article, index) => (
+							<li
+								class:list={[
+									'w-full',
+									articles.length % 2 === 1 && index === articles.length - 1 && 'md:col-span-2 md:max-w-md md:mx-auto lg:col-span-1 lg:max-w-none'
+								]}
+							>
+								<CardArticle article={article} />
+							</li>
+						))}
+					</ul>
+				) : (
+					<p class="mt-8 text-center">
+						{articlesFetchError
+							? 'Les conseils sont temporairement indisponibles. Reessaie dans quelques instants.'
+							: 'Aucun article trouve pour le moment.'}
+					</p>
+				)}
+				<div class="flex justify-center mt-8">
+					<a href="/articles" class="btn">Voir tous les conseils</a>
+				</div>
+			</div>
+		</section>
+		<section>
+			<div class="content-container">
+				<div class="flex items-center gap-4 xl:gap-8 justify-center">
+					<span class="border flex-1"></span>
+					<h3 class=" text-center">Des questions ?</h3>
+					<span class="border flex-1"></span>
+				</div>
+				<div>
+				</div>
+			</div>
 			<div>
-
+				<p class="text-center text-xl xl:text-4xl font-bold">Encore des questions ?</p>
+				<div class="btn-wrapper my-6 xl:my-12">
+				<a href="/contact" class="btn-outline">Contactez-nous !</a>
+				</div>
 			</div>
-		</div>
-
-		<div>
-			<p class="text-center text-xl xl:text-4xl font-bold">Encore des questions ?</p>
-			<div class="btn-wrapper my-6 xl:my-12">
-			<a href="/contact" class="btn-outline">Contactez-nous !</a>
-			</div>
-		</div>
 		
 		
-	</section>
+		</section>
+	</main>
 
 </Layout>

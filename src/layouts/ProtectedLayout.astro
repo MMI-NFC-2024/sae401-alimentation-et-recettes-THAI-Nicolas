@@ -1,0 +1,14 @@
+---
+import Layout from './Layout.astro'
+
+const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
+const returnTo = encodeURIComponent(`${Astro.url.pathname}${Astro.url.search}`);
+
+if (!isAuthenticated) {
+  return Astro.redirect(`/auth/login?returnTo=${returnTo}`);
+}
+---
+
+<Layout {...Astro.props}>
+  <slot />
+</Layout>

@@ -1,0 +1,97 @@
+---
+import AuthLayout from '../../layouts/AuthLayout.astro'
+
+//Mise en place d'une redirection sécurisée après connexion vers la page où l'utilisateur voulait aller de base
+const returnToParam = Astro.url.searchParams.get('returnTo');
+const safeReturnTo =
+	returnToParam && returnToParam.startsWith('/') && !returnToParam.startsWith('//')
+		? returnToParam
+		: '/';
+
+const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
+
+if (isAuthenticated) {
+	return Astro.redirect(safeReturnTo);
+}
+
+let errorMessage = '';
+let emailValue = '';
+
+//On récupère les données du form (email et mot de passe).
+if (Astro.request.method === 'POST') {
+	const formData = await Astro.request.formData();
+	const email = String(formData.get('email') ?? '').trim().toLowerCase();
+	const password = String(formData.get('password') ?? '');
+
+	emailValue = email;
+
+    //On vérfie que les champs soient remplis
+	if (!email || !password) {
+		errorMessage = 'Veuillez renseigner votre email et votre mot de passe.';
+	} else {
+		try {
+            //Si tout est bon, on tente la connexion de l'utilisateurs avec PocketBase, et on le redirige vers la page d'origine
+			await Astro.locals.pb.collection('users').authWithPassword(email, password);
+			return Astro.redirect(safeReturnTo);
+		} catch {
+			errorMessage = 'Email ou mot de passe invalide.';
+		}
+	}
+}
+//On construit l'URL d'action du formulaire en incluant le paramètre de redirection sécurisé
+const formAction = safeReturnTo === '/'
+	? '/auth/login'
+	: `/auth/login?returnTo=${encodeURIComponent(safeReturnTo)}`;
+---
+
+<AuthLayout
+	title="Connexion - Slurpy"
+	description="Connectez-vous a votre compte Slurpy pour retrouver vos preferences et progresser avec vos objectifs nutritionnels."
+	keywords="connexion, espace membre, compte slurpy"
+	ogType="website"
+>
+    <section class="min-h-screen w-full flex items-center justify-center py-0!">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full content-container">
+            <div class="hidden lg:block bg-secondary border-2 border-primary rounded-2xl p-8 min-h-80 w-full lg:h-full"></div>
+            <div class="flex flex-col gap-12 justify-center items-center w-5/6 mx-auto lg:h-full">
+                            <div class="flex flex-col gap-6 lg:gap-8">
+                                <h1 class="text-secondary text-center">Bon retour !</h1>
+                                <p class="text-secondary/90 text-center">Profitez de nos recettes gourmandes et de conseils nutritionnels experts pour nourrir votre progression avec plaisir.</p>
+                            </div>
+        
+                        {errorMessage && (
+                            <p role="alert" class="text-accent2 font-bold">{errorMessage}</p>
+                        )}
+                        <form method="POST" action={formAction} class="flex flex-col gap-4 w-full" novalidate>
+                            <label class="sr-only" for="email">Adresse email</label>
+                            <input
+                                id="email"
+                                name="email"
+                                type="email"
+                                autocomplete="email"
+                                required
+                                value={emailValue}
+                                class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3"
+                                placeholder="Adresse email"
+                            />
+                            <label class="sr-only" for="password">Mot de passe</label>
+                            <input
+                                id="password"
+                                name="password"
+                                type="password"
+                                autocomplete="current-password"
+                                required
+                                class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3"
+                                placeholder="Mot de passe"
+                            />
+                            <button type="submit" class="btn mt-2">Se connecter</button>
+                        </form>
+                        <p class="text-secondary">
+                            Pas encore inscrit ?
+                            <a href="/auth/register" class="font-bold text-accent1">Creer votre compte</a>
+                        </p>
+			</div>
+		</div>
+	</section>
+</AuthLayout>
+

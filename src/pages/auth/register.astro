@@ -1,0 +1,128 @@
+---
+import AuthLayout from '../../layouts/AuthLayout.astro'
+
+const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
+
+//Si l'utilisateur est déjà connecté, on le redirige vers l'accueil
+if (isAuthenticated) {
+	return Astro.redirect('/');
+}
+
+let errorMessage = '';
+let emailValue = '';
+let nameValue = '';
+
+//On récupère les données du form (nom, email, mot de passe et confirmation).
+if (Astro.request.method === 'POST') {
+	const formData = await Astro.request.formData();
+	const name = String(formData.get('name') ?? '').trim();
+	const email = String(formData.get('email') ?? '').trim().toLowerCase();
+	const password = String(formData.get('password') ?? '');
+	const passwordConfirm = String(formData.get('passwordConfirm') ?? '');
+
+	nameValue = name;
+	emailValue = email;
+// Condition pour que champs soient remplis, mot de passe de 8 caractères minimum et confirmation du mot de passe correcte
+	if (!email || !password || !passwordConfirm) {
+		errorMessage = 'Veuillez remplir tous les champs obligatoires.';
+	} else if (password.length < 8) {
+		errorMessage = 'Le mot de passe doit contenir au moins 8 caracteres.';
+	} else if (password !== passwordConfirm) {
+		errorMessage = 'Les mots de passe ne correspondent pas.';
+	} else {
+		try {
+            // Si tout est bon, on tente de créer le compte utilisateur avec PocketBase
+			await Astro.locals.pb.collection('users').create({
+				email,
+				password,
+				passwordConfirm,
+				name,
+			});
+            //On le connecte directement après la création du compte, puis on le redirige vers l'accueil
+			await Astro.locals.pb.collection('users').authWithPassword(email, password);
+			return Astro.redirect('/');
+		} catch {
+			errorMessage = 'Impossible de creer le compte pour le moment. Verifiez vos informations.';
+		}
+	}
+}
+---
+
+<AuthLayout
+	title="Inscription - Slurpy"
+	description="Creez votre compte Slurpy pour suivre vos objectifs alimentaires et acceder a vos recettes personnalisees."
+	keywords="inscription, creer un compte, slurpy"
+	ogType="website"
+>
+    <section class="min-h-screen w-full flex items-center justify-center py-0!">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full content-container">
+            <div class="hidden lg:block bg-secondary border-2 border-primary rounded-2xl p-8 min-h-80 w-full lg:h-full"></div>
+            <div class="flex flex-col gap-12 justify-center items-center w-5/6 mx-auto lg:h-full">
+                            <div class="flex flex-col gap-4 lg:gap-6">
+                                <h1 class="text-secondary text-center leading-tight">Creer un compte</h1>
+                                <p class="text-secondary/90 text-center">Demarrez votre aventure en ajoutant des recettes, en suivant vos objectifs et en bénéficiant de conseils personnalisés.</p>
+                            </div>
+        
+                        {errorMessage && (
+                            <p role="alert" class="text-accent2 font-bold">{errorMessage}</p>
+                        )}
+                        <form method="POST" action="/auth/register" class="flex flex-col gap-4 w-full" novalidate>
+						<label class="sr-only" for="name">Nom</label>
+						<input
+							id="name"
+							name="name"
+							type="text"
+							autocomplete="name"
+							value={nameValue}
+							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3"
+							placeholder="Nom (optionnel)"
+						/>
+
+						<label class="sr-only" for="email">Adresse email</label>
+						<input
+							id="email"
+							name="email"
+							type="email"
+							autocomplete="email"
+							required
+							value={emailValue}
+							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3"
+							placeholder="Adresse email"
+						/>
+
+						<label class="sr-only" for="password">Mot de passe</label>
+						<input
+							id="password"
+							name="password"
+							type="password"
+							autocomplete="new-password"
+							required
+							minlength="8"
+							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3"
+							placeholder="Mot de passe"
+						/>
+
+						<label class="sr-only" for="passwordConfirm">Confirmer le mot de passe</label>
+						<input
+							id="passwordConfirm"
+							name="passwordConfirm"
+							type="password"
+							autocomplete="new-password"
+							required
+							minlength="8"
+							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3"
+							placeholder="Confirmer le mot de passe"
+						/>
+
+						<button type="submit" class="btn mt-2">Creer mon compte</button>
+					</form>
+                        <p class="text-secondary">
+                            Déjà inscrit ?
+                            <a href="/auth/login" class="font-bold text-accent1">Se connecter</a>
+                        </p>
+			</div>
+		</div>
+	</section>
+
+	
+</AuthLayout>

@@ -1,6 +1,8 @@
 ---
 import LogoPositif from '../../assets/icones/logo-positif.webp'
 import LogoNegatif from '../../assets/icones/logo-negatif.webp'
+
+const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 ---
 
 <header>
@@ -16,8 +18,16 @@ import LogoNegatif from '../../assets/icones/logo-negatif.webp'
             <img src={LogoPositif.src} class="w-28 md:w-32 lg:w-36 xl:w-40 logo-negatif" alt="Logo Slurpy" />
         </a>
 
-        <div class="hidden lg:flex justify-self-end">
-            <a href="/auth/login" class="btn-outline" aria-label="Lien vers la page de connexion">Se connecter</a>
+        <div class="hidden lg:flex justify-self-end items-center gap-3">
+            {isAuthenticated ? (
+                <form method="POST" action="/auth/logout" style="display: inline;">
+                    <button type="submit" class="btn-outline" aria-label="Se deconnecter de son compte">Se deconnecter</button>
+                </form>
+            ) : (
+                <>
+                    <a href="/auth/login" class="btn-outline cursor-pointer" aria-label="Lien vers la page de connexion">Se connecter</a>
+                </>
+            )}
         </div>
         
 
@@ -41,7 +51,16 @@ import LogoNegatif from '../../assets/icones/logo-negatif.webp'
                     <li><a href="/contact" aria-label="Lien vers la page de contact" class="text-secondary text-2xl">Nous contacter</a></li>
                 </ul>
 
-                <a href="/auth/login" class="btn text-xl">Se connecter</a>
+                {isAuthenticated ? (
+                    <form method="POST" action="/auth/logout" class="inline-block">
+                        <button type="submit" class="btn text-xl" aria-label="Se deconnecter de son compte">Se deconnecter</button>
+                    </form>
+                ) : (
+                    <div class="flex flex-col items-center gap-4">
+                        <a href="/auth/login" class="btn text-xl" aria-label="Lien vers la page de connexion">Se connecter</a>
+                        <a href="/auth/register" class="btn-outline text-xl" aria-label="Lien vers la page d'inscription">Creer un compte</a>
+                    </div>
+                )}
 
                 <a href="/" aria-label="Retour à l'accueil">
                     <img src={LogoNegatif.src} class="w-32" alt="Logo Slurpy" />

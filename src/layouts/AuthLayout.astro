@@ -1,0 +1,57 @@
+---
+import '../styles/global.css'
+
+const {
+  title = 'Connexion - Slurpy',
+  description = 'Connectez-vous a votre espace Slurpy pour gerer vos recettes et votre parcours nutritionnel.',
+  keywords = 'connexion slurpy, inscription slurpy, espace membre',
+  ogImage = '/og-image.png',
+  ogType = 'website',
+  canonical,
+  robots = 'index, follow',
+} = Astro.props;
+
+const canonicalURL = canonical ?? Astro.url.href;
+const ogImageURL = ogImage.startsWith('http') ? ogImage : new URL(ogImage, canonicalURL).href;
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width" />
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="icon" href="/favicon.ico" />
+    <meta name="generator" content={Astro.generator} />
+
+    <meta name="color-scheme" content="light dark" />
+    <meta name="theme-color" content="#275933" />
+    <meta name="referrer" content="strict-origin-when-cross-origin" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+
+    <title>{title}</title>
+    <meta name="description" content={description} />
+    <meta name="keywords" content={keywords} />
+    <meta name="author" content="Nicolas THAI" />
+    <meta name="robots" content={robots} />
+    <link rel="canonical" href={canonicalURL} />
+
+    <meta property="og:type" content={ogType} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={ogImageURL} />
+    <meta property="og:url" content={canonicalURL} />
+    <meta property="og:locale" content="fr_FR" />
+    <meta property="og:site_name" content="SLURPY" />
+
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={ogImageURL} />
+  </head>
+  <body class="bg-primary min-h-screen">
+    <main class="min-h-screen">
+      <slot />
+    </main>
+  </body>
+</html>
