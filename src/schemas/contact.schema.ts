@@ -30,4 +30,13 @@ export const contactFormSchema = z.object({
   hpField: z.string().optional(),
 });
 
+export const newsletterSchema = z.object({
+  email: z
+    .string()
+    .trim()
+    .email("L'email doit etre valide")
+    .max(120, "L'email est trop long"),
+});
+
 export type ContactFormInput = z.infer<typeof contactFormSchema>;
+export type NewsletterInput = z.infer<typeof newsletterSchema>;

@@ -2,6 +2,16 @@
 import LogoNegatif from '../../assets/icones/logo-negatif.webp'
 import LogoInstagram from '../../assets/icones/instagram.webp'
 import LogoFacebook from '../../assets/icones/facebook-white.webp'
+import { actions, isInputError } from 'astro:actions'
+
+const newsletterResult = Astro.getActionResult(actions.subscribeNewsletter)
+const newsletterInputError = isInputError(newsletterResult?.error)
+    ? newsletterResult.error
+    : undefined
+const newsletterGlobalError = newsletterResult?.error && !isInputError(newsletterResult.error)
+    ? newsletterResult.error.message
+    : undefined
+const newsletterSuccess = newsletterResult?.data?.success
 ---
 <footer class="bg-primary  py-24 md:py-8 lg:py-20 xl:py-28 px-12 md:flex md:flex-col md:gap-12">
     <div class="content-container grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-0 md:items-center md:justify-center ">
@@ -71,10 +81,40 @@ import LogoFacebook from '../../assets/icones/facebook-white.webp'
             <h3 class="mb-8 text-2xl">La newsletter</h3>
             <div class="flex flex-col gap-4 text-center">
                 <p class="md:text-lg text-center md:text-left">Reçois chaque semaine nos nouvelles recettes et des conseils exclusifs pour tes objectifs.</p>
-            <div class="flex items-center justify-center gap-2 my-8 md:my-4">
-                <input type="email" placeholder="Entrer votre email" class="py-3 px-4 text-primary rounded-2xl bg-secondary shadow-[2px_5px_0_rgba(0,0,0,1)] focus:ring-3 focus:ring-accent1  placeholder:text-[#1e1e1e]/60" />
-                <button class="btn shadow-black/30">S'abonner</button>
-            </div>
+                {
+                    newsletterGlobalError && (
+                        <p class="rounded-xl border-2 border-accent2 bg-accent2/10 px-3 py-2 text-sm text-accent2 font-bold">
+                            {newsletterGlobalError}
+                        </p>
+                    )
+                }
+                {
+                    newsletterSuccess && (
+                        <p class="rounded-xl border-2 border-secondary/60 bg-secondary/20 px-3 py-2 text-sm text-secondary font-bold">
+                            Merci, votre email est bien enregistre.
+                        </p>
+                    )
+                }
+                <form class="flex flex-col gap-2 my-8 md:my-4" action={actions.subscribeNewsletter} method="post">
+                    <div class="flex items-center justify-center gap-2">
+                        <input
+                            id="newsletter-email"
+                            name="email"
+                            type="email"
+                            required
+                            placeholder="Entrer votre email"
+                            class="py-3 px-4 text-primary rounded-2xl bg-secondary shadow-[2px_5px_0_rgba(0,0,0,1)] focus:ring-3 focus:ring-accent1 placeholder:text-[#1e1e1e]/60"
+                        />
+                        <button type="submit" class="btn shadow-black/30">S'abonner</button>
+                    </div>
+                    {
+                        newsletterInputError?.fields.email?.[0] && (
+                            <p class="text-sm text-accent2 font-bold text-left">
+                                {newsletterInputError.fields.email[0]}
+                            </p>
+                        )
+                    }
+                </form>
             </div>
             
          </div>

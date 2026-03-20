@@ -1,6 +1,6 @@
 import { ActionError, defineAction } from "astro:actions";
 import { sendContactEmail } from "../lib/services/emailjs.service";
-import { contactFormSchema } from "../schemas/contact.schema";
+import { contactFormSchema, newsletterSchema } from "../schemas/contact.schema";
 import { loginSchema, registerSchema } from "../schemas/auth.schema";
 
 // Rate-limit volontairement simple (petit site): 5 envois / 10 min / IP
@@ -55,6 +55,24 @@ function getPbEmailMessage(error: unknown): string | undefined {
 }
 
 export const server = {
+  subscribeNewsletter: defineAction({
+    accept: "form",
+    input: newsletterSchema,
+    handler: async (input, context) => {
+      assertWithinRateLimit(context.clientAddress ?? "unknown");
+
+      await sendContactEmail({
+        firstName: "Newsletter",
+        lastName: "Footer",
+        email: input.email,
+        subject: "Nouvelle inscription newsletter",
+        message: `Nouvel email abonne: ${input.email}`,
+      });
+
+      return { success: true };
+    },
+  }),
+
   sendContact: defineAction({
     accept: "form",
     input: contactFormSchema,

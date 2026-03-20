@@ -3,6 +3,7 @@ import AuthLayout from '../../layouts/AuthLayout.astro'
 import BoutonCercle from '../../components/ui/BoutonCercle.astro';
 import IconGoogle from '../../assets/icones/google.webp';
 import IconFacebook from '../../assets/icones/facebook.webp';
+import LogoPositif from '../../assets/icones/logo-positif.webp';
 import { actions, isInputError } from 'astro:actions';
 
 //Mise en place d'une redirection sécurisée après connexion vers la page où l'utilisateur voulait aller de base
@@ -38,12 +39,17 @@ const hasFormError = Boolean(globalError || inputError);
 	keywords="connexion, espace membre, compte slurpy"
 	ogType="website"
 >
-    <section class="min-h-screen w-full flex items-center justify-center py-0!">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 xl:gap-12 items-center w-full content-container">
-            <div class="hidden lg:block bg-secondary border-2 border-primary rounded-2xl p-8 min-h-80 w-full lg:h-full"></div>
-            <div class="flex flex-col gap-10 lg:gap-8 justify-center items-center w-5/6 mx-auto lg:w-full lg:max-w-xl xl:max-w-136 2xl:max-w-160 lg:justify-self-center lg:h-full">
+    <section class="min-h-screen w-full p-0!">
+        <div class="grid grid-cols-1 lg:grid-cols-2 w-full min-h-screen">
+            <div class="hidden lg:flex bg-secondary min-h-screen w-full items-center justify-center px-8 xl:px-10">
+                <div class="flex flex-col items-center justify-center gap-7 xl:gap-8 text-center max-w-md mx-auto">
+                    <img src={LogoPositif.src} alt="Logo Slurpy" class="w-56 xl:w-64 h-auto" />
+                    <p class="text-primary text-2xl xl:text-3xl leading-snug">Vos objectifs alimentaires à portée de langue.</p>
+                </div>
+            </div>
+            <div class="flex flex-col gap-10 lg:gap-6 justify-center items-center w-5/6 mx-auto lg:w-full lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl lg:justify-self-center min-h-screen">
                             <div class="flex flex-col gap-6 lg:gap-7 w-full">
-                                <h1 class="text-secondary text-center">Bon retour !</h1>
+                                <h1 class="text-secondary text-center lg:text-6xl xl:text-7xl">Bon retour !</h1>
                                 <p class="text-secondary/90 text-center lg:max-w-136 lg:mx-auto">Profitez de nos recettes gourmandes et de conseils nutritionnels experts pour nourrir votre progression avec plaisir.</p>
                             </div>
         
