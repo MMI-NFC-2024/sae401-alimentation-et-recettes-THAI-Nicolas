@@ -3,6 +3,7 @@ import AuthLayout from '../../layouts/AuthLayout.astro'
 import BoutonCercle from '../../components/ui/BoutonCercle.astro';
 import IconGoogle from '../../assets/icones/google.webp';
 import IconFacebook from '../../assets/icones/facebook.webp';
+import { actions, isInputError } from 'astro:actions';
 
 //Mise en place d'une redirection sécurisée après connexion vers la page où l'utilisateur voulait aller de base
 const returnToParam = Astro.url.searchParams.get('returnTo');
@@ -17,34 +18,18 @@ if (isAuthenticated) {
 	return Astro.redirect(safeReturnTo);
 }
 
-let errorMessage = '';
-let emailValue = '';
-
-//On récupère les données du form (email et mot de passe).
-if (Astro.request.method === 'POST') {
-	const formData = await Astro.request.formData();
-	const email = String(formData.get('email') ?? '').trim().toLowerCase();
-	const password = String(formData.get('password') ?? '');
-
-	emailValue = email;
-
-    //On vérfie que les champs soient remplis
-	if (!email || !password) {
-		errorMessage = 'Veuillez renseigner votre email et votre mot de passe.';
-	} else {
-		try {
-            //Si tout est bon, on tente la connexion de l'utilisateurs avec PocketBase, et on le redirige vers la page d'origine
-			await Astro.locals.pb.collection('users').authWithPassword(email, password);
-			return Astro.redirect(safeReturnTo);
-		} catch {
-			errorMessage = 'Email ou mot de passe invalide.';
-		}
-	}
+// On lit le resultat de l'action login pour afficher les erreurs Zod/server.
+const actionResult = Astro.getActionResult(actions.login);
+if (actionResult?.data?.success) {
+    // PRG: redirection GET apres succes pour eviter la resoumission au refresh.
+    return Astro.redirect(actionResult.data.redirectTo ?? '/');
 }
-//On construit l'URL d'action du formulaire en incluant le paramètre de redirection sécurisé
-const formAction = safeReturnTo === '/'
-	? '/auth/login'
-	: `/auth/login?returnTo=${encodeURIComponent(safeReturnTo)}`;
+
+const inputError = isInputError(actionResult?.error) ? actionResult.error : undefined;
+const globalError = actionResult?.error && !isInputError(actionResult.error)
+    ? actionResult.error.message
+    : '';
+const hasFormError = Boolean(globalError || inputError);
 ---
 
 <AuthLayout
@@ -62,23 +47,28 @@ const formAction = safeReturnTo === '/'
                                 <p class="text-secondary/90 text-center lg:max-w-136 lg:mx-auto">Profitez de nos recettes gourmandes et de conseils nutritionnels experts pour nourrir votre progression avec plaisir.</p>
                             </div>
         
-                        {errorMessage && (
-                            <p role="alert" class="text-accent2 font-bold">{errorMessage}</p>
+						{globalError && (
+							<p role="alert" class="text-accent2 font-bold">{globalError}</p>
                         )}
-                        <form method="POST" action={formAction} class="flex flex-col gap-4 w-full" novalidate>
+                        <form id="login-form" data-has-error={hasFormError ? "true" : "false"} method="POST" action={actions.login} class="flex flex-col gap-4 w-full" novalidate>
+							<input type="hidden" name="returnTo" value={safeReturnTo} />
                             <label class="sr-only" for="email">Adresse email</label>
                             <input
+                                data-persist="true"
                                 id="email"
                                 name="email"
                                 type="email"
                                 autocomplete="email"
                                 required
-                                value={emailValue}
                                 class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
                                 placeholder="Adresse email"
                             />
+							{inputError?.fields.email?.[0] && (
+								<p class="text-accent2 font-bold text-sm">{inputError.fields.email[0]}</p>
+							)}
                             <label class="sr-only" for="password">Mot de passe</label>
                             <input
+                                data-persist="true"
                                 id="password"
                                 name="password"
                                 type="password"
@@ -87,6 +77,9 @@ const formAction = safeReturnTo === '/'
                                 class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
                                 placeholder="Mot de passe"
                             />
+							{inputError?.fields.password?.[0] && (
+								<p class="text-accent2 font-bold text-sm">{inputError.fields.password[0]}</p>
+							)}
                             <div class="text-sm text-primary/80 flex justify-end">
                                 <a href="" class=" text-center text-secondary transition-all hover:underline text-xs lg:text-lg ">Mot de passe oublié ?</a>
                             </div>
@@ -117,4 +110,61 @@ const formAction = safeReturnTo === '/'
 		</div>
 	</section>
 </AuthLayout>
+
+<script is:inline>
+    (() => {
+        const storageKey = "slurpy:auth:login:draft";
+        const form = document.getElementById("login-form");
+
+        if (!(form instanceof HTMLFormElement)) return;
+
+        const fields = Array.from(
+            form.querySelectorAll("input[data-persist='true']"),
+        );
+        const shouldRestoreDraft = form.dataset.hasError === "true";
+
+        // Si la page n'affiche pas d'erreur, on purge un ancien brouillon.
+        if (!shouldRestoreDraft) {
+            sessionStorage.removeItem(storageKey);
+        }
+
+        let draft = {};
+        try {
+            draft = JSON.parse(sessionStorage.getItem(storageKey) ?? "{}");
+        } catch {
+            draft = {};
+        }
+
+        // On restaure le brouillon uniquement lorsqu'une erreur est presente.
+        if (shouldRestoreDraft) {
+            for (const field of fields) {
+                const fieldName = field.getAttribute("name");
+                if (!fieldName || field.value) continue;
+
+                const draftValue = draft[fieldName];
+                if (typeof draftValue === "string") {
+                    field.value = draftValue;
+                }
+            }
+        }
+
+        const saveDraft = () => {
+            const nextDraft = {};
+
+            for (const field of fields) {
+                const fieldName = field.getAttribute("name");
+                if (!fieldName) continue;
+                nextDraft[fieldName] = field.value;
+            }
+
+            sessionStorage.setItem(storageKey, JSON.stringify(nextDraft));
+        };
+
+        for (const field of fields) {
+            field.addEventListener("input", saveDraft);
+        }
+
+        form.addEventListener("submit", saveDraft);
+    })();
+</script>
 

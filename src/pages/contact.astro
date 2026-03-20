@@ -2,6 +2,24 @@
 import Layout from "../layouts/Layout.astro"
 import DamierHero from "../components/ui/DamierHero.astro"
 import CTABanner from "../components/ui/CTABanner.astro";
+import { actions, isInputError } from "astro:actions";
+
+// On recupere le resultat de la derniere soumission (si formulaire poste)
+const actionResult = Astro.getActionResult(actions.sendContact);
+
+// Pattern PRG (Post/Redirect/Get): apres succes, on redirige vers une URL GET
+// pour eviter qu'un refresh ne resoumette le formulaire et renvoie un email.
+if (actionResult?.data?.success) {
+    return Astro.redirect(`${Astro.url.pathname}?sent=1`);
+}
+
+const inputError = isInputError(actionResult?.error) ? actionResult.error : undefined;
+const globalError = actionResult?.error && !isInputError(actionResult.error)
+    ? actionResult.error.message
+    : undefined;
+const successMessage = Astro.url.searchParams.get("sent") === "1"
+    ? "Message envoye avec succes. Merci pour votre retour."
+    : undefined;
 ---
 <Layout title="Contactez-nous - Slurpy"
     description="Contactez-nous pour toute question ou suggestion concernant Slurpy, votre compagnon de nutrition et de recettes personnalisé. Nous sommes là pour vous aider à atteindre vos objectifs alimentaires avec plaisir et efficacité."
@@ -17,31 +35,77 @@ import CTABanner from "../components/ui/CTABanner.astro";
             <div class="px-6 md:px-10 lg:px-14 flex items-center justify-center pt-10 md:pt-14 lg:pt-16 xl:pt-20 pb-12 md:pb-16 lg:pb-20 xl:pb-24">
                 <div class="w-full max-w-7xl rounded-4xl border-3 border-primary bg-secondary px-4 sm:px-5 md:px-10 lg:px-14 xl:px-20 py-6 md:py-10 lg:py-12 pb-7 md:pb-10 lg:pb-12">
                     <h2 class="text-center m-0 mb-6 md:mb-8 lg:mb-10 leading-none">Des questions ?</h2>
-                    <form class="w-full max-w-230 mx-auto grid gap-4 md:gap-5" action="" method="post">
+                    <form id="contact-form" data-success={successMessage ? "true" : "false"} class="w-full max-w-230 mx-auto grid gap-4 md:gap-5" action={actions.sendContact} method="post">
+                        {
+                            globalError && (
+                                <p class="rounded-xl border-2 border-accent2 bg-accent2/10 px-4 py-3 text-sm md:text-base text-accent2 font-bold">
+                                    {globalError}
+                                </p>
+                            )
+                        }
+                        {
+                            successMessage && (
+                                <p class="rounded-xl border-2 border-primary bg-primary/10 px-4 py-3 text-sm md:text-base text-primary font-bold">
+                                    {successMessage}
+                                </p>
+                            )
+                        }
                         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-5">
                             <div class="flex flex-col gap-2 lg:gap-4">
                                 <label class="label" for="firstName">Prénom</label>
-                                <input class="input" type="text" id="firstName" name="firstName" required placeholder="Ex : Jean" />
+                                <input data-persist="true" class="input" type="text" id="firstName" name="firstName" required placeholder="Ex : Jean" />
+                                {
+                                    inputError?.fields.firstName?.[0] && (
+                                        <p class="text-sm text-accent2 font-bold">{inputError.fields.firstName[0]}</p>
+                                    )
+                                }
                             </div>
                             <div class="flex flex-col gap-2 lg:gap-4">
-                                <label class="label" for="name">Nom</label>
-                                <input class="input" type="text" id="name" name="name" required placeholder="Ex : Dupont" />
+                                <label class="label" for="lastName">Nom</label>
+                                <input data-persist="true" class="input" type="text" id="lastName" name="lastName" required placeholder="Ex : Dupont" />
+                                {
+                                    inputError?.fields.lastName?.[0] && (
+                                        <p class="text-sm text-accent2 font-bold">{inputError.fields.lastName[0]}</p>
+                                    )
+                                }
                             </div>
                         </div>
                         <div class="flex flex-col gap-2 lg:gap-4">
                             <label class="label" for="email">Email</label>
-                            <input class="input" type="email" id="email" name="email" required placeholder="Votre email..." />
+                            <input data-persist="true" class="input" type="email" id="email" name="email" required placeholder="Votre email..." />
+                            {
+                                inputError?.fields.email?.[0] && (
+                                    <p class="text-sm text-accent2 font-bold">{inputError.fields.email[0]}</p>
+                                )
+                            }
                         </div>
                         <div class="flex flex-col gap-2 lg:gap-4">
                             <label class="label" for="subject">Sujet</label>
-                            <input class="input" type="text" id="subject" name="subject" required placeholder="Votre sujet..." />
+                            <input data-persist="true" class="input" type="text" id="subject" name="subject" required placeholder="Votre sujet..." />
+                            {
+                                inputError?.fields.subject?.[0] && (
+                                    <p class="text-sm text-accent2 font-bold">{inputError.fields.subject[0]}</p>
+                                )
+                            }
                         </div>
                         
                         <div class="flex flex-col gap-2 lg:gap-4">
                             <label class="label" for="message">Message</label>
-                            <textarea class="w-full border-2 border-primary bg-secondary text-primary rounded-2xl shadow-[0_4px_0_0_var(--color-primary)] px-4 md:px-[1.15rem] pt-4 pb-3 outline-none text-sm md:text-base transition-all duration-200 placeholder:text-primary/60 min-h-40 md:min-h-52 xl:min-h-64 resize-y focus:translate-y-px focus:shadow-[0_3px_0_0_var(--color-primary)]";
- id="message" name="message" required placeholder="Votre message..."></textarea>
+                            <textarea data-persist="true" class="w-full border-2 border-primary bg-secondary text-primary rounded-2xl shadow-[0_4px_0_0_var(--color-primary)] px-4 md:px-[1.15rem] pt-4 pb-3 outline-none text-sm md:text-base transition-all duration-200 placeholder:text-primary/60 min-h-40 md:min-h-52 xl:min-h-64 resize-y focus:translate-y-px focus:shadow-[0_3px_0_0_var(--color-primary)]" id="message" name="message" required placeholder="Votre message..."></textarea>
+                            {
+                                inputError?.fields.message?.[0] && (
+                                    <p class="text-sm text-accent2 font-bold">{inputError.fields.message[0]}</p>
+                                )
+                            }
                         </div>
+                        <input
+                            type="text"
+                            name="hpField"
+                            tabindex="-1"
+                            autocomplete="off"
+                            class="hidden"
+                            aria-hidden="true"
+                        />
                         <button type="submit" class="w-full border-2 border-primary rounded-full bg-primary text-secondary font-afacad font-bold text-base md:text-lg leading-none px-5 py-3 md:py-4 shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)] cursor-pointer mt-2 transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)] active:translate-y-0.5 active:shadow-[0_2px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)]">Envoyer</button>
                     </form>
                 </div>
@@ -50,3 +114,62 @@ import CTABanner from "../components/ui/CTABanner.astro";
         <CTABanner />
     </main>
 </Layout>
+
+<script is:inline>
+// Script pour sauvegarder le brouillon du formulaire de contact dans le sessionStorage, et le restaurer en cas de retour sur la page apres une soumission (notamment en cas d'erreur de validation).
+
+    (() => {
+        const storageKey = "slurpy:contact:draft";
+        const form = document.getElementById("contact-form");
+
+        if (!(form instanceof HTMLFormElement)) return;
+
+        // En cas de succes, on nettoie le brouillon pour repartir a zero.
+        if (form.dataset.success === "true") {
+            sessionStorage.removeItem(storageKey);
+            return;
+        }
+
+        const fields = Array.from(
+            form.querySelectorAll("input[data-persist='true'], textarea[data-persist='true']"),
+        );
+
+        let draft = {};
+        try {
+            draft = JSON.parse(sessionStorage.getItem(storageKey) ?? "{}");
+        } catch {
+            draft = {};
+        }
+
+        // On restaure les valeurs seulement si le champ est vide (ne pas ecraser une valeur existante).
+        for (const field of fields) {
+            const element = field;
+            const fieldName = element.getAttribute("name");
+            if (!fieldName || element.value) continue;
+
+            const draftValue = draft[fieldName];
+            if (typeof draftValue === "string") {
+                element.value = draftValue;
+            }
+        }
+
+        const saveDraft = () => {
+            const nextDraft = {};
+
+            for (const field of fields) {
+                const element = field;
+                const fieldName = element.getAttribute("name");
+                if (!fieldName) continue;
+                nextDraft[fieldName] = element.value;
+            }
+
+            sessionStorage.setItem(storageKey, JSON.stringify(nextDraft));
+        };
+
+        for (const field of fields) {
+            field.addEventListener("input", saveDraft);
+        }
+
+        form.addEventListener("submit", saveDraft);
+    })();
+</script>
