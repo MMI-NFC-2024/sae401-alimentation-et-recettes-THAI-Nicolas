@@ -1,31 +1,54 @@
 ---
 import LogoPositif from '../../assets/icones/logo-positif.webp'
 import LogoNegatif from '../../assets/icones/logo-negatif.webp'
-
+import IconRecherche from '../../assets/icones/search.webp';
+import BoutonCercle from '../ui/BoutonCercle.astro';
+//Variable pour savoir si l'utilisateur est connecté ou pas 
 const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
+
+// Récupération des infos de l'utilisateur connecté pour afficher son avatar ou une lettre de fallback dans le bouton de profil
+const authUser = (Astro.locals.pb?.authStore?.model as {
+    avatar?: string;
+    name?: string;
+    email?: string;
+} | null) ?? null;
+const avatarUrl = isAuthenticated && authUser?.avatar
+    ? Astro.locals.pb.files.getURL(authUser, authUser.avatar, { thumb: '100x100' })
+    : null;
+const avatarFallback = (authUser?.name || authUser?.email || 'U').trim().charAt(0).toUpperCase();
 ---
 
-<header>
-    <div class="content-container flex items-center justify-between py-8 px-6 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:px-8 xl:px-12 2xl:px- ">
+<header id="site-header" class="header-shell sticky top-0 z-30 bg-secondary text-primary transition-colors duration-300">
+    <div id="header-inner" class="content-container flex items-center justify-between py-8 px-6 transition-all duration-300 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:px-8 xl:px-12 2xl:px-0 ">
         <!-- Navigation principale (desktop) -->
-        <nav class="hidden lg:flex items-center gap-8 justify-self-start" aria-label="Menu de navigation principal">
-            <a href="/recettes" aria-label="Lien vers la page de nos recettes" class="text-primary  hover:mb-2 transition-all duration-75 text-xl">Nos recettes</a>
-            <a href="/articles" aria-label="Lien vers la page de nos conseils" class="text-primary hover:mb-2 transition-all duration-75 text-xl">Nos conseils</a>
-            <a href="/contact" aria-label="Lien vers la page de contact" class="text-primary hover:mb-2 transition-all duration-75 text-xl">Nous contacter</a>
+        <nav id="header-nav" class="hidden lg:flex items-center gap-6 justify-self-start transition-transform duration-300" aria-label="Menu de navigation principal">
+            <a href="/recettes" aria-label="Lien vers la page de nos recettes" class="header-nav-link text-primary  hover:mb-2 transition-all duration-75 text-xl uppercase ">Nos recettes</a>
+            <a href="/articles" aria-label="Lien vers la page de nos conseils" class="header-nav-link text-primary hover:mb-2 transition-all duration-75 text-xl uppercase ">Nos conseils</a>
+            <a href="/contact" aria-label="Lien vers la page de contact" class="header-nav-link text-primary hover:mb-2 transition-all duration-75 text-xl uppercase ">Nous contacter</a>
         </nav>
 
-        <a href="/" class="logo lg:justify-self-center" aria-label="Retour à la page d'accueil">
-            <img src={LogoPositif.src} class="w-28 md:w-32 lg:w-36 xl:w-40 logo-negatif" alt="Logo Slurpy" />
+        <a href="/" id="header-logo" class="logo transition-transform duration-300 lg:justify-self-center" aria-label="Retour à la page d'accueil">
+            <img src={LogoPositif.src} class="w-28 md:w-32 lg:w-36 xl:w-40 logo-light transition-all duration-300" alt="Logo Slurpy" />
+            <img src={LogoNegatif.src} class="w-28 md:w-32 lg:w-36 xl:w-40 logo-dark transition-all duration-300" alt="Logo Slurpy" />
         </a>
 
-        <div class="hidden lg:flex justify-self-end items-center gap-3">
+        <div id="header-actions" class="hidden lg:flex justify-end items-center gap-3 transition-transform duration-300">
+            <div class="header-search">
+               <BoutonCercle variant="primary" size="header" ariaLabel="Rechercher sur le site">
+                                <img src={IconRecherche.src} alt="Icône Recherche" class="w-6 object-contain" />
+                </BoutonCercle>
+            </div>
             {isAuthenticated ? (
-                <form method="POST" action="/auth/logout" style="display: inline;">
-                    <button type="submit" class="btn-outline" aria-label="Se deconnecter de son compte">Se deconnecter</button>
-                </form>
+                <BoutonCercle variant="secondary" size="header" href="/profil" ariaLabel="Aller au profil utilisateur">
+                    {avatarUrl ? (
+                        <img src={avatarUrl} alt="Avatar utilisateur" class="h-full w-full object-cover" />
+                    ) : (
+                        <span class="text-base md:text-2xl">{avatarFallback}</span>
+                    )}
+                </BoutonCercle>
             ) : (
                 <>
-                    <a href="/auth/login" class="btn-outline cursor-pointer" aria-label="Lien vers la page de connexion">Se connecter</a>
+                    <a href="/auth/login" class="btn-green cursor-pointer" aria-label="Lien vers la page de connexion">Se connecter</a>
                 </>
             )}
         </div>
@@ -52,9 +75,13 @@ const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
                 </ul>
 
                 {isAuthenticated ? (
-                    <form method="POST" action="/auth/logout" class="inline-block">
-                        <button type="submit" class="btn text-xl" aria-label="Se deconnecter de son compte">Se deconnecter</button>
-                    </form>
+                    <BoutonCercle variant="secondary" href="/profil" ariaLabel="Aller au profil utilisateur">
+                        {avatarUrl ? (
+                            <img src={avatarUrl} alt="Avatar utilisateur" class="h-full w-full object-cover" />
+                        ) : (
+                            <span class="text-lg font-bold">{avatarFallback}</span>
+                        )}
+                    </BoutonCercle>
                 ) : (
                     <div class="flex flex-col items-center gap-4">
                         <a href="/auth/login" class="btn text-xl" aria-label="Lien vers la page de connexion">Se connecter</a>
@@ -72,9 +99,39 @@ const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 </header>
 
 <script>
+    // Éléments utilisés pour le comportement desktop au scroll et les interactions du menu mobile.
+    const siteHeader = document.querySelector<HTMLElement>('#site-header');
     const menuButton = document.querySelector<HTMLButtonElement>('#open-menu');
     const menuOverlay = document.querySelector<HTMLElement>('#menu-overlay');
 
+    // Le header se compacte visuellement et change de style après un léger défilement.
+    // On utilise une hystérésis (deux seuils) pour éviter le clignotement autour de la limite.
+    if (siteHeader) {
+        const SCROLL_ENTER_THRESHOLD = 28;
+        const SCROLL_EXIT_THRESHOLD = 8;
+        let isScrolled = false;
+
+        const setScrolledState = () => {
+            const y = window.scrollY;
+
+            if (!isScrolled && y >= SCROLL_ENTER_THRESHOLD) {
+                isScrolled = true;
+                siteHeader.classList.add('is-scrolled');
+                return;
+            }
+
+            if (isScrolled && y <= SCROLL_EXIT_THRESHOLD) {
+                isScrolled = false;
+                siteHeader.classList.remove('is-scrolled');
+            }
+        };
+
+        // Initialisation au premier rendu et synchronisation pendant le scroll.
+        setScrolledState();
+        window.addEventListener('scroll', setScrolledState, { passive: true });
+    }
+
+    // Gestion d'état du menu mobile (ouverture/fermeture + attributs d'accessibilité).
     if (menuButton && menuOverlay) {
         const setMenuState = (isOpen: boolean) => {
             menuOverlay.classList.toggle('is-open', isOpen);
@@ -88,6 +145,7 @@ const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
             setMenuState(!menuOverlay.classList.contains('is-open'));
         });
 
+        // Ferme le menu lors d'un clic en dehors du contenu.
         menuOverlay.addEventListener('click', (event) => {
             const target = event.target as HTMLElement;
             if (target.id === 'menu-overlay' || target.classList.contains('menu-navigation-overlay')) {
@@ -95,10 +153,12 @@ const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
             }
         });
 
+        // Ferme le menu après navigation via un lien de l'overlay.
         menuOverlay.querySelectorAll('a').forEach((link) => {
             link.addEventListener('click', () => setMenuState(false));
         });
 
+        // La touche Échap ferme le menu mobile.
         document.addEventListener('keydown', (event) => {
             if (event.key === 'Escape') setMenuState(false);
         });
@@ -106,6 +166,66 @@ const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 </script>
 
 <style>
+    /* Header : mise en page de base et transitions */
+    .header-shell .logo {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    #header-inner,
+    #header-nav,
+    #header-logo,
+    #header-actions,
+    .header-nav-link {
+        transition: all 0.3s ease;
+    }
+
+    .logo-dark {
+        display: none;
+    }
+
+    /* Header : état au scroll (inversion de palette + mode compact) */
+    .header-shell.is-scrolled {
+        background: var(--color-primary);
+        color: var(--color-secondary);
+        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+    }
+
+    .header-shell.is-scrolled .logo-light {
+        display: none;
+    }
+
+    .header-shell.is-scrolled .logo-dark {
+        display: block;
+    }
+
+    .header-shell.is-scrolled .header-nav-link {
+        color: var(--color-secondary);
+        font-size: 1.125rem;
+    }
+
+    .header-shell.is-scrolled #header-nav,
+    .header-shell.is-scrolled #header-logo,
+    .header-shell.is-scrolled #header-actions {
+        transform: scale(0.95);
+    }
+
+    .header-shell.is-scrolled .header-search :global(button),
+    .header-shell.is-scrolled .header-search :global(a) {
+        background: var(--color-secondary);
+        color: var(--color-primary);
+        border-color: var(--color-secondary);
+    }
+
+    .header-shell.is-scrolled .btn-green {
+        background: var(--color-secondary);
+        color: var(--color-primary);
+        border-color: var(--color-secondary);
+    }
+
+    /* Overlay mobile : visibilité et animation de fondu */
     #menu-overlay {
         visibility: hidden;
         opacity: 0;
@@ -113,14 +233,14 @@ const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
         transition: opacity 0.3s ease-in-out;
     }
 
-    /* Menu ouvert - visible et interactif */
+    /* Overlay ouvert : visible et interactif */
     #menu-overlay.is-open {
         visibility: visible;
         opacity: 1;
         pointer-events: auto;
     }
     
-    /* Contenu du menu */
+    /* Contenu de l'overlay mobile */
     .menu-content {
         opacity: 0;
         position: relative;
@@ -133,10 +253,11 @@ const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
         opacity: 1;
         transition: opacity 0.25s ease-in-out 0.08s;
     }
-     /* Animation du burger vers croix */
+
+    /* Animation du burger vers l'icône de fermeture */
     #open-menu.menu-open .burger-line-1 {
         transform: rotate(45deg) translateY(7.5px);
-        width: 1.5rem; /* w-6 */
+        width: 1.5rem;
     }
     
     #open-menu.menu-open .burger-line-2 {
@@ -146,10 +267,10 @@ const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
     
     #open-menu.menu-open .burger-line-3 {
         transform: rotate(-45deg) translateY(-11px) translateX(4px);
-        width: 1.5rem; /* w-6 */
+        width: 1.5rem;
     }
     
-    /* Burger devient blanc quand le menu est ouvert */
+    /* Garantit le contraste quand l'overlay est ouvert */
     #open-menu.menu-open .burger-line {
         border-color: white;
     }
@@ -158,7 +279,7 @@ const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
         transform: translateY(0);
     }
     
-    /* Fond du menu mobile */
+    /* Fond d'overlay mobile */
     .menu-navigation-overlay {
         position: fixed;
         top: 0;

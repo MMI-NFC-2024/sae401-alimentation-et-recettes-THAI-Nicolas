@@ -1,0 +1,18 @@
+---
+import ProtectedLayout from "../../layouts/ProtectedLayout.astro";
+const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
+---
+
+<ProtectedLayout>
+    {isAuthenticated ? (
+        <div>
+            <h1>Mon Profil</h1>
+            
+        </div>
+        <form method="POST" action="auth/logout">
+            <button type="submit">Se déconnecter</button>
+        </form>
+    ) : (
+        <p>Veuillez vous connecter pour voir votre profil.</p>
+    )}
+</ProtectedLayout>

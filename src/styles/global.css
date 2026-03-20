@@ -78,4 +78,13 @@
     padding-block: clamp(0.65rem, 0.25vw + 0.58rem, 0.9rem);
     padding-inline: clamp(1.1rem, 0.9vw + 0.85rem, 1.8rem);
   }
+  .btn-green {
+    @apply bg-primary text-secondary shadow-[3px_4px_0_0_rgba(0,0,0,0.80)]  py-3 px-6 rounded-full transition-all duration-300 border-2 cursor-pointer border-primary;
+    font-size: clamp(0.95rem, 0.3vw + 0.88rem, 1.125rem);
+    padding-block: clamp(0.65rem, 0.25vw + 0.58rem, 0.9rem);
+    padding-inline: clamp(1.1rem, 0.9vw + 0.85rem, 1.8rem);
+  }
+  .btn-green:hover {
+    @apply scale-102;
+  }
 }
