@@ -1,5 +1,8 @@
 ---
 import AuthLayout from '../../layouts/AuthLayout.astro'
+import BoutonCercle from '../../components/ui/BoutonCercle.astro';
+import IconGoogle from '../../assets/icones/google.webp';
+import IconFacebook from '../../assets/icones/facebook.webp';
 
 //Mise en place d'une redirection sécurisée après connexion vers la page où l'utilisateur voulait aller de base
 const returnToParam = Astro.url.searchParams.get('returnTo');
@@ -51,12 +54,12 @@ const formAction = safeReturnTo === '/'
 	ogType="website"
 >
     <section class="min-h-screen w-full flex items-center justify-center py-0!">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full content-container">
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 xl:gap-12 items-center w-full content-container">
             <div class="hidden lg:block bg-secondary border-2 border-primary rounded-2xl p-8 min-h-80 w-full lg:h-full"></div>
-            <div class="flex flex-col gap-12 justify-center items-center w-5/6 mx-auto lg:h-full">
-                            <div class="flex flex-col gap-6 lg:gap-8">
+            <div class="flex flex-col gap-10 lg:gap-8 justify-center items-center w-5/6 mx-auto lg:w-full lg:max-w-xl xl:max-w-136 2xl:max-w-160 lg:justify-self-center lg:h-full">
+                            <div class="flex flex-col gap-6 lg:gap-7 w-full">
                                 <h1 class="text-secondary text-center">Bon retour !</h1>
-                                <p class="text-secondary/90 text-center">Profitez de nos recettes gourmandes et de conseils nutritionnels experts pour nourrir votre progression avec plaisir.</p>
+                                <p class="text-secondary/90 text-center lg:max-w-136 lg:mx-auto">Profitez de nos recettes gourmandes et de conseils nutritionnels experts pour nourrir votre progression avec plaisir.</p>
                             </div>
         
                         {errorMessage && (
@@ -71,7 +74,7 @@ const formAction = safeReturnTo === '/'
                                 autocomplete="email"
                                 required
                                 value={emailValue}
-                                class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3"
+                                class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
                                 placeholder="Adresse email"
                             />
                             <label class="sr-only" for="password">Mot de passe</label>
@@ -81,14 +84,34 @@ const formAction = safeReturnTo === '/'
                                 type="password"
                                 autocomplete="current-password"
                                 required
-                                class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3"
+                                class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
                                 placeholder="Mot de passe"
                             />
-                            <button type="submit" class="btn mt-2">Se connecter</button>
+                            <div class="text-sm text-primary/80 flex justify-end">
+                                <a href="" class=" text-center text-secondary transition-all hover:underline text-xs lg:text-lg ">Mot de passe oublié ?</a>
+                            </div>
+                            <button type="submit" class="btn mt-2 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]">Se connecter</button>
                         </form>
+
+                        <div class="flex items-center justify-center gap-4 md:gap-0 text-secondary w-full">
+                            <span class="flex-1 border bg-secondary"></span>
+                            <span class="flex-2/8 md:flex-1 text-center">Ou continuer avec</span>
+                            <span class="flex-1 border bg-secondary"></span>
+                        </div>
+
+                        <div class="flex items-center justify-center gap-6 w-full">
+                            <BoutonCercle variant="secondary" ariaLabel="Se connecter avec Google">
+                                <img src={IconGoogle.src} alt="Icône Google" class="w-6 lg:w-8 object-contain" />
+                            </BoutonCercle>
+                            <BoutonCercle variant="secondary" ariaLabel="Se connecter avec Facebook">
+                                <img src={IconFacebook.src} alt="Icône Facebook" class="w-6 lg:w-8 object-contain" />
+                            </BoutonCercle>
+                        </div>
+                        
+
                         <p class="text-secondary">
                             Pas encore inscrit ?
-                            <a href="/auth/register" class="font-bold text-accent1">Creer votre compte</a>
+                            <a href="/auth/register" class="font-bold text-accent1 transition-all duration-200  hover:underline">Creer votre compte</a>
                         </p>
 			</div>
 		</div>

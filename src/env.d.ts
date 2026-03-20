@@ -10,4 +10,5 @@ declare global {
 
 interface ImportMetaEnv {
   readonly POCKETBASE_URL: string;
+  readonly PUBLIC_POCKETBASE_URL: string;
 }

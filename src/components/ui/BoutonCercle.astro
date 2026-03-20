@@ -1,3 +1,26 @@
 ---
-import 
+interface Props {
+  variant?: 'primary' | 'secondary';
+  ariaLabel?: string;
+  type?: 'button' | 'submit' | 'reset';
+  disabled?: boolean;
+}
+
+const {
+  variant = 'primary',
+  ariaLabel,
+  type = 'button',
+  disabled = false,
+} = Astro.props as Props;
+
+const variantClass = variant === 'primary' ? 'bg-primary text-secondary' : 'bg-secondary text-primary';
 ---
+
+<button
+  type={type}
+  aria-label={ariaLabel}
+  disabled={disabled}
+  class={`inline-flex items-center justify-center rounded-full border-2 border-primary w-14 h-14 md:w-16 md:h-16 lg:w-20 lg:h-20 text-xl md:text-2xl lg:text-3xl font-barlow leading-none overflow-hidden shadow-[3px_4px_0_0_rgba(0,0,0,0.80)] transition-transform duration-200 hover:-translate-y-0.5 disabled:opacity-60 disabled:cursor-not-allowed ${variantClass}`}
+>
+  <slot />
+</button>

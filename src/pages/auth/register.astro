@@ -1,5 +1,8 @@
 ---
 import AuthLayout from '../../layouts/AuthLayout.astro'
+import BoutonCercle from '../../components/ui/BoutonCercle.astro';
+import IconGoogle from '../../assets/icones/google.webp';
+import IconFacebook from '../../assets/icones/facebook.webp';
 
 const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 
@@ -10,17 +13,14 @@ if (isAuthenticated) {
 
 let errorMessage = '';
 let emailValue = '';
-let nameValue = '';
 
-//On récupère les données du form (nom, email, mot de passe et confirmation).
+//On récupère les données du form (email, mot de passe et confirmation).
 if (Astro.request.method === 'POST') {
 	const formData = await Astro.request.formData();
-	const name = String(formData.get('name') ?? '').trim();
 	const email = String(formData.get('email') ?? '').trim().toLowerCase();
 	const password = String(formData.get('password') ?? '');
 	const passwordConfirm = String(formData.get('passwordConfirm') ?? '');
 
-	nameValue = name;
 	emailValue = email;
 // Condition pour que champs soient remplis, mot de passe de 8 caractères minimum et confirmation du mot de passe correcte
 	if (!email || !password || !passwordConfirm) {
@@ -36,7 +36,6 @@ if (Astro.request.method === 'POST') {
 				email,
 				password,
 				passwordConfirm,
-				name,
 			});
             //On le connecte directement après la création du compte, puis on le redirige vers l'accueil
 			await Astro.locals.pb.collection('users').authWithPassword(email, password);
@@ -55,28 +54,20 @@ if (Astro.request.method === 'POST') {
 	ogType="website"
 >
     <section class="min-h-screen w-full flex items-center justify-center py-0!">
-        <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-12 items-center w-full content-container">
+		<div class="grid grid-cols-1 lg:grid-cols-2 gap-8 lg:gap-10 xl:gap-12 items-center w-full content-container">
             <div class="hidden lg:block bg-secondary border-2 border-primary rounded-2xl p-8 min-h-80 w-full lg:h-full"></div>
-            <div class="flex flex-col gap-12 justify-center items-center w-5/6 mx-auto lg:h-full">
-                            <div class="flex flex-col gap-4 lg:gap-6">
+			<div class="flex flex-col gap-8 lg:gap-6 justify-center items-center w-5/6 mx-auto lg:w-full lg:max-w-xl xl:max-w-136 2xl:max-w-160 lg:justify-self-center lg:h-full">
+							<div class="flex flex-col gap-4 lg:gap-5 w-full">
                                 <h1 class="text-secondary text-center leading-tight">Creer un compte</h1>
-                                <p class="text-secondary/90 text-center">Demarrez votre aventure en ajoutant des recettes, en suivant vos objectifs et en bénéficiant de conseils personnalisés.</p>
+								<p class="text-secondary/90 text-center lg:max-w-136 lg:mx-auto">Demarrez votre aventure en ajoutant des recettes, en suivant vos objectifs et en bénéficiant de conseils personnalisés.</p>
                             </div>
         
                         {errorMessage && (
                             <p role="alert" class="text-accent2 font-bold">{errorMessage}</p>
                         )}
-                        <form method="POST" action="/auth/register" class="flex flex-col gap-4 w-full" novalidate>
-						<label class="sr-only" for="name">Nom</label>
-						<input
-							id="name"
-							name="name"
-							type="text"
-							autocomplete="name"
-							value={nameValue}
-							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3"
-							placeholder="Nom (optionnel)"
-						/>
+                        <form method="POST" action="/auth/register" class="flex flex-col gap-3 lg:gap-2.5 w-full" novalidate>
+						
+						
 
 						<label class="sr-only" for="email">Adresse email</label>
 						<input
@@ -86,7 +77,7 @@ if (Astro.request.method === 'POST') {
 							autocomplete="email"
 							required
 							value={emailValue}
-							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3"
+							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 lg:py-2.5 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
 							placeholder="Adresse email"
 						/>
 
@@ -98,7 +89,7 @@ if (Astro.request.method === 'POST') {
 							autocomplete="new-password"
 							required
 							minlength="8"
-							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3"
+							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 lg:py-2.5 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
 							placeholder="Mot de passe"
 						/>
 
@@ -110,15 +101,30 @@ if (Astro.request.method === 'POST') {
 							autocomplete="new-password"
 							required
 							minlength="8"
-							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3"
+							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 lg:py-2.5 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
 							placeholder="Confirmer le mot de passe"
 						/>
 
-						<button type="submit" class="btn mt-2">Creer mon compte</button>
+						<button type="submit" class="btn mt-1 lg:mt-0 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]">Creer mon compte</button>
 					</form>
-                        <p class="text-secondary">
+						<div class="flex items-center justify-center gap-4 md:gap-0 text-secondary w-full lg:-mt-1">
+							<span class="flex-1 border bg-secondary"></span>
+							<span class="flex-2/8 md:flex-1 text-center">Ou continuer avec</span>
+							<span class="flex-1 border bg-secondary"></span>
+						</div>
+
+						<div class="flex items-center justify-center gap-6 w-full lg:-mt-1">
+							<BoutonCercle variant="secondary" ariaLabel="Se connecter avec Google">
+								<img src={IconGoogle.src} alt="Icône Google" class="w-6 lg:w-7 object-contain" />
+							</BoutonCercle>
+							<BoutonCercle variant="secondary" ariaLabel="Se connecter avec Facebook">
+								<img src={IconFacebook.src} alt="Icône Facebook" class="w-6 lg:w-7 object-contain" />
+							</BoutonCercle>
+						</div>
+
+						<p class="text-secondary text-sm lg:text-base">
                             Déjà inscrit ?
-                            <a href="/auth/login" class="font-bold text-accent1">Se connecter</a>
+							<a href="/auth/login" class="font-bold text-accent1 transition-all duration-200 hover:underline">Se connecter</a>
                         </p>
 			</div>
 		</div>
