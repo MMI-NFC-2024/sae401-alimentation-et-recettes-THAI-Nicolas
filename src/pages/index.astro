@@ -21,25 +21,29 @@ const { articles, fetchError: articlesFetchError } = await getLatestArticles(Ast
 
 <Layout>
 	<main>
-		<section>
-			<div class="content-container">
-				<header class="text-center">
-					<h1 class="text-center md:text-right text-5xl xl:text-7xl">Vos objectifs alimentaires à portée de <span class="text-accent1">langue</span> !!</h1>
-					<div>
-						<img src={Bananelangue.src} alt="Bananelangue" class="w-full h-full object-contain absolute -left-20 mt-16 xl:m-0 xl:-left-180 xl:top-50" />
-					</div>
-				</header>
-				<div class="flex flex-col justify-center items-center md:items-end md:justify-end">
-					<p class="py-8 text-center md:text-right text-xl xl:text-3xl">Adieu la frustration. Profitez de nos <b>recettes gourmandes</b> et de <b>conseils nutritionnels experts</b> pour nourrir votre progression avec plaisir. </p>
-					<a href="#" class="btn my-6 text-2xl">Commencer l'aventure</a>
+		<section class="">
+			<div class="content-container flex flex-col gap-10 lg:grid lg:grid-cols-[minmax(260px,1fr)_minmax(0,2fr)] lg:items-center lg:gap-14">
+				<div class="order-1 flex flex-col items-center text-center lg:order-2 lg:items-end lg:text-right">
+					<header>
+						<h1 class="text-4xl xl:text-7xl">Vos objectifs alimentaires à portée de <span class="text-accent1">langue</span> !!</h1>
+					</header>
+					<p class="py-8 text-lg xl:text-3xl">Adieu la frustration. Profitez de nos <b>recettes gourmandes</b> et de <b>conseils nutritionnels experts</b> pour nourrir votre progression avec plaisir.</p>
+					<a href="#" class="btn my-2 text-xl">Commencer l'aventure</a>
+				</div>
+				<div class="order-2 flex justify-center lg:order-1 lg:justify-start lg:self-end relative -left-24 top-14 md:-left-40 md:top-24 lg:-left-10 xl:-left-30 2xl:-left-64">
+					<img
+						src={Bananelangue.src}
+						alt="Bananelangue"
+						class="w-full scale-140 md:scale-120 lg:scale-140 xl:scale-170 2xl:scale-160 object-contain"
+					/>
 				</div>
 			</div>
 		</section>
-		<section class="green-section mt-90 pt-0! overflow-hidden">
+		<section class="green-section pt-0 overflow-hidden">
 			<DamierTransition rows={4} tileSize={28} />
 			<div class="content-container pt-8 md:pt-16 lg:pt-20 xl:pt-24 2xl:pt-32">
-				<header class="">
-					<h2 class="text-center ">Choisis ton objectif santé </h2>
+				<header class="mt-8 lg:mt-0">
+					<h2 class="text-center">Choisis ton objectif santé </h2>
 				</header>
 				<ul class="ul-grid">
 					<li class="w-full h-full">
