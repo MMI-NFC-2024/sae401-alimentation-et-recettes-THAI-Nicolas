@@ -6,7 +6,7 @@ import ArticlesSearchPagination from "../../components/ui/ArticlesSearchPaginati
 
 // Fonctions sur les articles
 import { getAllArticles } from "../../lib/services/articles.service";
-const { articles, fetchError: articlesFetchError } = await getAllArticles(Astro.locals.pb);
+const { data: articles, error: articlesError } = await getAllArticles(Astro.locals.pb);
 
 ---
 
@@ -38,7 +38,7 @@ const { articles, fetchError: articlesFetchError } = await getAllArticles(Astro.
                         <p id="articles-empty" class="mt-8 text-center" hidden></p>
                     ): (
                         <p class="mt-8 text-center">
-                            {articlesFetchError ? "Les conseils sont temporairement indisponibles. Reessaie dans quelques instants." : "Aucun article trouve pour le moment."}
+                            {articlesError ? "Les conseils sont temporairement indisponibles. Reessaie dans quelques instants." : "Aucun article trouve pour le moment."}
                         </p>
                     )
                 }

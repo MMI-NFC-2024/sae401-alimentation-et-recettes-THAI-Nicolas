@@ -1,0 +1,40 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getRecetteBySlug } from "../../lib/services/recettes.service";
+import ImgPB from "../../components/ui/ImgPB.astro";
+
+const { slug } = Astro.params as { slug: string };
+if (!slug) {
+  return Astro.redirect("/recettes");
+}
+const { data: recette, error } = await getRecetteBySlug(Astro.locals.pb, slug);
+
+if (error === "server_error") {
+  console.error("Erreur lors de la récupération de la recette :", error);
+    return Astro.redirect("/recettes");
+}
+
+if (!recette) {
+  return Astro.redirect("/recettes");
+}
+---
+<Layout title={`${recette.titre} | Slurpy`}
+    description={`Découvrez la recette ${recette.titre} pour atteindre vos objectifs alimentaires avec plaisir.`}
+    keywords={`${recette.titre}, recette, ${recette.categorie}, ${recette.objectif_sante}, ${recette.regimes?.join(", ") ?? ""}, slurpy recettes`}
+    ogImage={recette.image ? recette.image : "/og-image-default.png"}
+    ogType="article"
+    >
+    <main>
+        <section class="green-section">
+            <div class="content-container">
+                <div>
+                    <h1 class="text-4xl font-bold mb-4">{recette.titre}</h1>
+                    <p class="mb-6 text-lg">{recette.description}</p>
+                    <ImgPB record={recette} image={recette.image} alt={recette.titre} />
+                </div>
+            </div>
+            
+        </section>
+    </main>
+
+</Layout>

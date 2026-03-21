@@ -9,8 +9,8 @@ import { getAllRecettes } from '../../lib/services/recettes.service';
 const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 const pb = Astro.locals.pb;
 
-const { articles } = pb ? await getAllArticles(pb) : { articles: [] };
-const { recettes } = pb ? await getAllRecettes(pb) : { recettes: [] };
+const { data: articles } = pb ? await getAllArticles(pb) : { data: [] };
+const { data: recettes } = pb ? await getAllRecettes(pb) : { data: [] };
 
 const globalSearchItems = [
     ...articles.map((article) => ({

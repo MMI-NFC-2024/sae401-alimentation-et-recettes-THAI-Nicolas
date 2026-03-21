@@ -1,8 +1,10 @@
 import type { RegimesResponse, TypedPocketBase } from "../../pocketbase-types";
 
-export interface RegimesCollection {
-  regimes: RegimesResponse[];
-  fetchError: boolean;
+export type ServiceError = "server_error";
+
+export interface ServiceResult<T> {
+  data: T;
+  error: ServiceError | null;
 }
 
 export interface RegimeOption {
@@ -12,15 +14,15 @@ export interface RegimeOption {
 
 export async function getAllRegimes(
   pb: TypedPocketBase,
-): Promise<RegimesCollection> {
+): Promise<ServiceResult<RegimesResponse[]>> {
   try {
     const regimes = await pb.collection("regimes").getFullList({
       sort: "nom",
     });
 
     return {
-      regimes,
-      fetchError: false,
+      data: regimes,
+      error: null,
     };
   } catch (error) {
     console.error(
@@ -29,19 +31,29 @@ export async function getAllRegimes(
     );
 
     return {
-      regimes: [],
-      fetchError: true,
+      data: [],
+      error: "server_error",
     };
   }
 }
 
 export async function getRegimeOptions(
   pb: TypedPocketBase,
-): Promise<RegimeOption[]> {
-  const { regimes } = await getAllRegimes(pb);
+): Promise<ServiceResult<RegimeOption[]>> {
+  const { data: regimes, error } = await getAllRegimes(pb);
 
-  return regimes.map((regime) => ({
-    id: regime.id,
-    name: regime.nom ?? "Regime",
-  }));
+  if (error) {
+    return {
+      data: [],
+      error,
+    };
+  }
+
+  return {
+    data: regimes.map((regime) => ({
+      id: regime.id,
+      name: regime.nom ?? "Regime",
+    })),
+    error: null,
+  };
 }

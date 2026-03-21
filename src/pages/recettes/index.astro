@@ -6,8 +6,8 @@ import { getRegimeOptions } from "../../lib/services/regimes.service";
 import CardRecette from "../../components/ui/CardRecette.astro";
 import RecettesFiltersPanel from "../../components/ui/RecettesFiltersPanel.vue";
 
-const { recettes, fetchError: recettesFetchError } = await getAllRecettes(Astro.locals.pb);
-const regimeOptions = await getRegimeOptions(Astro.locals.pb);
+const { data: recettes, error: recettesError } = await getAllRecettes(Astro.locals.pb);
+const { data: regimeOptions } = await getRegimeOptions(Astro.locals.pb);
 ---
 
 <Layout>
@@ -21,7 +21,7 @@ const regimeOptions = await getRegimeOptions(Astro.locals.pb);
             <RecettesFiltersPanel client:load regimes={regimeOptions} />
 
             <div>
-                <div class="mb-8 flex justify-end">
+                <div class="mb-8 flex justify-center lg:justify-end">
                     <button type="button" class="btn bg-accent1!">
                         + Ajouter ma recette
                     </button>
@@ -49,7 +49,7 @@ const regimeOptions = await getRegimeOptions(Astro.locals.pb);
                     </div>
                 ) : (
                     <p class="mt-8 text-center">
-                        {recettesFetchError ? "Les recettes sont temporairement indisponibles. Reessaie dans quelques instants." : "Aucune recette trouvée."}
+                        {recettesError ? "Les recettes sont temporairement indisponibles. Reessaie dans quelques instants." : "Aucune recette trouvée."}
                     </p>
                 )}
             </div>

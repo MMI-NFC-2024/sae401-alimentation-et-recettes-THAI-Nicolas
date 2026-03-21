@@ -9,7 +9,7 @@ interface Props {
 const { recette } = Astro.props as Readonly<Props>;
 const title = recette.titre ?? 'Recette';
 const href = `/recettes/${recette.slug ?? recette.id}`;
-const auteur = recette.user ?? 'Inconnu';
+const auteur = recette.expand?.user?.name ?? 'Anonyme';
 const difficulte = recette.difficulte ?? 'N/A';
 const tempsTotal = recette.temps_total ?? 'N/A';
 const timeLabel = typeof tempsTotal === 'number' ? `${tempsTotal} min` : `${tempsTotal}`;

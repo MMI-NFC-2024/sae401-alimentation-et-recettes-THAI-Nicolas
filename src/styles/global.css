@@ -61,7 +61,7 @@
     @apply bg-primary text-secondary;
   }
   .btn-wrapper {
-    @apply flex justify-center my-12 md:my-16 lg:my-20 2xl:my-28;
+    @apply flex justify-center my-14 md:my-16 lg:my-20;
   }
   .text-content {
     @apply flex flex-col mt-10 gap-4 md:gap-6 lg:gap-8 2xl:gap-10;

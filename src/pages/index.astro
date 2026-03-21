@@ -11,12 +11,12 @@ import DamierTransition from '../components/ui/DamierTransition.astro';
 
 // Fonctions "Nos recettes"
 import { getLatestRecettes } from '../lib/services/recettes.service';
-const { recettes, fetchError: recettesFetchError } = await getLatestRecettes(Astro.locals.pb, 4);
+const { data: recettes, error: recettesError } = await getLatestRecettes(Astro.locals.pb, 4);
 
 // Fonctions "Nos conseils nutritionnels"
 import { getLatestArticles } from '../lib/services/articles.service';
 import CardRecette from '../components/ui/CardRecette.astro';
-const { articles, fetchError: articlesFetchError } = await getLatestArticles(Astro.locals.pb, 3);
+const { data: articles, error: articlesError } = await getLatestArticles(Astro.locals.pb, 3);
 ---
 
 <Layout>
@@ -91,13 +91,13 @@ const { articles, fetchError: articlesFetchError } = await getLatestArticles(Ast
 					</ul>
 				) : (
 					<p class="mt-8 text-center">
-						{recettesFetchError
+						{recettesError
 							? 'Les recettes sont temporairement indisponibles. Reessaie dans quelques instants.'
 							: 'Aucune recette trouve pour le moment.'}
 					</p>
 				)}
 		
-			<div class="flex justify-center mt-8">
+			<div class="btn-wrapper">
 					<a href="/recettes" class="btn">Voir toute les recettes.</a>
 			</div>
 			</div>
@@ -123,12 +123,12 @@ const { articles, fetchError: articlesFetchError } = await getLatestArticles(Ast
 					</ul>
 				) : (
 					<p class="mt-8 text-center">
-						{articlesFetchError
+						{articlesError
 							? 'Les conseils sont temporairement indisponibles. Reessaie dans quelques instants.'
 							: 'Aucun article trouve pour le moment.'}
 					</p>
 				)}
-				<div class="flex justify-center mt-8">
+				<div class="btn-wrapper">
 					<a href="/articles" class="btn">Voir tous les conseils</a>
 				</div>
 			</div>

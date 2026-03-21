@@ -1,22 +1,25 @@
 import type { RecettesResponse, TypedPocketBase } from "../../pocketbase-types";
 
-export interface RecettesCollection {
-  recettes: RecettesResponse[];
-  fetchError: boolean;
+export type ServiceError = "not_found" | "server_error";
+
+export interface ServiceResult<T> {
+  data: T;
+  error: ServiceError | null;
 }
 
 export async function getLatestRecettes(
   pb: TypedPocketBase,
   limit = 4,
-): Promise<RecettesCollection> {
+): Promise<ServiceResult<RecettesResponse[]>> {
   try {
     const recettesPage = await pb.collection("recettes").getList(1, limit, {
       sort: "-created",
+      expand: "user",
     });
 
     return {
-      recettes: recettesPage.items,
-      fetchError: false,
+      data: recettesPage.items,
+      error: null,
     };
   } catch (error) {
     console.error(
@@ -24,22 +27,23 @@ export async function getLatestRecettes(
       error,
     );
     return {
-      recettes: [],
-      fetchError: true,
+      data: [],
+      error: "server_error",
     };
   }
 }
 
 export async function getAllRecettes(
   pb: TypedPocketBase,
-): Promise<RecettesCollection> {
+): Promise<ServiceResult<RecettesResponse[]>> {
   try {
     const recettesPage = await pb.collection("recettes").getFullList({
       sort: "-created",
+      expand: "user",
     });
     return {
-      recettes: recettesPage,
-      fetchError: false,
+      data: recettesPage,
+      error: null,
     };
   } catch (error) {
     console.error(
@@ -47,8 +51,8 @@ export async function getAllRecettes(
       error,
     );
     return {
-      recettes: [],
-      fetchError: true,
+      data: [],
+      error: "server_error",
     };
   }
 }
@@ -56,21 +60,18 @@ export async function getAllRecettes(
 export async function getRecetteBySlug(
   pb: TypedPocketBase,
   slug: string,
-): Promise<RecettesCollection> {
+): Promise<ServiceResult<RecettesResponse | null>> {
   try {
-    const recette = await pb.collection("recettes").getOne(slug);
-    return {
-      recettes: [recette],
-      fetchError: false,
-    };
-  } catch (error) {
-    console.error(
-      "[recettes.service] Impossible de recuperer la recette PocketBase",
-      error,
-    );
-    return {
-      recettes: [],
-      fetchError: true,
-    };
+    const recette = await pb
+      .collection("recettes")
+      .getFirstListItem(`slug="${slug}"`, { expand: "user" });
+
+    return { data: recette, error: null };
+  } catch (error: any) {
+    if (error?.status === 404) {
+      return { data: null, error: "not_found" };
+    }
+
+    return { data: null, error: "server_error" };
   }
 }

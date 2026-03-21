@@ -1,22 +1,24 @@
 import type { ArticlesResponse, TypedPocketBase } from "../../pocketbase-types";
 
-export interface ArticlesCollection {
-  articles: ArticlesResponse[];
-  fetchError: boolean;
+export type ServiceError = "not_found" | "server_error";
+
+export interface ServiceResult<T> {
+  data: T;
+  error: ServiceError | null;
 }
 
 export async function getLatestArticles(
   pb: TypedPocketBase,
   limit = 3,
-): Promise<ArticlesCollection> {
+): Promise<ServiceResult<ArticlesResponse[]>> {
   try {
     const articlesPage = await pb.collection("articles").getList(1, limit, {
       sort: "-created",
     });
 
     return {
-      articles: articlesPage.items,
-      fetchError: false,
+      data: articlesPage.items,
+      error: null,
     };
   } catch (error) {
     console.error(
@@ -25,23 +27,23 @@ export async function getLatestArticles(
     );
 
     return {
-      articles: [],
-      fetchError: true,
+      data: [],
+      error: "server_error",
     };
   }
 }
 
 export async function getAllArticles(
   pb: TypedPocketBase,
-): Promise<ArticlesCollection> {
+): Promise<ServiceResult<ArticlesResponse[]>> {
   try {
-    const articlesPage = await pb.collection("articles").getList(1, 100, {
+    const articlesPage = await pb.collection("articles").getFullList({
       sort: "-created",
     });
 
     return {
-      articles: articlesPage.items,
-      fetchError: false,
+      data: articlesPage,
+      error: null,
     };
   } catch (error) {
     console.error(
@@ -50,8 +52,8 @@ export async function getAllArticles(
     );
 
     return {
-      articles: [],
-      fetchError: true,
+      data: [],
+      error: "server_error",
     };
   }
 }
@@ -59,22 +61,31 @@ export async function getAllArticles(
 export async function getArticleBySlug(
   pb: TypedPocketBase,
   slug: string,
-): Promise<ArticlesCollection> {
+): Promise<ServiceResult<ArticlesResponse | null>> {
   try {
-    const articlesPage = await pb.collection("articles").getOne(slug);
+    const article = await pb
+      .collection("articles")
+      .getFirstListItem(`slug="${slug}"`);
     return {
-      articles: [articlesPage],
-      fetchError: false,
+      data: article,
+      error: null,
     };
-  } catch (error) {
+  } catch (error: any) {
+    if (error?.status === 404) {
+      return {
+        data: null,
+        error: "not_found",
+      };
+    }
+
     console.error(
       "[articles.service] Impossible de recuperer l'article PocketBase",
       error,
     );
 
     return {
-      articles: [],
-      fetchError: true,
+      data: null,
+      error: "server_error",
     };
   }
 }
