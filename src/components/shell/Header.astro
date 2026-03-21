@@ -1,10 +1,31 @@
 ---
 import LogoPositif from '../../assets/icones/logo-positif.webp'
 import LogoNegatif from '../../assets/icones/logo-negatif.webp'
-import IconRecherche from '../../assets/icones/search.webp';
 import BoutonCercle from '../ui/BoutonCercle.astro';
+import GlobalHeaderSearch from '../ui/GlobalHeaderSearch.vue';
+import { getAllArticles } from '../../lib/services/articles.service';
+import { getAllRecettes } from '../../lib/services/recettes.service';
 //Variable pour savoir si l'utilisateur est connecté ou pas 
 const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
+const pb = Astro.locals.pb;
+
+const { articles } = pb ? await getAllArticles(pb) : { articles: [] };
+const { recettes } = pb ? await getAllRecettes(pb) : { recettes: [] };
+
+const globalSearchItems = [
+    ...articles.map((article) => ({
+        id: article.id,
+        kind: 'article' as const,
+        title: article.titre ?? 'Article',
+        href: `/articles/${article.slug ?? article.id}`,
+    })),
+    ...recettes.map((recette) => ({
+        id: recette.id,
+        kind: 'recette' as const,
+        title: recette.titre ?? 'Recette',
+        href: `/recettes/${recette.slug ?? recette.id}`,
+    })),
+];
 
 // Récupération des infos de l'utilisateur connecté pour afficher son avatar ou une lettre de fallback dans le bouton de profil
 const authUser = (Astro.locals.pb?.authStore?.model as {
@@ -33,11 +54,7 @@ const avatarFallback = (authUser?.name || authUser?.email || 'U').trim().charAt(
         </a>
 
         <div id="header-actions" class="hidden lg:flex justify-end items-center gap-3 transition-transform duration-300">
-            <div class="header-search">
-               <BoutonCercle variant="primary" size="header" ariaLabel="Rechercher sur le site">
-                                <img src={IconRecherche.src} alt="Icône Recherche" class="w-6 object-contain" />
-                </BoutonCercle>
-            </div>
+            <GlobalHeaderSearch client:load items={globalSearchItems} />
             {isAuthenticated ? (
                 <BoutonCercle variant="secondary" size="header" href="/profil" ariaLabel="Aller au profil utilisateur">
                     {avatarUrl ? (
@@ -210,13 +227,6 @@ const avatarFallback = (authUser?.name || authUser?.email || 'U').trim().charAt(
     .header-shell.is-scrolled #header-logo,
     .header-shell.is-scrolled #header-actions {
         transform: scale(0.95);
-    }
-
-    .header-shell.is-scrolled .header-search :global(button),
-    .header-shell.is-scrolled .header-search :global(a) {
-        background: var(--color-secondary);
-        color: var(--color-primary);
-        border-color: var(--color-secondary);
     }
 
     .header-shell.is-scrolled .btn-green {

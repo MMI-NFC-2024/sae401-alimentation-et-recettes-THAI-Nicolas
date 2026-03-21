@@ -28,7 +28,7 @@ const { articles, fetchError: articlesFetchError } = await getLatestArticles(Ast
 						<h1 class="text-4xl xl:text-7xl">Vos objectifs alimentaires à portée de <span class="text-accent1">langue</span> !!</h1>
 					</header>
 					<p class="py-8 text-lg xl:text-3xl">Adieu la frustration. Profitez de nos <b>recettes gourmandes</b> et de <b>conseils nutritionnels experts</b> pour nourrir votre progression avec plaisir.</p>
-					<a href="#" class="btn my-2 text-xl">Commencer l'aventure</a>
+					<a href="#aventure" class="btn my-2 text-xl">Commencer l'aventure</a>
 				</div>
 				<div class="order-2 flex justify-center lg:order-1 lg:justify-start lg:self-end relative -left-24 top-14 md:-left-40 md:top-24 lg:-left-10 xl:-left-30 2xl:-left-64">
 					<img
@@ -39,7 +39,7 @@ const { articles, fetchError: articlesFetchError } = await getLatestArticles(Ast
 				</div>
 			</div>
 		</section>
-		<section class="green-section pt-0 overflow-hidden">
+		<section id="aventure" class="green-section pt-0 overflow-hidden">
 			<DamierTransition rows={4} tileSize={28} />
 			<div class="content-container pt-8 md:pt-16 lg:pt-20 xl:pt-24 2xl:pt-32">
 				<header class="mt-8 lg:mt-0">
@@ -98,7 +98,7 @@ const { articles, fetchError: articlesFetchError } = await getLatestArticles(Ast
 				)}
 		
 			<div class="flex justify-center mt-8">
-					<a href="/articles" class="btn">Voir toute les recettes.</a>
+					<a href="/recettes" class="btn">Voir toute les recettes.</a>
 			</div>
 			</div>
 		</section>

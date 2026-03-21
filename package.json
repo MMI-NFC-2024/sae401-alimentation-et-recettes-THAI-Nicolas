@@ -11,11 +11,14 @@
   },
   "dependencies": {
     "@astrojs/node": "^10.0.0",
+    "@astrojs/vue": "^6.0.1",
     "@fontsource/afacad": "^5.2.10",
     "@fontsource/barlow": "^5.2.8",
     "@tailwindcss/vite": "^4.2.1",
+    "@vueform/multiselect": "^2.6.11",
     "astro": "^6.0.2",
     "pocketbase": "^0.26.8",
-    "tailwindcss": "^4.2.1"
+    "tailwindcss": "^4.2.1",
+    "vue": "^3.5.30"
   }
 }

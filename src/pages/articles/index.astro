@@ -1,11 +1,11 @@
 ---
 import Layout from "../../layouts/Layout.astro";
 import DamierHero from "../../components/ui/DamierHero.astro";
-import IconRecherche from "../../assets/icones/search-gray.webp";
 import CardArticle from "../../components/ui/CardArticle.astro";
+import ArticlesSearchPagination from "../../components/ui/ArticlesSearchPagination.vue";
 
 // Fonctions sur les articles
-import { getAllArticles, } from "../../lib/services/articles.service";
+import { getAllArticles } from "../../lib/services/articles.service";
 const { articles, fetchError: articlesFetchError } = await getAllArticles(Astro.locals.pb);
 
 ---
@@ -22,37 +22,20 @@ const { articles, fetchError: articlesFetchError } = await getAllArticles(Astro.
                 <DamierHero title="Nos conseils et fiches" />
             </header>
             <div class="section content-container">
-                <div class="flex flex-col gap-2 lg:flex-row lg:justify-between items-center">
-                    <div class="flex gap-2">
-                        <button data-filter-btn data-filter="all" class="btn-green uppercase">Tout</button>
-                        <button data-filter-btn data-filter="conseil" class="btn-outline uppercase">Conseils</button>
-                        <button data-filter-btn data-filter="fiche_aliment" class="btn-outline uppercase">Fiches</button>
-                    </div>
-                    <div>
-                        <!-- //Barre de recherche -->
-                        <form class="relative mt-6">
-                            <input id="article-search" data-search-input type="text" placeholder="Rechercher un article..." class="w-full rounded-4xl border-2 border-primary bg-secondary py-3 px-16 lg:py-4 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)] focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent" />
-                            <button type="submit" class="absolute right-8 top-1/2 transform -translate-y-1/2 text-primary hover:text-primary/80 transition-colors">
-                                <img src={IconRecherche.src} alt="Icône de recherche" class="w-4 h-4 lg:w-5 lg:h-5 object-contain" />
-                            </button>
-                        </form>
-                    </div>
-                </div>
+                <ArticlesSearchPagination client:load />
                 <div>
                     {articles.length > 0 ? (
                         <ul class="ul-grid">
                             {articles.map((article) => (
-                                <li data-article-item data-type={article.type} data-title={article.titre} class="">
+                                <li data-article-item data-type={article.type} data-title={article.titre}>
                                     <CardArticle article={article} />
                                 </li>
                             ))}
                         </ul>
 
-                        <div id="articles-pagination" data-pagination>
+                        <div id="articles-pagination" data-pagination class="mt-10 flex justify-center"></div>
 
-                        </div>
-
-                        <p id="articles-empty" hidden></p>
+                        <p id="articles-empty" class="mt-8 text-center" hidden></p>
                     ): (
                         <p class="mt-8 text-center">
                             {articlesFetchError ? "Les conseils sont temporairement indisponibles. Reessaie dans quelques instants." : "Aucun article trouve pour le moment."}
