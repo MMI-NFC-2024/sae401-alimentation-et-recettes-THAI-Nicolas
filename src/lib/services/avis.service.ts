@@ -21,6 +21,58 @@ export interface AvisStats {
   distribution: Record<1 | 2 | 3 | 4 | 5, number>;
 }
 
+async function hydrateAvisUsers(
+  pb: TypedPocketBase,
+  avis: AvisWithUserResponse[],
+): Promise<AvisWithUserResponse[]> {
+  try {
+    const userIds = Array.from(
+      new Set(
+        avis
+          .filter((item) => !item.expand?.user && item.user)
+          .map((item) => item.user as string),
+      ),
+    );
+
+    if (userIds.length === 0) {
+      return avis;
+    }
+
+    const users = (await pb.collection("users").getFullList({
+      filter: userIds.map((id) => `id=\"${id}\"`).join(" || "),
+    })) as UsersResponse[];
+
+    const usersById = new Map(users.map((user) => [user.id, user]));
+
+    return avis.map((item) => {
+      if (item.expand?.user) {
+        return item;
+      }
+
+      const userId = item.user;
+      if (!userId) {
+        return item;
+      }
+
+      const user = usersById.get(userId);
+      if (!user) {
+        return item;
+      }
+
+      return {
+        ...item,
+        expand: {
+          ...(item.expand ?? {}),
+          user,
+        },
+      };
+    });
+  } catch {
+    // If users cannot be fetched, keep current payload (reviews still visible).
+    return avis;
+  }
+}
+
 function computeAvisStats(avis: AvisWithUserResponse[]): AvisStats {
   const distribution: Record<1 | 2 | 3 | 4 | 5, number> = {
     1: 0,
@@ -52,14 +104,26 @@ export async function getAvisByRecetteId(
   recetteId: string,
 ): Promise<ServiceResult<AvisWithUserResponse[]>> {
   try {
-    const avis = await pb.collection("avis").getFullList({
-      filter: `recette="${recetteId}"`,
-      sort: "-created",
-      expand: "user",
-    });
+    let avis: AvisWithUserResponse[] = [];
+
+    try {
+      avis = (await pb.collection("avis").getFullList({
+        filter: `recette="${recetteId}"`,
+        sort: "-created",
+        expand: "user",
+      })) as AvisWithUserResponse[];
+    } catch {
+      // Fallback: if user expansion is blocked, still return comments.
+      avis = (await pb.collection("avis").getFullList({
+        filter: `recette="${recetteId}"`,
+        sort: "-created",
+      })) as AvisWithUserResponse[];
+    }
+
+    const avisWithUsers = await hydrateAvisUsers(pb, avis);
 
     return {
-      data: avis as AvisWithUserResponse[],
+      data: avisWithUsers,
       error: null,
     };
   } catch (error) {
@@ -75,21 +139,28 @@ export async function getAvisStatsByRecetteId(
   pb: TypedPocketBase,
   recetteId: string,
 ): Promise<ServiceResult<AvisStats>> {
-  const avisResult = await getAvisByRecetteId(pb, recetteId);
+  try {
+    const avis = await pb.collection("avis").getFullList({
+      filter: `recette="${recetteId}"`,
+    });
 
-  if (avisResult.error) {
+    return {
+      data: computeAvisStats(avis as AvisWithUserResponse[]),
+      error: null,
+    };
+  } catch (error) {
+    console.error(
+      "[avis.service] Impossible de recuperer les statistiques des avis PocketBase",
+      error,
+    );
+
     return {
       data: {
         average: 0,
         total: 0,
         distribution: { 1: 0, 2: 0, 3: 0, 4: 0, 5: 0 },
       },
-      error: avisResult.error,
+      error: "server_error",
     };
   }
-
-  return {
-    data: computeAvisStats(avisResult.data),
-    error: null,
-  };
 }

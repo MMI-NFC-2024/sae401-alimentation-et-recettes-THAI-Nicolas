@@ -92,7 +92,6 @@ const ingredientsCalculateur = composition.map((item) => ({
 
 const { data: recettesSimilaires } = await getLatestRecettes(Astro.locals.pb, 3, {
     objectif_sante: recette.objectif_sante,
-    categorie: recette.categorie,
     exclude_id: recette.id,
 });
 
@@ -106,7 +105,7 @@ const returnTo = Astro.url.pathname;
     ogType="article"
     >
     <main>
-        <section class="green-section pt-6">
+        <section class="green-section pt-10">
                 <div class="content-container">
                     <nav aria-label="Fil d'ariane" class="text-sm text-secondary/85">
                         <ol class="flex items-center gap-2">
@@ -120,7 +119,7 @@ const returnTo = Astro.url.pathname;
 
                     <header class="mt-6 overflow-hidden">
                         <div class="grid grid-cols-1 gap-6 py-6 lg:grid-cols-2 lg:gap-10 xl:gap-20">
-                            <div class="h-96 lg:h-100 xl:h-120">
+                                                        <div class="h-70 sm:h-80 md:h-96 lg:h-100 xl:h-120">
                                 <ImgPB
                                   record={recette}
                                   image={recette.image}
@@ -129,7 +128,7 @@ const returnTo = Astro.url.pathname;
                                   classImg="h-full w-full object-cover"
                                 />
                             </div>
-                            <div class="space-y-4 lg:h-155 lg:overflow-y-auto">
+                                                        <div class="flex flex-col items-center justify-center space-y-4 lg:h-155 lg:items-start lg:justify-start">
                                 <span class="text-xs uppercase tracking-[0.18em] text-secondary/80">{recette.categorie} • {recette.difficulte} • {regimesLabel}</span>
                                 <h1 class="text-4xl xl:text-5xl font-bold">{recette.titre}</h1>
                                 {
@@ -139,7 +138,7 @@ const returnTo = Astro.url.pathname;
                                     <p class="text-lg text-secondary/90">Aucune description disponible.</p>
                                   )
                                 }
-                                <div>
+                                                                <div class="w-full">
                                     <PanneauNutrition
                                 kcalParPortion={recette.kcal_portion}
                                 proteines={recette.total_proteines}
@@ -196,7 +195,6 @@ const returnTo = Astro.url.pathname;
                                                                             numero={Number(etape.numero_ordre ?? index + 1)}
                                                                             titre={etape.titre}
                                       description={etape.description}
-                                                                            inverse={index % 2 !== 0}
                                     />
                                 ))}
                             </ol>

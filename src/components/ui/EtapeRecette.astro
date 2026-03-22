@@ -17,26 +17,31 @@ const descriptionSecurisee = (description ?? "").trim();
 
 <li
   class:list={[
-    "relative overflow-hidden rounded-full border-2 border-secondary bg-secondary px-8 py-4 text-primary shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_30%,black_70%)]",
-    inverse ? "pr-22" : "pl-22",
+    "relative overflow-hidden border-2 border-secondary bg-secondary text-primary shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_30%,black_70%)]",
+    "rounded-4xl px-5 py-5",
+    "md:rounded-full md:py-4",
+    inverse ? "md:pr-22 md:pl-8" : "md:pl-22 md:pr-8",
   ]}
 >
   <span
     class:list={[
-      "absolute top-1/2 -translate-y-1/2 inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-secondary bg-primary font-barlow text-3xl font-bold text-secondary",
-      inverse ? "right-0.5" : "left-0.5",
+      "mx-auto mb-3 inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-secondary bg-primary font-barlow text-2xl font-bold text-secondary",
+      "md:mb-0 md:absolute md:h-14 md:w-14 md:text-3xl",
+      inverse
+        ? "md:left-auto md:right-0.5 md:top-1/2 md:-translate-y-1/2"
+        : "md:left-0.5 md:top-1/2 md:-translate-y-1/2",
     ]}
   >
     {numero}
   </span>
 
-  <div class:list={["space-y-1", inverse ? "text-right" : "text-left"]}>
-    <h3 class="font-barlow text-xl leading-tight">{titre ?? `Etape ${numero}`}</h3>
+  <div class:list={["space-y-1.5 text-center", inverse ? "md:text-right" : "md:text-left"]}>
+    <h3 class="font-barlow text-lg leading-tight md:text-xl">{titre ?? `Etape ${numero}`}</h3>
     {
       descriptionSecurisee ? (
-        <div class="text-sm leading-relaxed text-primary/85" set:html={descriptionSecurisee} />
+        <div class="text-sm leading-relaxed text-primary/85 md:text-sm" set:html={descriptionSecurisee} />
       ) : (
-        <p class="text-sm leading-relaxed text-primary/70">Aucune description pour cette etape.</p>
+        <p class="text-sm leading-relaxed text-primary/70 md:text-sm">Aucune description pour cette etape.</p>
       )
     }
   </div>
