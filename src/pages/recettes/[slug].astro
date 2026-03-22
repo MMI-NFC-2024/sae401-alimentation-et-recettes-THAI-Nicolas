@@ -39,17 +39,17 @@ const avisSuccessMessage =
 
 const { slug } = Astro.params as { slug: string };
 if (!slug) {
-  return Astro.redirect("/recettes");
+    return Astro.redirect("/404");
 }
 const { data: recette, error } = await getRecetteBySlug(Astro.locals.pb, slug);
 
 if (error === "server_error") {
   console.error("Erreur lors de la récupération de la recette :", error);
-    return Astro.redirect("/recettes");
+        return Astro.redirect("/404");
 }
 
 if (!recette) {
-  return Astro.redirect("/recettes");
+    return Astro.redirect("/404");
 }
 
 const [compositionResult, etapesResult, avisResult] = await Promise.all([

@@ -12,18 +12,18 @@ import MeMaintenir from "../../assets/personnages/me-maintenir.webp";
 
 const { slug } = Astro.params as { slug: string };
 if (!slug) {
-    return Astro.redirect("/articles");
+    return Astro.redirect("/404");
 }
 
 const { data: article, error } = await getArticleBySlug(Astro.locals.pb, slug);
 
 if (error === "server_error") {
     console.error("Erreur lors de la récupération de l'article :", error);
-    return Astro.redirect("/articles");
+    return Astro.redirect("/404");
 }
 
 if (!article) {
-    return Astro.redirect("/articles");
+    return Astro.redirect("/404");
 }
 
 const { data: latestArticles } = await getLatestArticles(Astro.locals.pb, 8);

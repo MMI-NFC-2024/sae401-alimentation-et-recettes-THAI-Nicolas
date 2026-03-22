@@ -1,0 +1,58 @@
+---
+import Layout from "../layouts/Layout.astro";
+
+Astro.response.status = 404;
+---
+
+<Layout
+	title="404 | Page introuvable | Slurpy"
+	description="La page que tu cherches n'existe pas ou a ete deplacee. Retourne vers les recettes, les articles ou la page d'accueil Slurpy."
+	keywords="404, page introuvable, erreur 404, slurpy, recettes, articles nutrition"
+	ogImage="/og-image-default.png"
+	ogType="website"
+	robots="noindex, follow"
+>
+	<main>
+		<section class="green-section overflow-hidden">
+			<div class="content-container pb-10">
+				<div class="mx-auto max-w-4xl space-y-4 text-center lg:space-y-5">
+					<p class="inline-flex rounded-full border-2 border-secondary/30 bg-secondary/8 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-secondary/85">
+						Oups, erreur 404
+					</p>
+					<h1 class="text-4xl font-bold leading-tight sm:text-5xl xl:text-6xl">
+						Cette page n'existe pas.
+					</h1>
+					<p class="mx-auto max-w-2xl text-base sm:text-lg xl:text-xl">
+						Le lien est peut-etre ancien, incomplet ou la page a ete deplacee.
+						Pas de panique, on te remet sur la bonne voie.
+					</p>
+					<div class="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
+				<a
+					href="/recettes"
+					class="rounded-2xl border-2 border-primary/20 bg-white p-5 shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_20%,white_80%)] transition-transform hover:-translate-y-1"
+				>
+					<h2 class="text-2xl text-primary">Recettes</h2>
+					<p class="mt-2 text-sm text-primary/80 sm:text-base">Trouve une recette adaptee a ton objectif sante.</p>
+				</a>
+
+				<a
+					href="/articles"
+					class="rounded-2xl border-2 border-primary/20 bg-white p-5 shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_20%,white_80%)] transition-transform hover:-translate-y-1"
+				>
+					<h2 class="text-2xl text-primary">Articles</h2>
+					<p class="mt-2 text-sm text-primary/80 sm:text-base">Decouvre nos conseils nutrition et fiches aliments.</p>
+				</a>
+
+				<a
+					href="/contact"
+					class="rounded-2xl border-2 border-primary/20 bg-white p-5 shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_20%,white_80%)] transition-transform hover:-translate-y-1 sm:col-span-2 lg:col-span-1"
+				>
+					<h2 class="text-2xl text-primary">Contact</h2>
+					<p class="mt-2 text-sm text-primary/80 sm:text-base">Besoin d'aide ? L'equipe Slurpy est la pour t'aider.</p>
+				</a>
+			</div>
+				</div>
+			</div>
+		</section>
+	</main>
+</Layout>
