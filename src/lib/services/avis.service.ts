@@ -21,6 +21,11 @@ export interface AvisStats {
   distribution: Record<1 | 2 | 3 | 4 | 5, number>;
 }
 
+export interface AvisCardStats {
+  average: number;
+  total: number;
+}
+
 async function hydrateAvisUsers(
   pb: TypedPocketBase,
   avis: AvisWithUserResponse[],
@@ -162,5 +167,64 @@ export async function getAvisStatsByRecetteId(
       },
       error: "server_error",
     };
+  }
+}
+
+export async function getAvisStatsByRecetteIds(
+  pb: TypedPocketBase,
+  recetteIds: string[],
+): Promise<ServiceResult<Record<string, AvisCardStats>>> {
+  try {
+    const uniqueRecetteIds = Array.from(new Set(recetteIds.filter(Boolean)));
+    if (uniqueRecetteIds.length === 0) {
+      return { data: {}, error: null };
+    }
+
+    const chunkSize = 20;
+    const statsByRecette: Record<string, { sum: number; total: number }> = {};
+
+    uniqueRecetteIds.forEach((id) => {
+      statsByRecette[id] = { sum: 0, total: 0 };
+    });
+
+    for (let i = 0; i < uniqueRecetteIds.length; i += chunkSize) {
+      const chunk = uniqueRecetteIds.slice(i, i + chunkSize);
+      const filter = chunk.map((id) => `recette=\"${id}\"`).join(" || ");
+
+      const avisChunk = (await pb.collection("avis").getFullList({
+        filter,
+      })) as AvisResponse[];
+
+      for (const avis of avisChunk) {
+        const recette = avis.recette;
+        if (!recette || !statsByRecette[recette]) {
+          continue;
+        }
+
+        const note = Number(avis.note ?? 0);
+        statsByRecette[recette].total += 1;
+        if (Number.isFinite(note) && note >= 1 && note <= 5) {
+          statsByRecette[recette].sum += note;
+        }
+      }
+    }
+
+    const normalizedStats: Record<string, AvisCardStats> = {};
+    uniqueRecetteIds.forEach((id) => {
+      const entry = statsByRecette[id] ?? { sum: 0, total: 0 };
+      normalizedStats[id] = {
+        average:
+          entry.total > 0 ? Number((entry.sum / entry.total).toFixed(1)) : 0,
+        total: entry.total,
+      };
+    });
+
+    return { data: normalizedStats, error: null };
+  } catch (error) {
+    console.error(
+      "[avis.service] Impossible de recuperer les statistiques par recette",
+      error,
+    );
+    return { data: {}, error: "server_error" };
   }
 }

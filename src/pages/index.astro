@@ -12,6 +12,11 @@ import DamierTransition from '../components/ui/DamierTransition.astro';
 // Fonctions "Nos recettes"
 import { getLatestRecettes } from '../lib/services/recettes.service';
 const { data: recettes, error: recettesError } = await getLatestRecettes(Astro.locals.pb, 4);
+import { getAvisStatsByRecetteIds } from '../lib/services/avis.service';
+const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
+	Astro.locals.pb,
+	recettes.map((recette) => recette.id),
+);
 
 // Fonctions "Nos conseils nutritionnels"
 import { getLatestArticles } from '../lib/services/articles.service';
@@ -83,11 +88,18 @@ const { data: articles, error: articlesError } = await getLatestArticles(Astro.l
 		
 				{recettes.length > 0 ? (
 					<ul class="ul-grid md:grid-cols-2 lg:grid-cols-4">
-						{recettes.map((recette) => (
+						{recettes.map((recette) => {
+							const avisStats = avisStatsByRecette[recette.id] ?? { average: 0, total: 0 };
+							return (
 							<li class="w-full h-full">
-								<CardRecette recette={recette} />
+								<CardRecette
+									recette={recette}
+									rating={avisStats.average}
+									reviewsCount={avisStats.total}
+								/>
 							</li>
-						))}
+							);
+						})}
 					</ul>
 				) : (
 					<p class="mt-8 text-center">

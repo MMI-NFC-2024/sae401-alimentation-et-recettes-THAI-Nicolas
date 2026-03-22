@@ -4,17 +4,19 @@ import ImgPB from "./ImgPB.astro";
 
 interface Props {
     recette: RecettesResponse;
+    rating?: number;
+    reviewsCount?: number;
 }
 
-const { recette } = Astro.props as Readonly<Props>;
+const { recette, rating = 0, reviewsCount = 0 } = Astro.props as Readonly<Props>;
 const title = recette.titre ?? 'Recette';
 const href = `/recettes/${recette.slug ?? recette.id}`;
-const auteur = recette.expand?.user?.name ?? 'Anonyme';
+const auteur = (recette.expand as { user?: { name?: string } } | undefined)?.user?.name ?? 'Anonyme';
 const difficulte = recette.difficulte ?? 'N/A';
 const tempsTotal = recette.temps_total ?? 'N/A';
 const timeLabel = typeof tempsTotal === 'number' ? `${tempsTotal} min` : `${tempsTotal}`;
-const rating = 4;
-const reviewsCount = 550;
+const roundedRating = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+const safeReviewsCount = Math.max(0, Number(reviewsCount) || 0);
 ---
 
 <a href={href} class="group block w-full max-w-sm mx-auto">
@@ -39,9 +41,9 @@ const reviewsCount = 550;
         <div class="mt-3 flex items-center justify-between gap-3">
             <div class="flex items-center gap-1">
                 {Array.from({ length: 5 }).map((_, index) => (
-                    <span class:list={["text-lg leading-none", index < rating ? "text-primary" : "text-primary/30"]}>★</span>
+                    <span class:list={["text-lg leading-none", index < roundedRating ? "text-primary" : "text-primary/30"]}>★</span>
                 ))}
-                <span class="ml-1 text-sm text-primary/80">(+{reviewsCount})</span>
+                <span class="ml-1 text-sm text-primary/80">({safeReviewsCount})</span>
             </div>
 
             <span class="rounded-md bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wide text-secondary">{difficulte}</span>

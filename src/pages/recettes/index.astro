@@ -3,11 +3,16 @@ import DamierHero from "../../components/ui/DamierHero.astro"
 import Layout from "../../layouts/Layout.astro"
 import { getAllRecettes } from "../../lib/services/recettes.service";
 import { getRegimeOptions } from "../../lib/services/regimes.service";
+import { getAvisStatsByRecetteIds } from "../../lib/services/avis.service";
 import CardRecette from "../../components/ui/CardRecette.astro";
 import RecettesFiltersPanel from "../../components/ui/RecettesFiltersPanel.vue";
 
 const { data: recettes, error: recettesError } = await getAllRecettes(Astro.locals.pb);
 const { data: regimeOptions } = await getRegimeOptions(Astro.locals.pb);
+const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
+    Astro.locals.pb,
+    recettes.map((recette) => recette.id),
+);
 ---
 
 <Layout>
@@ -30,18 +35,26 @@ const { data: regimeOptions } = await getRegimeOptions(Astro.locals.pb);
                 { recettes.length > 0 ? (
                     <div>
                         <ul class="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3" data-recettes-grid>
-                            {recettes.map((recette) => (
-                                <li
-                                    data-recette-item
-                                    data-title={recette.titre}
-                                    data-objectif={recette.objectif_sante}
-                                    data-categorie={recette.categorie}
-                                    data-regimes={(recette.regimes ?? []).join(",")}
-                                    data-rating="4"
-                                >
-                                    <CardRecette recette={recette} />
-                                </li>
-                            ))}
+                            {recettes.map((recette) => {
+                                const avisStats = avisStatsByRecette[recette.id] ?? { average: 0, total: 0 };
+
+                                return (
+                                    <li
+                                        data-recette-item
+                                        data-title={recette.titre}
+                                        data-objectif={recette.objectif_sante}
+                                        data-categorie={recette.categorie}
+                                        data-regimes={(recette.regimes ?? []).join(",")}
+                                        data-rating={String(avisStats.average)}
+                                    >
+                                        <CardRecette
+                                            recette={recette}
+                                            rating={avisStats.average}
+                                            reviewsCount={avisStats.total}
+                                        />
+                                    </li>
+                                );
+                            })}
                         </ul>
 
                         <div id="recettes-pagination" class="mt-10 flex items-center justify-center"></div>

@@ -4,7 +4,7 @@ import { actions, isInputError } from "astro:actions";
 import { getRecetteBySlug, getLatestRecettes } from "../../lib/services/recettes.service";
 import { getCompositionByRecetteId } from "../../lib/services/composition.service";
 import { getEtapesByRecetteId } from "../../lib/services/etapes.service";
-import { getAvisByRecetteId, getAvisStatsByRecetteId } from "../../lib/services/avis.service";
+import { getAvisByRecetteId, getAvisStatsByRecetteIds } from "../../lib/services/avis.service";
 import CardRecette from "../../components/ui/CardRecette.astro";
 import ImgPB from "../../components/ui/ImgPB.astro";
 import PanneauNutrition from "../../components/ui/PanneauNutrition.astro";
@@ -52,17 +52,38 @@ if (!recette) {
   return Astro.redirect("/recettes");
 }
 
-const [compositionResult, etapesResult, avisResult, avisStatsResult] = await Promise.all([
+const [compositionResult, etapesResult, avisResult] = await Promise.all([
   getCompositionByRecetteId(Astro.locals.pb, recette.id),
   getEtapesByRecetteId(Astro.locals.pb, recette.id),
     getAvisByRecetteId(Astro.locals.pb, recette.id),
-    getAvisStatsByRecetteId(Astro.locals.pb, recette.id),
 ]);
 
 const composition = compositionResult.data;
 const etapes = etapesResult.data;
 const avis = avisResult.data;
-const avisStats = avisStatsResult.data;
+const distributionAvis: Record<1 | 2 | 3 | 4 | 5, number> = {
+    1: 0,
+    2: 0,
+    3: 0,
+    4: 0,
+    5: 0,
+};
+
+let sommeNotes = 0;
+for (const avisItem of avis) {
+    const note = Number(avisItem.note ?? 0);
+    if (note >= 1 && note <= 5) {
+        const noteArrondie = Math.round(note) as 1 | 2 | 3 | 4 | 5;
+        distributionAvis[noteArrondie] += 1;
+        sommeNotes += note;
+    }
+}
+
+const avisStats = {
+    average: avis.length > 0 ? Number((sommeNotes / avis.length).toFixed(1)) : 0,
+    total: avis.length,
+    distribution: distributionAvis,
+};
 
 const currentUser = (Astro.locals.pb?.authStore?.model as {
     id?: string;
@@ -94,6 +115,11 @@ const { data: recettesSimilaires } = await getLatestRecettes(Astro.locals.pb, 3,
     objectif_sante: recette.objectif_sante,
     exclude_id: recette.id,
 });
+
+const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
+    Astro.locals.pb,
+    recettesSimilaires.map((recette) => recette.id),
+);
 
 const notesOrder: Array<1 | 2 | 3 | 4 | 5> = [5, 4, 3, 2, 1];
 const returnTo = Astro.url.pathname;
@@ -129,7 +155,7 @@ const returnTo = Astro.url.pathname;
                                 />
                             </div>
                                                         <div class="flex flex-col items-center justify-center space-y-4 lg:h-155 lg:items-start lg:justify-start">
-                                <span class="text-xs uppercase tracking-[0.18em] text-secondary/80">{recette.categorie} • {recette.difficulte} • {regimesLabel}</span>
+                                <span class="text-xs uppercase tracking-[0.18em] text-secondary/80">{recette.categorie} • {recette.objectif_sante} • {regimesLabel}</span>
                                 <h1 class="text-4xl xl:text-5xl font-bold">{recette.titre}</h1>
                                 {
                                   recette.description ? (
@@ -358,11 +384,15 @@ const returnTo = Astro.url.pathname;
             </header>
             {recettesSimilaires.length > 0 ? (
                 <ul class="ul-grid">
-                    {recettesSimilaires.map((recette) => (
-                        <li data-recette-item data-title={recette.titre} data-objectif={recette.objectif_sante} data-categorie={recette.categorie} data-regimes={(recette.regimes ?? []).join(", ")} data-rating="4">
-                            <CardRecette recette={recette} />
-                        </li>
-                    ))}
+                    {recettesSimilaires.map((recette) => {
+                        const avisStats = avisStatsByRecette[recette.id] ?? { average: 0, total: 0 };
+
+                        return (
+                            <li data-recette-item data-title={recette.titre} data-objectif={recette.objectif_sante} data-categorie={recette.categorie} data-regimes={(recette.regimes ?? []).join(", ")} data-rating={String(avisStats.average)}>
+                                <CardRecette recette={recette} rating={avisStats.average} reviewsCount={avisStats.total} />
+                            </li>
+                        );
+                    })}
                 </ul>
             ) : (
                 <p>Aucune recette similaire trouvee pour le moment.</p>
