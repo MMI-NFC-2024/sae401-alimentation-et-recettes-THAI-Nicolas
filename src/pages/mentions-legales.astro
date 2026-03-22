@@ -1,0 +1,157 @@
+---
+import Layout from "../layouts/Layout.astro";
+import DamierHero from "../components/ui/DamierHero.astro";
+
+const lastUpdate = "22/03/2026";
+---
+<Layout
+	title="Mentions legales | Slurpy"
+	description="Consultez les mentions legales de Slurpy : editeur, hebergeur, donnees personnelles, responsabilite et informations de contact."
+	keywords="mentions legales, slurpy, editeur, hebergeur, donnees personnelles, responsabilite"
+	ogImage="/og-image-default.png"
+	ogType="website"
+	canonical={Astro.url.href}
+	robots="index, follow"
+>
+	<main>
+		<div class="p-0">
+			<header>
+                <DamierHero title="Mentions Légales" />
+            </header>
+		</div>
+
+		<div class="section">
+			<div class="content-container">
+				<article class="rounded-2xl border-2 border-primary bg-white p-5 lg:p-8 xl:p-10">
+					<h2>Informations legales</h2>
+
+					<div class="mt-6 border-t-2 border-primary pt-6">
+						<h3>Editeur du site</h3>
+						<div class="text-content mt-4">
+							<p>
+								Le site Slurpy est edite par Nicolas THAI, etudiant en 2eme annee de BUT MMI a Montbeliard,
+								specialisation DWDI (Developpement web et dispositifs interactifs).
+							</p>
+							<p>
+								Cette application web a ete realisee dans le cadre d'une SAE sur 5 jours.
+							</p>
+						</div>
+					</div>
+
+					<div class="mt-8 border-t-2 border-primary pt-6">
+						<h3>Responsable de publication</h3>
+						<div class="text-content mt-4">
+							<p>Responsable de publication : Nicolas THAI.</p>
+							<p>
+								Contact principal : <a href="mailto:thainicolas06@gmail.com" class="underline">thainicolas06@gmail.com</a>
+							</p>
+						</div>
+					</div>
+
+					<div class="mt-8 border-t-2 border-primary pt-6">
+						<h3>Contact</h3>
+						<div class="text-content mt-4">
+							<p>
+								Pour toute question concernant le site, vous pouvez utiliser la page contact ou ecrire directement par email.
+							</p>
+							<p>Page contact : <a href="/contact" class="underline">/contact</a></p>
+							<p>
+								LinkedIn : <a href="https://www.linkedin.com/in/nicolas-thai-21539a294/" target="_blank" rel="noopener noreferrer" class="underline">Profil LinkedIn de Nicolas THAI</a>
+							</p>
+							<p>
+								Portfolio : <a href="https://nicolas-thai.fr/" target="_blank" rel="noopener noreferrer" class="underline">nicolas-thai.fr</a>
+							</p>
+						</div>
+					</div>
+
+					<div class="mt-8 border-t-2 border-primary pt-6">
+						<h3>Hebergeur</h3>
+						<div class="text-content mt-4">
+							<p>Le site est heberge par Infomaniak Network SA.</p>
+							<p>Adresse : Rue Eugene Marziano 25, 1227 Les Acacias (GE), Suisse.</p>
+							<p>Registre du commerce du canton de Geneve : CH-660.0.059.996-1.</p>
+							<p>Numero IDE/TVA : CHE-103.167.648.</p>
+						</div>
+					</div>
+
+					<div class="mt-8 border-t-2 border-primary pt-6">
+						<h3>Propriete intellectuelle</h3>
+						<div class="text-content mt-4">
+							<p>
+								L'ensemble des contenus presents sur Slurpy (textes, visuels, illustrations, recette, logo, structure)
+								est protege par le droit de la propriete intellectuelle.
+							</p>
+							<p>
+								Toute reproduction, representation, adaptation ou exploitation, totale ou partielle,
+								sans autorisation prealable ecrite, est interdite.
+							</p>
+							<p>Copyright : © 2026 Slurpy. Tous droits reserves.</p>
+						</div>
+					</div>
+
+					<div class="mt-8 border-t-2 border-primary pt-6">
+						<h3>Donnees personnelles</h3>
+						<div class="text-content mt-4">
+							<p>
+								Slurpy peut collecter des donnees personnelles dans les cas suivants : inscription de compte,
+								formulaire de contact, et inscription newsletter.
+							</p>
+							<p>
+								Les donnees sont utilisees uniquement pour la gestion du service, le traitement des demandes,
+								et l'envoi d'informations si vous y avez consenti.
+							</p>
+							<p>
+								Les details des politiques Confidentialite, Cookies et CGU sont en cours de formalisation.
+							</p>
+						</div>
+					</div>
+
+					<div class="mt-8 border-t-2 border-primary pt-6">
+						<h3>Cookies et mesure d'audience</h3>
+						<div class="text-content mt-4">
+							<p>
+								Le site utilise des outils de mesure d'audience afin d'analyser l'utilisation des pages
+								et d'ameliorer l'experience utilisateur.
+							</p>
+							<p>Ces mesures sont realisees dans le respect des obligations legales applicables.</p>
+						</div>
+					</div>
+
+					<div class="mt-8 border-t-2 border-primary pt-6">
+						<h3>Responsabilite</h3>
+						<div class="text-content mt-4">
+							<p>Les informations publiees sur Slurpy sont fournies a titre informatif.</p>
+							<p>
+								Les contenus nutritionnels et recettes ne remplacent pas un avis medical, un diagnostic,
+								ou un suivi par un professionnel de sante.
+							</p>
+							<p>
+								L'editeur ne peut etre tenu responsable des erreurs, omissions, indisponibilites du site,
+								ou dommages lies a son utilisation.
+							</p>
+						</div>
+					</div>
+
+					<div class="mt-8 border-t-2 border-primary pt-6">
+						<h3>Droit applicable</h3>
+						<div class="text-content mt-4">
+							<p>Les presentes mentions legales sont soumises au droit francais.</p>
+							<p>En cas de litige, une resolution amiable sera privilegiee avant toute action judiciaire.</p>
+						</div>
+					</div>
+
+					<div class="mt-8 border-t-2 border-primary pt-6">
+						<h3>Mise a jour</h3>
+						<div class="text-content mt-4">
+							<p>Derniere mise a jour : {lastUpdate}.</p>
+							<p>
+								Ces mentions legales peuvent etre modifiees a tout moment afin de rester conformes
+								aux evolutions du projet et de la reglementation.
+							</p>
+						</div>
+					</div>
+				</article>
+			</div>
+		</div>
+	</main>
+</Layout>
