@@ -111,6 +111,45 @@ const ingredientsCalculateur = composition.map((item) => ({
     unite: item.unite ?? "",
 }));
 
+const ingredientIds = Array.from(
+    new Set(
+        composition
+            .map((item) => item.expand?.ingredient?.id)
+            .filter((id): id is string => Boolean(id)),
+    ),
+);
+
+let ficheByIngredientId: Record<string, { href: string }> = {};
+
+if (ingredientIds.length > 0) {
+    try {
+        const ingredientsFilter = ingredientIds
+            .map((id) => `ingredient_lie=\"${id}\"`)
+            .join(" || ");
+
+        const fichesIngredients = await Astro.locals.pb.collection("articles").getFullList({
+            filter: `type=\"fiche_aliment\" && (${ingredientsFilter})`,
+            sort: "-created",
+        });
+
+        ficheByIngredientId = fichesIngredients.reduce((acc, fiche) => {
+            if (!fiche.ingredient_lie) {
+                return acc;
+            }
+
+            if (!acc[fiche.ingredient_lie]) {
+                acc[fiche.ingredient_lie] = {
+                    href: `/articles/${fiche.slug ?? fiche.id}`,
+                };
+            }
+
+            return acc;
+        }, {} as Record<string, { href: string }>);
+    } catch (error) {
+        console.error("Erreur lors de la recuperation des fiches ingredients:", error);
+    }
+}
+
 const { data: recettesSimilaires } = await getLatestRecettes(Astro.locals.pb, 3, {
     objectif_sante: recette.objectif_sante,
     exclude_id: recette.id,
@@ -186,7 +225,21 @@ const returnTo = Astro.url.pathname;
                                 <ul class="grid gap-3 sm:grid-cols-2">
                                     {composition.map((item) => (
                                         <li class="rounded-xl border border-secondary/40 bg-secondary/8 px-4 py-3">
-                                            <p class="font-semibold">{item.expand?.ingredient?.nom ?? "Ingredient"}</p>
+                                                                                        <p class="font-semibold">
+                                                                                                {(() => {
+                                                                                                    const ingredientId = item.expand?.ingredient?.id;
+                                                                                                    const ficheHref = ingredientId ? ficheByIngredientId[ingredientId]?.href : undefined;
+                                                                                                    const ingredientNom = item.expand?.ingredient?.nom ?? "Ingredient";
+
+                                                                                                    return ficheHref ? (
+                                                                                                        <a href={ficheHref} class="underline decoration-2 underline-offset-2 hover:text-accent2 transition-colors">
+                                                                                                            {ingredientNom}
+                                                                                                        </a>
+                                                                                                    ) : (
+                                                                                                        <span>{ingredientNom}</span>
+                                                                                                    );
+                                                                                                })()}
+                                                                                        </p>
                                             <p class="text-sm text-secondary/85" data-ingredient-qty-id={item.id}>{item.quantite} {item.unite}</p>
                                         </li>
                                     ))}

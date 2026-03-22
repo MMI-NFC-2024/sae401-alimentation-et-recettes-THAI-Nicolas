@@ -244,7 +244,6 @@ export type UsersRecord = {
 	created: IsoAutoDateString
 	email: string
 	emailVisibility?: boolean
-	favoris?: RecordIdString[]
 	id: string
 	name?: string
 	password: string
