@@ -12,7 +12,7 @@ const { recette, rating = 0, reviewsCount = 0 } = Astro.props as Readonly<Props>
 const title = recette.titre ?? 'Recette';
 const href = `/recettes/${recette.slug ?? recette.id}`;
 const auteur = (recette.expand as { user?: { name?: string } } | undefined)?.user?.name ?? 'Anonyme';
-const difficulte = recette.difficulte ?? 'N/A';
+const objectifSante = recette.objectif_sante ?? 'N/A';
 const tempsTotal = recette.temps_total ?? 'N/A';
 const timeLabel = typeof tempsTotal === 'number' ? `${tempsTotal} min` : `${tempsTotal}`;
 const roundedRating = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
@@ -46,7 +46,7 @@ const safeReviewsCount = Math.max(0, Number(reviewsCount) || 0);
                 <span class="ml-1 text-sm text-primary/80">({safeReviewsCount})</span>
             </div>
 
-            <span class="rounded-md bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wide text-secondary">{difficulte}</span>
+            <span class="rounded-md bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wide text-secondary">{objectifSante}</span>
         </div>
     </article>
 </a>

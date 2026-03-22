@@ -1,0 +1,35 @@
+---
+interface Props {
+  titre: string;
+  description: string;
+  ctaLabel: string;
+  href?: string;
+  imageSrc?: string;
+  imageAlt?: string;
+  classeCarte?: string;
+  classeCta?: string;
+}
+
+const {
+  titre,
+  description,
+  ctaLabel,
+  href = "#",
+  imageSrc,
+  imageAlt = "Illustration publicitaire",
+  classeCarte = "rounded-2xl border-2 border-primary bg-primary p-5 text-secondary shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_60%,black_40%)]",
+  classeCta = "btn-green mt-4 inline-flex",
+} = Astro.props as Props;
+---
+
+<div class={classeCarte}>
+  {imageSrc && (
+    <div class="mb-4 overflow-hidden rounded-xl border border-secondary/20 bg-secondary/10">
+      <img src={imageSrc} alt={imageAlt} class="h-36 w-full object-cover" loading="lazy" />
+    </div>
+  )}
+
+  <h3 class="text-xl uppercase">{titre}</h3>
+  <p class="mt-2 text-sm leading-relaxed sm:text-base">{description}</p>
+  <a href={href} class={classeCta}>{ctaLabel}</a>
+</div>

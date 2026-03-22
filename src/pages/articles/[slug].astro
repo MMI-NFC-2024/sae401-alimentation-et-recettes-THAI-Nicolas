@@ -1,0 +1,220 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import { getArticleBySlug, getLatestArticles } from "../../lib/services/articles.service";
+import CardArticle from "../../components/ui/CardArticle.astro";
+import ImgPB from "../../components/ui/ImgPB.astro";
+import CardRecette from "../../components/ui/CardRecette.astro";
+import PubliciteMonetisation from "../../components/ui/PubliciteMonetisation.astro";
+import { getAvisStatsByRecetteIds } from "../../lib/services/avis.service";
+import type { RecettesResponse } from "../../pocketbase-types";
+import PriseDeMasse from "../../assets/personnages/prise-de-masse.webp";
+import MeMaintenir from "../../assets/personnages/me-maintenir.webp";
+
+const { slug } = Astro.params as { slug: string };
+if (!slug) {
+    return Astro.redirect("/articles");
+}
+
+const { data: article, error } = await getArticleBySlug(Astro.locals.pb, slug);
+
+if (error === "server_error") {
+    console.error("Erreur lors de la récupération de l'article :", error);
+    return Astro.redirect("/articles");
+}
+
+if (!article) {
+    return Astro.redirect("/articles");
+}
+
+const { data: latestArticles } = await getLatestArticles(Astro.locals.pb, 8);
+const articlesSimilaires = latestArticles
+    .filter((item) => item.id !== article.id)
+    .filter((item) => item.type === article.type)
+    .slice(0, 3);
+
+let recetteLiee: RecettesResponse | null = null;
+let recetteLieeAvis = { average: 0, total: 0 };
+
+if (article.type === "fiche_aliment" && article.ingredient_lie) {
+    try {
+        const compositionList = await Astro.locals.pb.collection("composition").getList(1, 1, {
+            filter: `ingredient="${article.ingredient_lie}"`,
+            sort: "-created",
+        });
+
+        const recetteId = compositionList.items[0]?.recette;
+
+        if (recetteId) {
+            recetteLiee = await Astro.locals.pb.collection("recettes").getOne(recetteId, {
+                expand: "user",
+            }) as RecettesResponse;
+
+            const { data: avisMap } = await getAvisStatsByRecetteIds(Astro.locals.pb, [recetteId]);
+            recetteLieeAvis = avisMap[recetteId] ?? { average: 0, total: 0 };
+        }
+    } catch (error) {
+        console.error("Erreur lors de la récupération de la recette liée :", error);
+    }
+}
+
+const typeArticleLabel = article.type === "fiche_aliment"
+    ? "Fiche aliment"
+    : "Conseil nutrition";
+
+const articleDescription =
+    article.resume ||
+    "Découvrez nos conseils nutritionnels et fiches aliments pour atteindre vos objectifs alimentaires avec plaisir.";
+
+const articleKeywords = `conseils nutritionnels, fiches aliments, nutrition sportive, perte de poids, ${article.titre ?? "article"}, ${typeArticleLabel}`;
+---
+
+<Layout
+    title={`${article.titre ?? "Article"} | Slurpy`}
+    description={articleDescription}
+    keywords={articleKeywords}
+    ogImage={article.image ? article.image : "/og-image-articles.png"}
+    ogType="article"
+>
+    <main>
+        <section class="green-section pt-10">
+            <div class="content-container">
+                <nav aria-label="Fil d'ariane" class="text-sm text-secondary/85">
+                    <ol class="flex items-center gap-2">
+                        <li><a href="/" class="underline underline-offset-2">Accueil</a></li>
+                        <li>/</li>
+                        <li><a href="/articles" class="underline underline-offset-2">Articles</a></li>
+                        <li>/</li>
+                        <li class="font-semibold text-secondary">{article.titre}</li>
+                    </ol>
+                </nav>
+
+                <header class="mt-6 grid grid-cols-1 gap-6 pb-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)] lg:items-center lg:gap-10 xl:gap-14">
+                    <ImgPB
+                        record={article}
+                        image={article.image}
+                        alt={`Image de l'article ${article.titre ?? ""}`}
+                        classPicture="h-72 w-full overflow-hidden rounded-2xl sm:h-96 lg:h-[30rem]"
+                        classImg="h-full w-full object-cover"
+                        thumb="1200x900"
+                    />
+
+                    <div class="space-y-4">
+                        <span class="inline-flex rounded-full border-2 border-secondary/30 bg-secondary/8 px-3 py-1 text-xs font-bold uppercase tracking-[0.14em] text-secondary/85">
+                            {typeArticleLabel}
+                        </span>
+
+                        <h1 class="text-3xl font-bold leading-tight sm:text-4xl xl:text-5xl">{article.titre}</h1>
+
+                        {
+                            article.resume ? (
+                                <p class="text-base leading-relaxed text-secondary/90 sm:text-lg">{article.resume}</p>
+                            ) : (
+                                <p class="text-base leading-relaxed text-secondary/75 sm:text-lg">
+                                    Un contenu clair et pratique pour vous aider a progresser au quotidien.
+                                </p>
+                            )
+                        }
+                    </div>
+                </header>
+            </div>
+        </section>
+
+        <section class="py-10 lg:py-14">
+            <div class="content-container grid grid-cols-1 gap-8 lg:grid-cols-[minmax(0,1fr)_20rem] xl:grid-cols-[minmax(0,1fr)_24rem]">
+                <article class="rounded-2xl border-2 border-primary/20 bg-white p-5 shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_20%,white_80%)] sm:p-7 lg:p-9">
+                    {
+                        article.contenu ? (
+                            <div class="prose prose-sm max-w-none text-primary sm:prose-base lg:prose-lg prose-headings:text-primary prose-strong:text-primary prose-a:text-accent2 prose-a:no-underline hover:prose-a:underline" set:html={article.contenu} />
+                        ) : (
+                            <p class="text-primary/80">Le contenu de cet article sera disponible tres bientot.</p>
+                        )
+                    }
+                </article>
+
+                <aside class="space-y-5">
+                    <PubliciteMonetisation
+                        titre="Coaching partenaire"
+                        description="Booste tes resultats avec un accompagnement nutrition + entrainement adapte a ton objectif."
+                        ctaLabel="Decouvrir l'offre coaching"
+                        href="#"
+                        imageSrc={PriseDeMasse.src}
+                        imageAlt="Illustration coaching partenaire"
+                    />
+
+                    <PubliciteMonetisation
+                        titre="Pack meal prep express"
+                        description="Gagne du temps avec des plans de repas prets a suivre pendant 4 semaines."
+                        ctaLabel="Voir le pack"
+                        href="#"
+                        imageSrc={MeMaintenir.src}
+                        imageAlt="Illustration pack meal prep"
+                        classeCarte="rounded-2xl border-2 border-accent1/55 bg-accent1/12 p-5 text-primary shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-accent1)_45%,white_55%)]"
+                        classeCta="btn mt-4 inline-flex"
+                    />
+
+                    <div class="rounded-2xl border border-primary/20 bg-secondary/8 p-5">
+                        <h3 class="text-xl">Tu veux aller plus loin ?</h3>
+                        <p class="mt-2 text-sm text-primary/80 sm:text-base">
+                            Recois chaque semaine des conseils nutrition, recettes utiles et nouveautes Slurpy directement par email.
+                        </p>
+                        <form class="mt-4 space-y-3" method="post" action="#">
+                            <label for="newsletter-email" class="sr-only">Adresse email</label>
+                            <input
+                                id="newsletter-email"
+                                name="email"
+                                type="email"
+                                required
+                                placeholder="Ton adresse email"
+                                class="w-full rounded-xl border-2 border-primary/25 bg-white px-3 py-2 text-sm text-primary outline-none focus:border-primary"
+                            />
+                            <button type="submit" class="btn w-full justify-center">S'abonner a la newsletter</button>
+                        </form>
+                    </div>
+                </aside>
+            </div>
+        </section>
+
+        {article.type === "fiche_aliment" && (
+            <section class="content-container pb-8 lg:pb-10">
+                <header>
+                    <h2>Recette liee a l'ingredient</h2>
+                </header>
+
+                {recetteLiee ? (
+                    <div class="mt-6 max-w-sm">
+                        <CardRecette
+                            recette={recetteLiee}
+                            rating={recetteLieeAvis.average}
+                            reviewsCount={recetteLieeAvis.total}
+                        />
+                    </div>
+                ) : (
+                    <p class="mt-4">Aucune recette avec cet ingredient</p>
+                )}
+            </section>
+        )}
+
+        <section class="content-container pb-12 lg:pb-16">
+            <header>
+                <h2>Articles similaires</h2>
+            </header>
+
+            {articlesSimilaires.length > 0 ? (
+                <ul class="ul-grid">
+                    {articlesSimilaires.map((item) => (
+                        <li class="w-full">
+                            <CardArticle article={item} />
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p class="mt-4">Aucun article similaire pour le moment.</p>
+            )}
+            <div class="btn-wrapper">
+                <a href="/articles" class="btn">
+                    Voir tous les articles
+                </a>
+            </div>
+        </section>
+    </main>
+</Layout>

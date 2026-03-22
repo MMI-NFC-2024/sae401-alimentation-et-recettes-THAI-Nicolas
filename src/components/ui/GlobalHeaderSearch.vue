@@ -41,17 +41,11 @@
       </div>
 
       <div
+        v-if="debouncedSearchQuery.trim().length > 0"
         class="mt-2 max-h-80 overflow-auto rounded-xl border border-primary/20"
       >
         <p
-          v-if="debouncedSearchQuery.trim().length === 0"
-          class="px-3 py-2 text-sm text-primary/65"
-        >
-          Tape un titre pour rechercher.
-        </p>
-
-        <p
-          v-else-if="visibleResults.length === 0"
+          v-if="visibleResults.length === 0"
           class="px-3 py-2 text-sm text-primary/65"
         >
           Aucun resultat.
