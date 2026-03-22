@@ -1,0 +1,43 @@
+---
+interface Props {
+  numero: number;
+  titre?: string | null;
+  description?: string | null;
+  inverse?: boolean;
+}
+
+const {
+  numero,
+  titre,
+  description,
+  inverse = false,
+} = Astro.props as Readonly<Props>;
+const descriptionSecurisee = (description ?? "").trim();
+---
+
+<li
+  class:list={[
+    "relative overflow-hidden rounded-full border-2 border-secondary bg-secondary px-8 py-4 text-primary shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_30%,black_70%)]",
+    inverse ? "pr-22" : "pl-22",
+  ]}
+>
+  <span
+    class:list={[
+      "absolute top-1/2 -translate-y-1/2 inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-secondary bg-primary font-barlow text-3xl font-bold text-secondary",
+      inverse ? "right-0.5" : "left-0.5",
+    ]}
+  >
+    {numero}
+  </span>
+
+  <div class:list={["space-y-1", inverse ? "text-right" : "text-left"]}>
+    <h3 class="font-barlow text-xl leading-tight">{titre ?? `Etape ${numero}`}</h3>
+    {
+      descriptionSecurisee ? (
+        <div class="text-sm leading-relaxed text-primary/85" set:html={descriptionSecurisee} />
+      ) : (
+        <p class="text-sm leading-relaxed text-primary/70">Aucune description pour cette etape.</p>
+      )
+    }
+  </div>
+</li>

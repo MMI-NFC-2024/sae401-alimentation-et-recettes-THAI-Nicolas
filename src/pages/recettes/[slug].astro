@@ -1,7 +1,41 @@
 ---
 import Layout from "../../layouts/Layout.astro";
-import { getRecetteBySlug } from "../../lib/services/recettes.service";
+import { actions, isInputError } from "astro:actions";
+import { getRecetteBySlug, getLatestRecettes } from "../../lib/services/recettes.service";
+import { getCompositionByRecetteId } from "../../lib/services/composition.service";
+import { getEtapesByRecetteId } from "../../lib/services/etapes.service";
+import { getAvisByRecetteId, getAvisStatsByRecetteId } from "../../lib/services/avis.service";
+import CardRecette from "../../components/ui/CardRecette.astro";
 import ImgPB from "../../components/ui/ImgPB.astro";
+import PanneauNutrition from "../../components/ui/PanneauNutrition.astro";
+import EtapeRecette from "../../components/ui/EtapeRecette.astro";
+import CalculateurPortions from "../../components/ui/CalculateurPortions.vue";
+
+const createAvisResult = Astro.getActionResult(actions.createAvis);
+const deleteAvisResult = Astro.getActionResult(actions.deleteAvis);
+
+if (createAvisResult?.data?.success || deleteAvisResult?.data?.success) {
+    return Astro.redirect(`${Astro.url.pathname}?avis=1`);
+}
+
+const createAvisInputError = isInputError(createAvisResult?.error)
+    ? createAvisResult.error
+    : undefined;
+
+const createAvisGlobalError =
+    createAvisResult?.error && !isInputError(createAvisResult.error)
+        ? createAvisResult.error.message
+        : undefined;
+
+const deleteAvisGlobalError =
+    deleteAvisResult?.error && !isInputError(deleteAvisResult.error)
+        ? deleteAvisResult.error.message
+        : undefined;
+
+const avisSuccessMessage =
+    Astro.url.searchParams.get("avis") === "1"
+        ? "Votre action sur les avis a bien ete prise en compte."
+        : undefined;
 
 const { slug } = Astro.params as { slug: string };
 if (!slug) {
@@ -17,23 +51,328 @@ if (error === "server_error") {
 if (!recette) {
   return Astro.redirect("/recettes");
 }
+
+const [compositionResult, etapesResult, avisResult, avisStatsResult] = await Promise.all([
+  getCompositionByRecetteId(Astro.locals.pb, recette.id),
+  getEtapesByRecetteId(Astro.locals.pb, recette.id),
+    getAvisByRecetteId(Astro.locals.pb, recette.id),
+    getAvisStatsByRecetteId(Astro.locals.pb, recette.id),
+]);
+
+const composition = compositionResult.data;
+const etapes = etapesResult.data;
+const avis = avisResult.data;
+const avisStats = avisStatsResult.data;
+
+const currentUser = (Astro.locals.pb?.authStore?.model as {
+    id?: string;
+    name?: string;
+    email?: string;
+} | null) ?? null;
+const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
+const currentUserId = currentUser?.id;
+
+const regimesLabel =
+  recette.expand?.regimes
+    ?.map((regime) => regime.nom)
+    .filter(Boolean)
+    .join(", ") ?? "Sans regime precise";
+
+const ingredientsKeyword = composition
+  .map((item) => item.expand?.ingredient?.nom)
+  .filter(Boolean)
+  .join(", ");
+
+const ingredientsCalculateur = composition.map((item) => ({
+    id: item.id,
+    nom: item.expand?.ingredient?.nom ?? "Ingredient",
+    quantite: item.quantite ?? 0,
+    unite: item.unite ?? "",
+}));
+
+const { data: recettesSimilaires } = await getLatestRecettes(Astro.locals.pb, 3, {
+    objectif_sante: recette.objectif_sante,
+    categorie: recette.categorie,
+    exclude_id: recette.id,
+});
+
+const notesOrder: Array<1 | 2 | 3 | 4 | 5> = [5, 4, 3, 2, 1];
+const returnTo = Astro.url.pathname;
 ---
 <Layout title={`${recette.titre} | Slurpy`}
     description={`Découvrez la recette ${recette.titre} pour atteindre vos objectifs alimentaires avec plaisir.`}
-    keywords={`${recette.titre}, recette, ${recette.categorie}, ${recette.objectif_sante}, ${recette.regimes?.join(", ") ?? ""}, slurpy recettes`}
+    keywords={`${recette.titre}, recette, ${recette.categorie}, ${recette.objectif_sante}, ${regimesLabel}, ${ingredientsKeyword}, slurpy recettes`}
     ogImage={recette.image ? recette.image : "/og-image-default.png"}
     ogType="article"
     >
     <main>
-        <section class="green-section">
+        <section class="green-section pt-6">
+                <div class="content-container">
+                    <nav aria-label="Fil d'ariane" class="text-sm text-secondary/85">
+                        <ol class="flex items-center gap-2">
+                            <li><a href="/" class="underline underline-offset-2">Accueil</a></li>
+                            <li>/</li>
+                            <li><a href="/recettes" class="underline underline-offset-2">Recettes</a></li>
+                            <li>/</li>
+                            <li class="font-semibold text-secondary">{recette.titre}</li>
+                        </ol>
+                    </nav>
+
+                    <header class="mt-6 overflow-hidden">
+                        <div class="grid grid-cols-1 gap-6 py-6 lg:grid-cols-2 lg:gap-10 xl:gap-20">
+                            <div class="h-96 lg:h-100 xl:h-120">
+                                <ImgPB
+                                  record={recette}
+                                  image={recette.image}
+                                  alt={recette.titre}
+                                  classPicture="h-full w-full overflow-hidden rounded-2xl"
+                                  classImg="h-full w-full object-cover"
+                                />
+                            </div>
+                            <div class="space-y-4 lg:h-155 lg:overflow-y-auto">
+                                <span class="text-xs uppercase tracking-[0.18em] text-secondary/80">{recette.categorie} • {recette.difficulte} • {regimesLabel}</span>
+                                <h1 class="text-4xl xl:text-5xl font-bold">{recette.titre}</h1>
+                                {
+                                  recette.description ? (
+                                    <div class="text-lg leading-relaxed text-secondary/90" set:html={recette.description} />
+                                  ) : (
+                                    <p class="text-lg text-secondary/90">Aucune description disponible.</p>
+                                  )
+                                }
+                                <div>
+                                    <PanneauNutrition
+                                kcalParPortion={recette.kcal_portion}
+                                proteines={recette.total_proteines}
+                                glucides={recette.total_glucides}
+                                lipides={recette.total_lipides}
+                                portions={recette.portions}
+                                tempsTotal={recette.temps_total}
+                            />
+                                </div>
+                            </div>
+                        </div>
+                    </header>
+
+                    <h2 class="mb-4 ">Ingredients</h2>
+
+                    <div class="grid gap-8 lg:grid-cols-2 pb-10">
+                        <article>
+                            {composition.length > 0 ? (
+                                <ul class="grid gap-3 sm:grid-cols-2">
+                                    {composition.map((item) => (
+                                        <li class="rounded-xl border border-secondary/40 bg-secondary/8 px-4 py-3">
+                                            <p class="font-semibold">{item.expand?.ingredient?.nom ?? "Ingredient"}</p>
+                                            <p class="text-sm text-secondary/85" data-ingredient-qty-id={item.id}>{item.quantite} {item.unite}</p>
+                                        </li>
+                                    ))}
+                                </ul>
+                            ) : (
+                                <p>Aucun ingredient renseigne.</p>
+                            )}
+                        </article>
+
+                        <div class="space-y-6">
+                            
+
+                            <CalculateurPortions
+                                client:load
+                                portionsBase={recette.portions ?? 1}
+                                kcalBaseParPortion={recette.kcal_portion ?? 0}
+                                proteinesBase={recette.total_proteines ?? 0}
+                                glucidesBase={recette.total_glucides ?? 0}
+                                lipidesBase={recette.total_lipides ?? 0}
+                                ingredients={ingredientsCalculateur}
+                            />
+                        </div>
+                    </div>
+
+                    <h2 class="">Etapes</h2>
+                    <div class="pb-12">
+                        
+                        {etapes.length > 0 ? (
+                            <ol class="mt-6 flex flex-col gap-4">
+                                {etapes.map((etape, index) => (
+                                                                        <EtapeRecette
+                                                                            numero={Number(etape.numero_ordre ?? index + 1)}
+                                                                            titre={etape.titre}
+                                      description={etape.description}
+                                                                            inverse={index % 2 !== 0}
+                                    />
+                                ))}
+                            </ol>
+                        ) : (
+                            <p class="mt-4">Aucune etape renseignee.</p>
+                        )}
+                    </div>
+                </div>
+        </section>
+
+        <section id="avis" class="bg-secondary text-primary py-14">
             <div class="content-container">
-                <div>
-                    <h1 class="text-4xl font-bold mb-4">{recette.titre}</h1>
-                    <p class="mb-6 text-lg">{recette.description}</p>
-                    <ImgPB record={recette} image={recette.image} alt={recette.titre} />
+                <header class="mb-8 text-center">
+                    <h2>Les avis</h2>
+                </header>
+
+                {avisSuccessMessage && (
+                  <p class="mx-auto mb-4 max-w-3xl rounded-xl border-2 border-primary bg-primary/10 px-4 py-3 text-sm font-bold text-primary">
+                    {avisSuccessMessage}
+                  </p>
+                )}
+
+                {(createAvisGlobalError || deleteAvisGlobalError) && (
+                  <p class="mx-auto mb-4 max-w-3xl rounded-xl border-2 border-accent2 bg-accent2/10 px-4 py-3 text-sm font-bold text-accent2">
+                    {createAvisGlobalError ?? deleteAvisGlobalError}
+                  </p>
+                )}
+
+                <div class="rounded-2xl border-2 border-primary bg-primary px-5 py-4 text-secondary shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_60%,black_40%)]">
+                    <div class="grid gap-6 md:grid-cols-[180px_1fr] md:items-center">
+                        <div class="text-center md:text-left">
+                            <p class="font-barlow text-5xl leading-none">{avisStats.average.toFixed(1)} / 5</p>
+                            <p class="mt-2 text-sm">base sur {avisStats.total} avis</p>
+                        </div>
+
+                        <div class="space-y-1.5">
+                            {notesOrder.map((note) => {
+                              const count = avisStats.distribution[note] ?? 0;
+                              const width = avisStats.total > 0 ? Math.round((count / avisStats.total) * 100) : 0;
+                              return (
+                                <div class="grid grid-cols-[30px_1fr_38px] items-center gap-2 text-sm">
+                                  <span>{note}★</span>
+                                  <div class="h-2 rounded-full bg-secondary/35">
+                                    <div class="h-full rounded-full bg-accent1" style={`width: ${width}%`} />
+                                  </div>
+                                  <span>{count}</span>
+                                </div>
+                              );
+                            })}
+                        </div>
+                    </div>
+                </div>
+
+                <div class="mt-10 grid gap-8 lg:grid-cols-[1fr_1.2fr]">
+                    <article class="rounded-2xl border border-primary/20 bg-white px-4 py-5">
+                        <h3 class="mb-4 text-2xl">Laisser un avis</h3>
+
+                        {isAuthenticated ? (
+                            <form method="post" action={actions.createAvis} class="space-y-4">
+                                <input type="hidden" name="recetteId" value={recette.id} />
+                                <input type="hidden" name="returnTo" value={returnTo} />
+
+                                <div>
+                                    <label class="label" for="note">Note</label>
+                                    <select id="note" name="note" class="input mt-2" required>
+                                        <option value="">Choisir une note</option>
+                                        <option value="5">5 - Excellent</option>
+                                        <option value="4">4 - Tres bien</option>
+                                        <option value="3">3 - Bien</option>
+                                        <option value="2">2 - Moyen</option>
+                                        <option value="1">1 - A ameliorer</option>
+                                    </select>
+                                    {
+                                      createAvisInputError?.fields.note?.[0] && (
+                                        <p class="mt-2 text-sm font-bold text-accent2">{createAvisInputError.fields.note[0]}</p>
+                                      )
+                                    }
+                                </div>
+
+                                <div>
+                                    <label class="label" for="commentaire">Commentaire</label>
+                                    <textarea
+                                      id="commentaire"
+                                      name="commentaire"
+                                      class="mt-2 w-full rounded-2xl border-2 border-primary bg-secondary px-4 py-3 text-primary outline-none"
+                                      rows={4}
+                                      placeholder="Partage ton experience sur cette recette"
+                                    />
+                                    {
+                                      createAvisInputError?.fields.commentaire?.[0] && (
+                                        <p class="mt-2 text-sm font-bold text-accent2">{createAvisInputError.fields.commentaire[0]}</p>
+                                      )
+                                    }
+                                </div>
+
+                                <button type="submit" class="btn">Publier mon avis</button>
+                            </form>
+                        ) : (
+                            <p class="text-sm text-primary/80">
+                                Tu dois etre connecte pour laisser un commentaire. <a href={`/auth/login?returnTo=${encodeURIComponent(returnTo)}`} class="underline underline-offset-2">Se connecter</a>
+                            </p>
+                        )}
+                    </article>
+
+                    <article>
+                        <h3 class="mb-4 text-2xl">{avis.length} commentaires</h3>
+
+                        {avis.length > 0 ? (
+                            <ul class="space-y-4">
+                                {avis.map((avisItem) => (
+                                    <li class="rounded-2xl border border-primary/20 bg-white p-4">
+                                        <div class="mb-2 flex items-start justify-between gap-4">
+                                            <div>
+                                                <p class="font-semibold">{avisItem.expand?.user?.name ?? avisItem.expand?.user?.email ?? "Utilisateur"}</p>
+                                                <p class="text-xs text-primary/70">
+                                                    {new Intl.DateTimeFormat("fr-FR", {
+                                                      day: "2-digit",
+                                                      month: "short",
+                                                      year: "numeric",
+                                                    }).format(new Date(avisItem.created))}
+                                                </p>
+                                            </div>
+                                            <div class="text-accent1">
+                                                {Array.from({ length: 5 }).map((_, index) => (
+                                                    <span class:list={["text-lg", index < Number(avisItem.note ?? 0) ? "opacity-100" : "opacity-35"]}>★</span>
+                                                ))}
+                                            </div>
+                                        </div>
+
+                                        {
+                                          avisItem.commentaire ? (
+                                            <div class="text-sm leading-relaxed text-primary/85" set:html={avisItem.commentaire} />
+                                          ) : (
+                                            <p class="text-sm text-primary/70">Aucun commentaire detaille.</p>
+                                          )
+                                        }
+
+                                        {isAuthenticated && currentUserId === avisItem.user && (
+                                            <form method="post" action={actions.deleteAvis} class="mt-3">
+                                                <input type="hidden" name="avisId" value={avisItem.id} />
+                                                <input type="hidden" name="returnTo" value={returnTo} />
+                                                <button type="submit" class="text-sm font-bold text-accent2 underline underline-offset-2">Supprimer</button>
+                                            </form>
+                                        )}
+                                    </li>
+                                ))}
+                            </ul>
+                        ) : (
+                            <p class="rounded-xl border border-primary/20 bg-white px-4 py-3 text-sm text-primary/80">
+                                Aucun avis pour le moment. Sois le premier a partager ton ressenti.
+                            </p>
+                        )}
+                    </article>
                 </div>
             </div>
-            
+        </section>
+
+        <section class="content-container">
+            <header>
+                <h2>Recettes similaires</h2>
+            </header>
+            {recettesSimilaires.length > 0 ? (
+                <ul class="ul-grid">
+                    {recettesSimilaires.map((recette) => (
+                        <li data-recette-item data-title={recette.titre} data-objectif={recette.objectif_sante} data-categorie={recette.categorie} data-regimes={(recette.regimes ?? []).join(", ")} data-rating="4">
+                            <CardRecette recette={recette} />
+                        </li>
+                    ))}
+                </ul>
+            ) : (
+                <p>Aucune recette similaire trouvee pour le moment.</p>
+            )}
+            <div class="btn-wrapper">
+                <a href="/recettes" class="btn">Voir toute les recettes.</a>
+            </div>
+
         </section>
     </main>
 

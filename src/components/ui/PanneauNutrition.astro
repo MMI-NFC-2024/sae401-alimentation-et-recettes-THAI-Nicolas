@@ -1,0 +1,48 @@
+---
+interface Props {
+  kcalParPortion?: number | null;
+  proteines?: number | null;
+  glucides?: number | null;
+  lipides?: number | null;
+  portions?: number | null;
+  tempsTotal?: number | null;
+}
+
+const {
+  kcalParPortion = 0,
+  proteines = 0,
+  glucides = 0,
+  lipides = 0,
+  portions = 1,
+  tempsTotal = 0,
+} = Astro.props as Readonly<Props>;
+---
+
+<article class="rounded-3xl border-2 border-primary/40 bg-secondary p-5 shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_25%,black_75%)]">
+  <header class="mb-4 flex items-end justify-between gap-4">
+    <div>
+      <p class="text-xs uppercase tracking-[0.16em] text-primary/70">Nutrition</p>
+      <h3 class="font-barlow text-3xl text-primary">{kcalParPortion} kcal</h3>
+      <p class="text-sm text-primary/80">par portion</p>
+    </div>
+    <div class="text-right text-xs uppercase tracking-wide text-primary/70">
+      <p>{portions} portions</p>
+      <p>{tempsTotal} min</p>
+    </div>
+  </header>
+
+  <dl class="grid grid-cols-3 gap-2 text-center">
+    <div class="rounded-xl border border-primary/30 bg-primary/5 px-2 py-3">
+      <dt class="text-xs uppercase text-primary/70">Proteines</dt>
+      <dd class="font-bold text-lg xl:text-xl text-primary">{proteines} g</dd>
+    </div>
+    <div class="rounded-xl border border-primary/30 bg-primary/5 px-2 py-3">
+      <dt class="text-xs uppercase text-primary/70">Glucides</dt>
+      <dd class="font-bold text-xl text-primary">{glucides} g</dd>
+    </div>
+    <div class="rounded-xl border border-primary/30 bg-primary/5 px-2 py-3">
+      <dt class="text-xs uppercase text-primary/70">Lipides</dt>
+      <dd class="font-bold text-xl text-primary">{lipides} g</dd>
+    </div>
+  </dl>
+</article>

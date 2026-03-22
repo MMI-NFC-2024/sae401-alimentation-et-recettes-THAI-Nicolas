@@ -1,4 +1,11 @@
-import type { RecettesResponse, TypedPocketBase } from "../../pocketbase-types";
+import type {
+  RecettesCategorieOptions,
+  RecettesObjectifSanteOptions,
+  RecettesResponse,
+  RegimesResponse,
+  TypedPocketBase,
+  UsersResponse,
+} from "../../pocketbase-types";
 
 export type ServiceError = "not_found" | "server_error";
 
@@ -7,14 +14,41 @@ export interface ServiceResult<T> {
   error: ServiceError | null;
 }
 
+export interface GetLatestRecettesFilters {
+  objectif_sante?: RecettesObjectifSanteOptions;
+  categorie?: RecettesCategorieOptions;
+  exclude_id?: string;
+}
+
+export type RecetteBySlugResponse = RecettesResponse<{
+  user?: UsersResponse;
+  regimes?: RegimesResponse[];
+}>;
+
 export async function getLatestRecettes(
   pb: TypedPocketBase,
   limit = 4,
+  filters?: GetLatestRecettesFilters,
 ): Promise<ServiceResult<RecettesResponse[]>> {
   try {
+    const filterRules: string[] = [];
+
+    if (filters?.objectif_sante) {
+      filterRules.push(`objectif_sante="${filters.objectif_sante}"`);
+    }
+
+    if (filters?.categorie) {
+      filterRules.push(`categorie="${filters.categorie}"`);
+    }
+
+    if (filters?.exclude_id) {
+      filterRules.push(`id!="${filters.exclude_id}"`);
+    }
+
     const recettesPage = await pb.collection("recettes").getList(1, limit, {
       sort: "-created",
       expand: "user",
+      filter: filterRules.length > 0 ? filterRules.join(" && ") : undefined,
     });
 
     return {
@@ -60,13 +94,13 @@ export async function getAllRecettes(
 export async function getRecetteBySlug(
   pb: TypedPocketBase,
   slug: string,
-): Promise<ServiceResult<RecettesResponse | null>> {
+): Promise<ServiceResult<RecetteBySlugResponse | null>> {
   try {
     const recette = await pb
       .collection("recettes")
-      .getFirstListItem(`slug="${slug}"`, { expand: "user" });
+      .getFirstListItem(`slug="${slug}"`, { expand: "user, regimes" });
 
-    return { data: recette, error: null };
+    return { data: recette as RecetteBySlugResponse, error: null };
   } catch (error: any) {
     if (error?.status === 404) {
       return { data: null, error: "not_found" };

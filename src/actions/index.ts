@@ -2,6 +2,7 @@ import { ActionError, defineAction } from "astro:actions";
 import { sendContactEmail } from "../lib/services/emailjs.service";
 import { contactFormSchema, newsletterSchema } from "../schemas/contact.schema";
 import { loginSchema, registerSchema } from "../schemas/auth.schema";
+import { createAvisSchema, deleteAvisSchema } from "../schemas/avis.schema";
 
 // Rate-limit volontairement simple (petit site): 5 envois / 10 min / IP
 const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000;
@@ -148,6 +149,109 @@ export const server = {
           code: "INTERNAL_SERVER_ERROR",
           message:
             "Impossible de creer le compte pour le moment. Verifiez vos informations.",
+        });
+      }
+    },
+  }),
+
+  createAvis: defineAction({
+    accept: "form",
+    input: createAvisSchema,
+    handler: async (input, context) => {
+      if (!context.locals.pb?.authStore?.isValid) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+          message: "Vous devez etre connecte pour laisser un avis.",
+        });
+      }
+
+      const authModel = context.locals.pb.authStore.model as {
+        id?: string;
+      } | null;
+      const userId = authModel?.id;
+
+      if (!userId) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+          message: "Session invalide. Merci de vous reconnecter.",
+        });
+      }
+
+      try {
+        await context.locals.pb.collection("avis").create({
+          recette: input.recetteId,
+          user: userId,
+          note: input.note,
+          commentaire: input.commentaire ?? "",
+        });
+
+        return {
+          success: true,
+          redirectTo: sanitizeReturnTo(input.returnTo),
+        };
+      } catch (error) {
+        console.error("[actions.createAvis] Impossible de creer l'avis", error);
+        throw new ActionError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Impossible d'enregistrer votre avis pour le moment.",
+        });
+      }
+    },
+  }),
+
+  deleteAvis: defineAction({
+    accept: "form",
+    input: deleteAvisSchema,
+    handler: async (input, context) => {
+      if (!context.locals.pb?.authStore?.isValid) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+          message: "Vous devez etre connecte pour supprimer un avis.",
+        });
+      }
+
+      const authModel = context.locals.pb.authStore.model as {
+        id?: string;
+      } | null;
+      const userId = authModel?.id;
+
+      if (!userId) {
+        throw new ActionError({
+          code: "UNAUTHORIZED",
+          message: "Session invalide. Merci de vous reconnecter.",
+        });
+      }
+
+      try {
+        const existingAvis = await context.locals.pb
+          .collection("avis")
+          .getOne(input.avisId);
+
+        if (existingAvis.user !== userId) {
+          throw new ActionError({
+            code: "FORBIDDEN",
+            message: "Vous ne pouvez supprimer que vos propres avis.",
+          });
+        }
+
+        await context.locals.pb.collection("avis").delete(input.avisId);
+
+        return {
+          success: true,
+          redirectTo: sanitizeReturnTo(input.returnTo),
+        };
+      } catch (error) {
+        if (error instanceof ActionError) {
+          throw error;
+        }
+
+        console.error(
+          "[actions.deleteAvis] Impossible de supprimer l'avis",
+          error,
+        );
+        throw new ActionError({
+          code: "INTERNAL_SERVER_ERROR",
+          message: "Impossible de supprimer cet avis pour le moment.",
         });
       }
     },
