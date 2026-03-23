@@ -63,29 +63,29 @@ const hasFormError = Boolean(globalError || inputError);
   <section class="min-h-screen w-full p-0!">
     <div class="grid grid-cols-1 lg:grid-cols-2 w-full min-h-screen">
       <div
-        class="hidden lg:flex bg-secondary min-h-screen w-full items-center justify-center px-8 xl:px-10"
+        class="hidden lg:flex bg-secondary min-h-screen w-full items-center justify-center px-7 xl:px-9"
       >
         <div
-          class="flex flex-col items-center justify-center gap-7 xl:gap-8 text-center max-w-md mx-auto"
+          class="flex flex-col items-center justify-center gap-6 xl:gap-7 text-center max-w-md mx-auto"
         >
           <a href="/"
             ><img
               src={LogoPositif.src}
               alt="Logo Slurpy"
-              class="w-56 xl:w-64 h-auto"
+              class="w-48 xl:w-56 h-auto"
             /></a
           >
-          <p class="text-primary text-2xl xl:text-3xl leading-snug">
+          <p class="text-primary text-xl xl:text-2xl leading-snug">
             Vos objectifs alimentaires à portée de langue.
           </p>
         </div>
       </div>
       <div
-        class="flex flex-col gap-8 lg:gap-5 justify-center items-center w-5/6 mx-auto lg:w-full lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl lg:justify-self-center min-h-screen"
+        class="flex flex-col gap-8 lg:gap-4 justify-center items-center w-5/6 mx-auto lg:w-full lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl lg:justify-self-center min-h-screen"
       >
-        <div class="flex flex-col gap-4 lg:gap-5 w-full">
+        <div class="flex flex-col gap-4 lg:gap-4 w-full">
           <h1
-            class="text-secondary text-center leading-tight lg:text-6xl xl:text-7xl"
+            class="text-secondary text-center leading-tight lg:text-5xl xl:text-6xl"
           >
             Creer un compte
           </h1>
@@ -107,7 +107,7 @@ const hasFormError = Boolean(globalError || inputError);
           data-has-error={hasFormError ? "true" : "false"}
           method="POST"
           action={actions.register}
-          class="flex flex-col gap-3 lg:gap-2.5 w-full"
+          class="flex flex-col gap-3 lg:gap-2 w-full"
           novalidate
         >
           <input type="hidden" name="returnTo" value={safeReturnTo} />
@@ -128,7 +128,7 @@ const hasFormError = Boolean(globalError || inputError);
             type="email"
             autocomplete="email"
             required
-            class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 lg:py-2.5 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
+            class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-2.5 lg:py-2 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
             placeholder="Adresse email"
           />
           {
@@ -147,7 +147,7 @@ const hasFormError = Boolean(globalError || inputError);
             type="password"
             autocomplete="new-password"
             required
-            class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 lg:py-2.5 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
+            class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-2.5 lg:py-2 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
             placeholder="Mot de passe"
           />
           {
@@ -168,7 +168,7 @@ const hasFormError = Boolean(globalError || inputError);
             type="password"
             autocomplete="new-password"
             required
-            class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 lg:py-2.5 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
+            class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-2.5 lg:py-2 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
             placeholder="Confirmer le mot de passe"
           />
           {
@@ -202,7 +202,7 @@ const hasFormError = Boolean(globalError || inputError);
             <img
               src={IconGoogle.src}
               alt="Icône Google"
-              class="w-6 lg:w-7 object-contain"
+              class="w-6 lg:w-6.5 object-contain"
             />
           </BoutonCercle>
           <BoutonCercle
@@ -213,7 +213,7 @@ const hasFormError = Boolean(globalError || inputError);
             <img
               src={IconFacebook.src}
               alt="Icône Facebook"
-              class="w-6 lg:w-7 object-contain"
+              class="w-6 lg:w-6.5 object-contain"
             />
           </BoutonCercle>
         </div>
