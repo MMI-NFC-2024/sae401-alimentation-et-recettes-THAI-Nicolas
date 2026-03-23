@@ -49,6 +49,7 @@ export async function getLatestRecettes(
       sort: "-created",
       expand: "user",
       filter: filterRules.length > 0 ? filterRules.join(" && ") : undefined,
+      requestKey: null,
     });
 
     return {

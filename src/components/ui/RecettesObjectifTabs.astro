@@ -1,0 +1,219 @@
+---
+import type { AvisCardStats } from "../../lib/services/avis.service";
+import type { RecettesResponse } from "../../pocketbase-types";
+import CardRecette from "./CardRecette.astro";
+
+interface Props {
+  recettesPertePoids: RecettesResponse[];
+  recettesPriseMasse: RecettesResponse[];
+  recettesEquilibre: RecettesResponse[];
+  avisStatsByRecette: Record<string, AvisCardStats>;
+  hasErrorPertePoids?: boolean;
+  hasErrorPriseMasse?: boolean;
+  hasErrorEquilibre?: boolean;
+}
+
+const {
+  recettesPertePoids,
+  recettesPriseMasse,
+  recettesEquilibre,
+  avisStatsByRecette,
+  hasErrorPertePoids = false,
+  hasErrorPriseMasse = false,
+  hasErrorEquilibre = false,
+} = Astro.props as Readonly<Props>;
+---
+
+<div data-recettes-tabs>
+  <div class="mx-auto mt-10 w-full max-w-5xl border-b-2 border-primary/25">
+    <div
+      role="tablist"
+      aria-label="Objectif sante"
+      class="flex flex-wrap items-center justify-center gap-3 md:gap-6 lg:gap-10"
+    >
+      <button
+        type="button"
+        role="tab"
+        id="tab-perte"
+        aria-controls="panel-perte"
+        aria-selected="true"
+        data-tab="perte"
+        class="border-b-3 border-primary px-1 pb-3 font-barlow text-sm uppercase tracking-wide text-primary transition-colors duration-200 md:text-xl"
+      >
+        Perte de poids
+      </button>
+      <button
+        type="button"
+        role="tab"
+        id="tab-prise"
+        aria-controls="panel-prise"
+        aria-selected="false"
+        data-tab="prise"
+        class="border-b-3 border-transparent px-1 pb-3 font-barlow text-sm uppercase tracking-wide text-primary/55 transition-colors duration-200 hover:text-primary md:text-xl"
+      >
+        Prise de masse
+      </button>
+      <button
+        type="button"
+        role="tab"
+        id="tab-equilibre"
+        aria-controls="panel-equilibre"
+        aria-selected="false"
+        data-tab="equilibre"
+        class="border-b-3 border-transparent px-1 pb-3 font-barlow text-sm uppercase tracking-wide text-primary/55 transition-colors duration-200 hover:text-primary md:text-xl"
+      >
+        Equilibree
+      </button>
+    </div>
+  </div>
+
+  <div
+    id="panel-perte"
+    role="tabpanel"
+    aria-labelledby="tab-perte"
+    data-panel="perte"
+    class="mt-10"
+  >
+    {
+      recettesPertePoids.length > 0 ? (
+        <ul class="ul-grid mt-0 md:grid-cols-2 lg:grid-cols-4">
+          {recettesPertePoids.map((recette) => {
+            const avisStats = avisStatsByRecette[recette.id] ?? {
+              average: 0,
+              total: 0,
+            };
+            return (
+              <li class="h-full w-full">
+                <CardRecette
+                  recette={recette}
+                  rating={avisStats.average}
+                  reviewsCount={avisStats.total}
+                />
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p class="mt-8 text-center">
+          {hasErrorPertePoids
+            ? "Les recettes sont temporairement indisponibles. Reessaie dans quelques instants."
+            : "Aucune recette trouvee pour cet objectif pour le moment."}
+        </p>
+      )
+    }
+  </div>
+
+  <div
+    id="panel-prise"
+    role="tabpanel"
+    aria-labelledby="tab-prise"
+    data-panel="prise"
+    class="mt-10 hidden"
+    hidden
+  >
+    {
+      recettesPriseMasse.length > 0 ? (
+        <ul class="ul-grid mt-0 md:grid-cols-2 lg:grid-cols-4">
+          {recettesPriseMasse.map((recette) => {
+            const avisStats = avisStatsByRecette[recette.id] ?? {
+              average: 0,
+              total: 0,
+            };
+            return (
+              <li class="h-full w-full">
+                <CardRecette
+                  recette={recette}
+                  rating={avisStats.average}
+                  reviewsCount={avisStats.total}
+                />
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p class="mt-8 text-center">
+          {hasErrorPriseMasse
+            ? "Les recettes sont temporairement indisponibles. Reessaie dans quelques instants."
+            : "Aucune recette trouvee pour cet objectif pour le moment."}
+        </p>
+      )
+    }
+  </div>
+
+  <div
+    id="panel-equilibre"
+    role="tabpanel"
+    aria-labelledby="tab-equilibre"
+    data-panel="equilibre"
+    class="mt-10 hidden"
+    hidden
+  >
+    {
+      recettesEquilibre.length > 0 ? (
+        <ul class="ul-grid mt-0 md:grid-cols-2 lg:grid-cols-4">
+          {recettesEquilibre.map((recette) => {
+            const avisStats = avisStatsByRecette[recette.id] ?? {
+              average: 0,
+              total: 0,
+            };
+            return (
+              <li class="h-full w-full">
+                <CardRecette
+                  recette={recette}
+                  rating={avisStats.average}
+                  reviewsCount={avisStats.total}
+                />
+              </li>
+            );
+          })}
+        </ul>
+      ) : (
+        <p class="mt-8 text-center">
+          {hasErrorEquilibre
+            ? "Les recettes sont temporairement indisponibles. Reessaie dans quelques instants."
+            : "Aucune recette trouvee pour cet objectif pour le moment."}
+        </p>
+      )
+    }
+  </div>
+</div>
+
+<script>
+  const roots = document.querySelectorAll("[data-recettes-tabs]");
+
+  roots.forEach((root) => {
+    const buttons = Array.from(root.querySelectorAll("[data-tab]"));
+    const panels = Array.from(root.querySelectorAll("[data-panel]"));
+
+    if (buttons.length === 0 || panels.length === 0) {
+      return;
+    }
+
+    const setActiveTab = (targetKey) => {
+      buttons.forEach((button) => {
+        const isActive = button.getAttribute("data-tab") === targetKey;
+        button.setAttribute("aria-selected", String(isActive));
+        button.classList.toggle("border-primary", isActive);
+        button.classList.toggle("text-primary", isActive);
+        button.classList.toggle("border-transparent", !isActive);
+        button.classList.toggle("text-primary/55", !isActive);
+      });
+
+      panels.forEach((panel) => {
+        const isActive = panel.getAttribute("data-panel") === targetKey;
+        panel.hidden = !isActive;
+        panel.classList.toggle("hidden", !isActive);
+      });
+    };
+
+    buttons.forEach((button) => {
+      button.addEventListener("click", () => {
+        const targetKey = button.getAttribute("data-tab");
+        if (!targetKey) {
+          return;
+        }
+        setActiveTab(targetKey);
+      });
+    });
+  });
+</script>

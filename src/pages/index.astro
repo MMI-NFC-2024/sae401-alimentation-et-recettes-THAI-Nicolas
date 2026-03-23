@@ -11,19 +11,78 @@ import DamierTransition from "../components/ui/DamierTransition.astro";
 
 // Fonctions "Nos recettes"
 import { getLatestRecettes } from "../lib/services/recettes.service";
-const { data: recettes, error: recettesError } = await getLatestRecettes(
-  Astro.locals.pb,
-  4,
+import { RecettesObjectifSanteOptions } from "../pocketbase-types";
+
+const normalizeObjectiveValue = (value: string | undefined) =>
+  (value ?? "")
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .toLowerCase()
+    .trim();
+
+const getLatestRecettesByObjectiveSafe = async (
+  objectif: RecettesObjectifSanteOptions,
+) => {
+  const filteredResult = await getLatestRecettes(Astro.locals.pb, 4, {
+    objectif_sante: objectif,
+  });
+
+  if (!filteredResult.error) {
+    return filteredResult;
+  }
+
+  const fallbackResult = await getLatestRecettes(Astro.locals.pb, 30);
+  if (fallbackResult.error) {
+    return filteredResult;
+  }
+
+  const normalizedObjective = normalizeObjectiveValue(objectif);
+  const fallbackData = fallbackResult.data
+    .filter(
+      (recette) =>
+        normalizeObjectiveValue(recette.objectif_sante) === normalizedObjective,
+    )
+    .slice(0, 4);
+
+  return {
+    data: fallbackData,
+    error: null,
+  };
+};
+
+const [pertePoidsResult, priseMasseResult, equilibreResult] = await Promise.all(
+  [
+    getLatestRecettesByObjectiveSafe(
+      RecettesObjectifSanteOptions["Perte de poids"],
+    ),
+    getLatestRecettesByObjectiveSafe(
+      RecettesObjectifSanteOptions["Prise de masse"],
+    ),
+    getLatestRecettesByObjectiveSafe(RecettesObjectifSanteOptions["Équilibre"]),
+  ],
 );
+
+const recettesPertePoids = pertePoidsResult.data;
+const recettesPriseMasse = priseMasseResult.data;
+const recettesEquilibre = equilibreResult.data;
+
+const recetteIds = Array.from(
+  new Set(
+    [...recettesPertePoids, ...recettesPriseMasse, ...recettesEquilibre].map(
+      (recette) => recette.id,
+    ),
+  ),
+);
+
 import { getAvisStatsByRecetteIds } from "../lib/services/avis.service";
 const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
   Astro.locals.pb,
-  recettes.map((recette) => recette.id),
+  recetteIds,
 );
 
 // Fonctions "Nos conseils nutritionnels"
 import { getLatestArticles } from "../lib/services/articles.service";
-import CardRecette from "../components/ui/CardRecette.astro";
+import RecettesObjectifTabs from "../components/ui/RecettesObjectifTabs.astro";
 const { data: articles, error: articlesError } = await getLatestArticles(
   Astro.locals.pb,
   3,
@@ -114,33 +173,18 @@ const getObjectiveRegisterHref = (objectif: string) =>
           <h2 class="text-center">Nos recettes "slurps"</h2>
         </header>
 
-        {
-          recettes.length > 0 ? (
-            <ul class="ul-grid md:grid-cols-2 lg:grid-cols-4">
-              {recettes.map((recette) => {
-                const avisStats = avisStatsByRecette[recette.id] ?? {
-                  average: 0,
-                  total: 0,
-                };
-                return (
-                  <li class="w-full h-full">
-                    <CardRecette
-                      recette={recette}
-                      rating={avisStats.average}
-                      reviewsCount={avisStats.total}
-                    />
-                  </li>
-                );
-              })}
-            </ul>
-          ) : (
-            <p class="mt-8 text-center">
-              {recettesError
-                ? "Les recettes sont temporairement indisponibles. Reessaie dans quelques instants."
-                : "Aucune recette trouve pour le moment."}
-            </p>
-          )
-        }
+        <RecettesObjectifTabs
+          recettesPertePoids={recettesPertePoids}
+          recettesPriseMasse={recettesPriseMasse}
+          recettesEquilibre={recettesEquilibre}
+          avisStatsByRecette={avisStatsByRecette}
+          hasErrorPertePoids={Boolean(pertePoidsResult.error) &&
+            recettesPertePoids.length === 0}
+          hasErrorPriseMasse={Boolean(priseMasseResult.error) &&
+            recettesPriseMasse.length === 0}
+          hasErrorEquilibre={Boolean(equilibreResult.error) &&
+            recettesEquilibre.length === 0}
+        />
 
         <div class="btn-wrapper">
           <a href="/recettes" class="btn">Voir toute les recettes.</a>
