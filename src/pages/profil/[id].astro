@@ -1,0 +1,150 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import DamierHero from "../../components/ui/DamierHero.astro";
+import ImgPB from "../../components/ui/ImgPB.astro";
+import CardRecette from "../../components/ui/CardRecette.astro";
+import { getUserById } from "../../lib/services/users.service";
+import { getRecettesByUserId } from "../../lib/services/recettes.service";
+import { getAvisStatsByRecetteIds } from "../../lib/services/avis.service";
+
+const { id } = Astro.params as { id?: string };
+
+if (!id) {
+  return Astro.redirect("/404");
+}
+
+const { data: profileUser, error: profileError } = await getUserById(
+  Astro.locals.pb,
+  id,
+);
+
+if (profileError === "server_error") {
+  return Astro.redirect("/404");
+}
+
+if (!profileUser) {
+  return Astro.redirect("/404");
+}
+
+const { data: userRecettes, error: userRecettesError } =
+  await getRecettesByUserId(Astro.locals.pb, profileUser.id);
+
+const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
+  Astro.locals.pb,
+  userRecettes.map((recette) => recette.id),
+);
+
+const objectifSante = (profileUser as { objectif_sante?: string })
+  .objectif_sante;
+---
+
+<Layout
+  title={`${profileUser.name || "Profil utilisateur"} | Slurpy`}
+  description={`Profil public de ${profileUser.name || "cet utilisateur"} sur Slurpy.`}
+>
+  <main>
+    <section class="p-0">
+      <header>
+        <DamierHero
+          title={`Profil de ${profileUser.name || "cet utilisateur"}`}
+        />
+      </header>
+    </section>
+
+    <section class="section content-container space-y-8 pt-10!">
+      <article
+        id="mes-infos"
+        class="rounded-2xl border-2 border-primary bg-secondary p-5 shadow-[0_4px_0_0_var(--color-primary)]"
+      >
+        <div class="grid gap-6 md:grid-cols-[200px_1fr] md:items-center">
+          <div
+            class="h-48 w-48 overflow-hidden rounded-2xl border-2 border-primary"
+          >
+            <ImgPB
+              record={profileUser}
+              image={profileUser.avatar}
+              alt={`Avatar de ${profileUser.name || "utilisateur"}`}
+              classPicture="h-full w-full"
+              classImg="h-full w-full object-cover"
+            />
+          </div>
+
+          <div class="space-y-3">
+            <h1 class="font-barlow text-4xl uppercase text-primary">
+              {profileUser.name || "Utilisateur"}
+            </h1>
+
+            <p class="text-primary/90">
+              {
+                profileUser.bio ||
+                  "Cet utilisateur n'a pas encore ajoute de biographie."
+              }
+            </p>
+
+            <div class="flex flex-wrap gap-3 text-sm font-bold">
+              {
+                typeof profileUser.age === "number" && (
+                  <span class="rounded-full border-2 border-primary bg-primary px-3 py-1 text-secondary">
+                    {profileUser.age} ans
+                  </span>
+                )
+              }
+
+              {
+                objectifSante && (
+                  <span class="rounded-full border-2 border-primary bg-accent1 px-3 py-1 text-primary">
+                    {objectifSante}
+                  </span>
+                )
+              }
+
+              <span
+                class="rounded-full border-2 border-primary bg-secondary px-3 py-1 text-primary"
+              >
+                {userRecettes.length} recette{
+                  userRecettes.length > 1 ? "s" : ""
+                }
+              </span>
+            </div>
+          </div>
+        </div>
+      </article>
+
+      <article
+        id="mes-recettes"
+        class="rounded-2xl border-2 border-primary bg-secondary p-5 shadow-[0_4px_0_0_var(--color-primary)]"
+      >
+        <h2 class="mb-4">Recettes publiees</h2>
+
+        {
+          userRecettes.length > 0 ? (
+            <ul class="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
+              {userRecettes.map((recette) => {
+                const avisStats = avisStatsByRecette[recette.id] ?? {
+                  average: 0,
+                  total: 0,
+                };
+
+                return (
+                  <li>
+                    <CardRecette
+                      recette={recette}
+                      rating={avisStats.average}
+                      reviewsCount={avisStats.total}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p class="text-sm text-primary/85">
+              {userRecettesError
+                ? "Impossible de charger les recettes pour le moment."
+                : "Aucune recette publiee pour le moment."}
+            </p>
+          )
+        }
+      </article>
+    </section>
+  </main>
+</Layout>

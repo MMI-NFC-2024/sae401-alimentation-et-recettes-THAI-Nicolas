@@ -91,6 +91,33 @@ export async function getAllRecettes(
   }
 }
 
+export async function getRecettesByUserId(
+  pb: TypedPocketBase,
+  userId: string,
+): Promise<ServiceResult<RecettesResponse[]>> {
+  try {
+    const recettes = await pb.collection("recettes").getFullList({
+      sort: "-created",
+      expand: "user",
+      filter: `user="${userId}"`,
+    });
+
+    return {
+      data: recettes,
+      error: null,
+    };
+  } catch (error) {
+    console.error(
+      "[recettes.service] Impossible de recuperer les recettes de l'utilisateur",
+      error,
+    );
+    return {
+      data: [],
+      error: "server_error",
+    };
+  }
+}
+
 export async function getRecetteBySlug(
   pb: TypedPocketBase,
   slug: string,

@@ -2,6 +2,7 @@
 import LogoPositif from '../../assets/icones/logo-positif.webp'
 import LogoNegatif from '../../assets/icones/logo-negatif.webp'
 import BoutonCercle from '../ui/BoutonCercle.astro';
+import MenuProfilRapide from '../ui/MenuProfilRapide.astro';
 import GlobalHeaderSearch from '../ui/HeaderSearch.vue';
 import { getAllArticles } from '../../lib/services/articles.service';
 import { getAllRecettes } from '../../lib/services/recettes.service';
@@ -56,13 +57,7 @@ const avatarFallback = (authUser?.name || authUser?.email || 'U').trim().charAt(
         <div id="header-actions" class="hidden lg:flex justify-end items-center gap-3 transition-transform duration-300">
             <GlobalHeaderSearch client:load items={globalSearchItems} />
             {isAuthenticated ? (
-                <BoutonCercle variant="secondary" size="header" href="/profil" ariaLabel="Aller au profil utilisateur">
-                    {avatarUrl ? (
-                        <img src={avatarUrl} alt="Avatar utilisateur" class="h-full w-full object-cover" />
-                    ) : (
-                        <span class="text-base md:text-2xl">{avatarFallback}</span>
-                    )}
-                </BoutonCercle>
+                <MenuProfilRapide avatarUrl={avatarUrl} avatarFallback={avatarFallback} />
             ) : (
                 <>
                     <a href="/auth/login" class="btn-green cursor-pointer" aria-label="Lien vers la page de connexion">Se connecter</a>

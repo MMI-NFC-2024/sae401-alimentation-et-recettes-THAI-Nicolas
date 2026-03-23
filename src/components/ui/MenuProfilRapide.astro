@@ -1,0 +1,35 @@
+---
+interface Props {
+  avatarUrl?: string | null;
+  avatarFallback: string;
+}
+
+const { avatarUrl = null, avatarFallback } = Astro.props as Props;
+---
+
+<details class="relative">
+  <summary
+    class="inline-flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-full border-2 border-primary bg-secondary text-primary shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)] transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)] marker:content-none"
+    aria-label="Ouvrir le menu profil"
+  >
+    {avatarUrl ? (
+      <img src={avatarUrl} alt="Avatar utilisateur" class="h-full w-full object-cover" />
+    ) : (
+      <span class="text-base md:text-2xl">{avatarFallback}</span>
+    )}
+  </summary>
+
+  <div class="absolute right-0 top-16 z-40 w-52 rounded-2xl border-2 border-primary bg-secondary p-2 text-primary shadow-[0_6px_0_0_var(--color-primary)]">
+    <a href="/profil" class="block rounded-xl px-3 py-2 text-sm font-bold hover:bg-primary/10">
+      Mon profil
+    </a>
+    <form method="POST" action="/auth/logout" class="mt-1">
+      <button
+        type="submit"
+        class="block w-full cursor-pointer rounded-xl px-3 py-2 text-left text-sm font-bold text-accent2 hover:bg-accent2/10"
+      >
+        Se deconnecter
+      </button>
+    </form>
+  </div>
+</details>

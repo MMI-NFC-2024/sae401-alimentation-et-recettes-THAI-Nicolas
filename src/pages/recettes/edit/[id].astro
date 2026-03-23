@@ -1,0 +1,298 @@
+---
+import ProtectedLayout from "../../../layouts/ProtectedLayout.astro";
+import DamierHero from "../../../components/ui/DamierHero.astro";
+import RecetteEditIngredientsEtapes from "../../../components/ui/RecetteEditIngredientsEtapes.vue";
+import { actions, isInputError } from "astro:actions";
+import { getCompositionByRecetteId } from "../../../lib/services/composition.service";
+import { getEtapesByRecetteId } from "../../../lib/services/etapes.service";
+import { getAllIngredients } from "../../../lib/services/ingredients.service";
+
+const { id } = Astro.params as { id?: string };
+
+if (!id) {
+  return Astro.redirect("/404");
+}
+
+const updateRecetteResult = Astro.getActionResult(actions.updateRecette);
+
+if (updateRecetteResult?.data?.success && updateRecetteResult.data.redirectTo) {
+  return Astro.redirect(updateRecetteResult.data.redirectTo);
+}
+
+const updateRecetteInputError = isInputError(updateRecetteResult?.error)
+  ? updateRecetteResult.error
+  : undefined;
+
+const updateRecetteGlobalError =
+  updateRecetteResult?.error && !isInputError(updateRecetteResult.error)
+    ? updateRecetteResult.error.message
+    : undefined;
+
+const editSuccess =
+  Astro.url.searchParams.get("recette") === "updated"
+    ? "Recette mise a jour avec succes."
+    : undefined;
+
+const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
+if (!isAuthenticated) {
+  return Astro.redirect(
+    `/auth/login?returnTo=${encodeURIComponent(Astro.url.pathname)}`,
+  );
+}
+
+const authModel = Astro.locals.pb?.authStore?.model as { id?: string } | null;
+const currentUserId = authModel?.id;
+
+if (!currentUserId) {
+  return Astro.redirect(
+    `/auth/login?returnTo=${encodeURIComponent(Astro.url.pathname)}`,
+  );
+}
+
+let recette: any;
+
+try {
+  recette = await Astro.locals.pb.collection("recettes").getOne(id);
+} catch {
+  return Astro.redirect("/404");
+}
+
+if (recette.user !== currentUserId) {
+  return Astro.redirect("/404");
+}
+
+const [compositionResult, etapesResult, ingredientsResult] = await Promise.all([
+  getCompositionByRecetteId(Astro.locals.pb, recette.id),
+  getEtapesByRecetteId(Astro.locals.pb, recette.id),
+  getAllIngredients(Astro.locals.pb),
+]);
+
+const composition = compositionResult.data;
+const etapes = etapesResult.data;
+const ingredients = ingredientsResult.data;
+
+const initialComposition = composition.map((item) => ({
+  ingredientId: item.expand?.ingredient?.id ?? item.ingredient,
+  nom: item.expand?.ingredient?.nom ?? "Ingredient",
+  categorie: item.expand?.ingredient?.categorie ?? "Autres",
+  quantite: item.quantite ?? 0,
+  unite: item.unite ?? "",
+}));
+
+const initialEtapes = etapes
+  .sort((a, b) => Number(a.numero_ordre ?? 0) - Number(b.numero_ordre ?? 0))
+  .map((item) => ({
+    titre: item.titre ?? "",
+    description: item.description ?? "",
+  }));
+
+const ingredientsLite = ingredients.map((item) => ({
+  id: item.id,
+  nom: item.nom ?? "Ingredient",
+  categorie: item.categorie ?? "Autres",
+}));
+
+const returnTo = `/recettes/edit/${recette.id}`;
+---
+
+<ProtectedLayout>
+  <section class="p-0">
+    <header>
+      <DamierHero title="Modifier une recette" />
+    </header>
+  </section>
+
+  <section class="section content-container pt-10!">
+    <div class="mx-auto max-w-5xl space-y-6">
+      {
+        editSuccess && (
+          <p class="rounded-xl border-2 border-primary bg-primary/10 px-4 py-3 text-sm font-bold text-primary">
+            {editSuccess}
+          </p>
+        )
+      }
+
+      {
+        updateRecetteGlobalError && (
+          <p class="rounded-xl border-2 border-accent2 bg-accent2/10 px-4 py-3 text-sm font-bold text-accent2">
+            {updateRecetteGlobalError}
+          </p>
+        )
+      }
+
+      <form
+        method="post"
+        action={actions.updateRecette}
+        enctype="multipart/form-data"
+        class="flex flex-col gap-8 lg:gap-16"
+      >
+        <input type="hidden" name="recetteId" value={recette.id} />
+        <input type="hidden" name="returnTo" value={returnTo} />
+        <input type="hidden" name="compositionJson" id="compositionJson" />
+        <input type="hidden" name="etapesJson" id="etapesJson" />
+
+        <article
+          class="rounded-2xl border-2 border-primary bg-secondary p-5 shadow-[0_4px_0_0_var(--color-primary)]"
+        >
+          <h2 class="mb-5">Informations recette</h2>
+
+          <div class="grid gap-5 md:grid-cols-2">
+            <div class="md:col-span-2">
+              <label class="label" for="titre">Titre</label>
+              <input
+                id="titre"
+                name="titre"
+                class="input mt-2"
+                value={recette.titre ?? ""}
+                required
+              />
+              {
+                updateRecetteInputError?.fields.titre?.[0] && (
+                  <p class="mt-2 text-sm font-bold text-accent2">
+                    {updateRecetteInputError.fields.titre[0]}
+                  </p>
+                )
+              }
+            </div>
+
+            <div>
+              <label class="label" for="difficulte">Difficulte</label>
+              <select
+                id="difficulte"
+                name="difficulte"
+                class="input mt-2"
+                required
+              >
+                <option
+                  value="facile"
+                  selected={recette.difficulte === "facile"}>facile</option
+                >
+                <option value="moyen" selected={recette.difficulte === "moyen"}
+                  >moyen</option
+                >
+                <option
+                  value="difficile"
+                  selected={recette.difficulte === "difficile"}
+                  >difficile</option
+                >
+              </select>
+            </div>
+
+            <div>
+              <label class="label" for="categorie">Categorie</label>
+              <select
+                id="categorie"
+                name="categorie"
+                class="input mt-2"
+                required
+              >
+                <option value="Entrée" selected={recette.categorie === "Entrée"}
+                  >Entrée</option
+                >
+                <option value="Plat" selected={recette.categorie === "Plat"}
+                  >Plat</option
+                >
+                <option
+                  value="Dessert"
+                  selected={recette.categorie === "Dessert"}>Dessert</option
+                >
+                <option
+                  value="Boisson"
+                  selected={recette.categorie === "Boisson"}>Boisson</option
+                >
+              </select>
+            </div>
+
+            <div>
+              <label class="label" for="objectif_sante">Objectif sante</label>
+              <select
+                id="objectif_sante"
+                name="objectif_sante"
+                class="input mt-2"
+                required
+              >
+                <option
+                  value="Prise de masse"
+                  selected={recette.objectif_sante === "Prise de masse"}
+                  >Prise de masse</option
+                >
+                <option
+                  value="Perte de poids"
+                  selected={recette.objectif_sante === "Perte de poids"}
+                  >Perte de poids</option
+                >
+                <option
+                  value="Équilibre"
+                  selected={recette.objectif_sante === "Équilibre"}
+                  >Équilibre</option
+                >
+              </select>
+            </div>
+
+            <div>
+              <label class="label" for="temps_total">Temps total (min)</label>
+              <input
+                id="temps_total"
+                name="temps_total"
+                type="number"
+                min="1"
+                class="input mt-2"
+                value={recette.temps_total ?? 1}
+                required
+              />
+            </div>
+
+            <div>
+              <label class="label" for="portions">Portions</label>
+              <input
+                id="portions"
+                name="portions"
+                type="number"
+                min="1"
+                class="input mt-2"
+                value={recette.portions ?? 1}
+                required
+              />
+            </div>
+
+            <div>
+              <label class="label" for="image">Nouvelle image (optionnel)</label
+              >
+              <input
+                id="image"
+                type="file"
+                name="image"
+                class="mt-2 block w-full rounded-2xl border-2 border-primary bg-secondary px-4 py-3 text-sm text-primary"
+                accept="image/*"
+              />
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="label" for="description">Description</label>
+              <textarea
+                id="description"
+                name="description"
+                class="mt-2 w-full rounded-2xl border-2 border-primary bg-secondary px-4 py-3 text-primary outline-none"
+                rows={6}>{recette.description ?? ""}</textarea
+              >
+            </div>
+          </div>
+        </article>
+
+        <RecetteEditIngredientsEtapes
+          client:load
+          ingredients={ingredientsLite}
+          initialComposition={initialComposition}
+          initialEtapes={initialEtapes}
+          compositionInputId="compositionJson"
+          etapesInputId="etapesJson"
+        />
+
+        <div class="flex items-center justify-between gap-3">
+          <a href="/profil" class="btn-outline">Annuler</a>
+          <button type="submit" class="btn">Mettre a jour</button>
+        </div>
+      </form>
+    </div>
+  </section>
+</ProtectedLayout>

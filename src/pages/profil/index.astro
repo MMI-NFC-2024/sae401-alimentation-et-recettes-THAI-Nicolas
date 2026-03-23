@@ -1,23 +1,301 @@
 ---
 import ProtectedLayout from "../../layouts/ProtectedLayout.astro";
-const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 import DamierHero from "../../components/ui/DamierHero.astro";
+import ImgPB from "../../components/ui/ImgPB.astro";
+import CardRecetteProfil from "../../components/ui/CardRecetteProfil.astro";
+import { actions, isInputError } from "astro:actions";
+import { getCurrentUserProfile } from "../../lib/services/users.service";
+import { getRecettesByUserId } from "../../lib/services/recettes.service";
+import { getAvisStatsByRecetteIds } from "../../lib/services/avis.service";
+
+const updateProfileResult = Astro.getActionResult(actions.updateProfile);
+const deleteRecetteResult = Astro.getActionResult(actions.deleteRecette);
+
+if (updateProfileResult?.data?.success && updateProfileResult.data.redirectTo) {
+  return Astro.redirect(updateProfileResult.data.redirectTo);
+}
+
+if (deleteRecetteResult?.data?.success && deleteRecetteResult.data.redirectTo) {
+  return Astro.redirect(deleteRecetteResult.data.redirectTo);
+}
+
+const updateProfileInputError = isInputError(updateProfileResult?.error)
+  ? updateProfileResult.error
+  : undefined;
+
+const actionGlobalError =
+  (updateProfileResult?.error && !isInputError(updateProfileResult.error)
+    ? updateProfileResult.error.message
+    : undefined) ??
+  (deleteRecetteResult?.error && !isInputError(deleteRecetteResult.error)
+    ? deleteRecetteResult.error.message
+    : undefined);
+
+const profileSuccess =
+  Astro.url.searchParams.get("profile") === "1"
+    ? "Profil mis a jour avec succes."
+    : undefined;
+
+const recetteSuccess =
+  Astro.url.searchParams.get("recette") === "deleted"
+    ? "Recette supprimee avec succes."
+    : undefined;
+
+const { data: currentUser, error: currentUserError } =
+  await getCurrentUserProfile(Astro.locals.pb);
+
+if (currentUserError === "server_error") {
+  return Astro.redirect("/404");
+}
+
+if (!currentUser) {
+  return Astro.redirect("/auth/login?returnTo=/profil");
+}
+
+const { data: myRecettes, error: myRecettesError } = await getRecettesByUserId(
+  Astro.locals.pb,
+  currentUser.id,
+);
+
+const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
+  Astro.locals.pb,
+  myRecettes.map((recette) => recette.id),
+);
+
+const objectifSanteOptions: Array<
+  "Prise de masse" | "Perte de poids" | "Se maintenir"
+> = ["Prise de masse", "Perte de poids", "Se maintenir"];
+const returnTo = Astro.url.pathname;
 ---
 
 <ProtectedLayout>
-    {isAuthenticated ? (
-        <section class="p-0">
-            <header>
-                <DamierHero title="Mon Profil" />
-            </header>
-            <form method="POST" action="auth/logout">
-                <button type="submit">Se déconnecter</button>
-            </form>
-        </section>
-        
-    ) : (
-        <p>Veuillez vous connecter pour voir votre profil.</p>
-    )}
+  <section class="p-0">
+    <header>
+      <DamierHero title="Mon Profil" />
+    </header>
+  </section>
 
-    
+  <section class="section content-container space-y-8 pt-10!">
+    <div class="flex justify-end">
+      <form method="POST" action="/auth/logout">
+        <button type="submit" class="btn bg-accent2 text-secondary"
+          >Se deconnecter</button
+        >
+      </form>
+    </div>
+
+    {
+      (profileSuccess || recetteSuccess) && (
+        <p class="rounded-xl border-2 border-primary bg-primary/10 px-4 py-3 text-sm font-bold text-primary">
+          {profileSuccess ?? recetteSuccess}
+        </p>
+      )
+    }
+
+    {
+      actionGlobalError && (
+        <p class="rounded-xl border-2 border-accent2 bg-accent2/10 px-4 py-3 text-sm font-bold text-accent2">
+          {actionGlobalError}
+        </p>
+      )
+    }
+
+    <div id="infos-compte">
+      <article
+        class="rounded-2xl border-2 border-primary bg-secondary p-5 shadow-[0_4px_0_0_var(--color-primary)]"
+      >
+        <h2 class="mb-4">Infos du compte</h2>
+
+        <form
+          method="post"
+          action={actions.updateProfile}
+          enctype="multipart/form-data"
+          class="space-y-4"
+        >
+          <input type="hidden" name="returnTo" value={returnTo} />
+
+          <div class="grid gap-6 lg:grid-cols-[230px_1fr]">
+            <div class="space-y-4">
+              <label
+                for="avatar"
+                class="group relative block h-40 w-40 cursor-pointer overflow-hidden rounded-2xl border-2 border-primary"
+              >
+                <ImgPB
+                  record={currentUser}
+                  image={currentUser.avatar}
+                  alt={`Avatar de ${currentUser.name || "utilisateur"}`}
+                  classPicture="h-full w-full"
+                  classImg="h-full w-full object-cover"
+                />
+                <span
+                  class="absolute inset-0 flex items-center justify-center bg-primary/0 text-center text-xs font-bold uppercase tracking-wide text-secondary opacity-0 transition-all duration-200 group-hover:bg-primary/65 group-hover:opacity-100"
+                >
+                  Modifier l'avatar
+                </span>
+              </label>
+              <input
+                id="avatar"
+                type="file"
+                name="avatar"
+                class="sr-only"
+                accept="image/*"
+              />
+
+              {
+                updateProfileInputError?.fields.avatar?.[0] && (
+                  <p class="text-sm font-bold text-accent2">
+                    {updateProfileInputError.fields.avatar[0]}
+                  </p>
+                )
+              }
+            </div>
+
+            <div class="space-y-4">
+              <div>
+                <label class="label" for="name">Nom</label>
+                <input
+                  id="name"
+                  name="name"
+                  class="input mt-2"
+                  value={currentUser.name ?? ""}
+                  required
+                />
+                {
+                  updateProfileInputError?.fields.name?.[0] && (
+                    <p class="mt-2 text-sm font-bold text-accent2">
+                      {updateProfileInputError.fields.name[0]}
+                    </p>
+                  )
+                }
+              </div>
+
+              <div>
+                <label class="label" for="bio">Bio</label>
+                <textarea
+                  id="bio"
+                  name="bio"
+                  class="mt-2 w-full rounded-2xl border-2 border-primary bg-secondary px-4 py-3 text-primary outline-none"
+                  rows={5}
+                  placeholder="Dis-nous qui tu es"
+                  >{currentUser.bio ?? ""}</textarea
+                >
+                {
+                  updateProfileInputError?.fields.bio?.[0] && (
+                    <p class="mt-2 text-sm font-bold text-accent2">
+                      {updateProfileInputError.fields.bio[0]}
+                    </p>
+                  )
+                }
+              </div>
+
+              <div class="grid gap-4 sm:grid-cols-2">
+                <div>
+                  <label class="label" for="age">Age</label>
+                  <input
+                    id="age"
+                    type="number"
+                    name="age"
+                    class="input mt-2"
+                    min="13"
+                    max="120"
+                    value={currentUser.age ?? ""}
+                  />
+                  {
+                    updateProfileInputError?.fields.age?.[0] && (
+                      <p class="mt-2 text-sm font-bold text-accent2">
+                        {updateProfileInputError.fields.age[0]}
+                      </p>
+                    )
+                  }
+                </div>
+
+                <div>
+                  <label class="label" for="objectif_sante"
+                    >Objectif sante</label
+                  >
+                  <select
+                    id="objectif_sante"
+                    name="objectif_sante"
+                    class="input mt-2"
+                  >
+                    <option value="">Choisir un objectif</option>
+                    {
+                      objectifSanteOptions.map((option) => (
+                        <option
+                          value={option}
+                          selected={
+                            option ===
+                              ((currentUser as { objectif_sante?: string })
+                                .objectif_sante ?? "") ||
+                            (option === "Se maintenir" &&
+                              ((currentUser as { objectif_sante?: string })
+                                .objectif_sante ?? "") === "Se Maintenir")
+                          }
+                        >
+                          {option}
+                        </option>
+                      ))
+                    }
+                  </select>
+                  {
+                    updateProfileInputError?.fields.objectif_sante?.[0] && (
+                      <p class="mt-2 text-sm font-bold text-accent2">
+                        {updateProfileInputError.fields.objectif_sante[0]}
+                      </p>
+                    )
+                  }
+                </div>
+              </div>
+
+              <div class="py-4 flex justify-end">
+                <button type="submit" class="btn"
+                  >Mettre a jour mon profil</button
+                >
+              </div>
+            </div>
+          </div>
+        </form>
+      </article>
+    </div>
+
+    <section id="mes-recettes" class="p-0">
+      <div class="mb-6 flex items-center justify-between gap-3">
+        <h2>Mes recettes</h2>
+      </div>
+
+      {
+        myRecettes.length > 0 ? (
+          <ul class="grid grid-cols-1 gap-6 sm:gap-8 md:grid-cols-2 xl:grid-cols-3">
+            {myRecettes.map((recette) => {
+              const avisStats = avisStatsByRecette[recette.id] ?? {
+                average: 0,
+                total: 0,
+              };
+
+              return (
+                <li>
+                  <CardRecetteProfil
+                    recette={recette}
+                    rating={avisStats.average}
+                    reviewsCount={avisStats.total}
+                    returnTo={returnTo}
+                  />
+                </li>
+              );
+            })}
+          </ul>
+        ) : (
+          <p class="text-sm text-primary/85">
+            {myRecettesError
+              ? "Impossible de charger vos recettes pour le moment."
+              : "Vous n'avez pas encore publie de recette."}
+          </p>
+        )
+      }
+
+      <div class="btn-wrapper">
+        <a href="/recettes/ajouter" class="btn">+ Ajouter une recette</a>
+      </div>
+    </section>
+  </section>
 </ProtectedLayout>

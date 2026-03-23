@@ -1,0 +1,94 @@
+---
+import { actions } from "astro:actions";
+import type { RecettesResponse } from "../../pocketbase-types";
+import ImgPB from "./ImgPB.astro";
+
+interface Props {
+  recette: RecettesResponse;
+  rating?: number;
+  reviewsCount?: number;
+  returnTo: string;
+}
+
+const {
+  recette,
+  rating = 0,
+  reviewsCount = 0,
+  returnTo,
+} = Astro.props as Readonly<Props>;
+
+const title = recette.titre ?? "Recette";
+const href = `/recettes/${recette.slug ?? recette.id}`;
+const editHref = `/recettes/edit/${recette.id}`;
+const objectifSante = recette.objectif_sante ?? "N/A";
+const tempsTotal = recette.temps_total ?? "N/A";
+const timeLabel =
+  typeof tempsTotal === "number" ? `${tempsTotal} min` : `${tempsTotal}`;
+const roundedRating = Math.max(0, Math.min(5, Math.round(Number(rating) || 0)));
+const safeReviewsCount = Math.max(0, Number(reviewsCount) || 0);
+---
+
+<article
+  class="rounded-2xl border-2 border-primary bg-secondary p-3 shadow-[0_4px_0_0_var(--color-primary)]"
+>
+  <a href={href} class="block">
+    <ImgPB
+      record={recette}
+      image={recette.image}
+      alt={`Image de la recette ${title}`}
+      thumb="800x500"
+      classPicture="w-full aspect-[3/2] overflow-hidden rounded-xl"
+      classImg="h-full w-full object-cover"
+    />
+
+    <div class="mt-3 flex items-start justify-between gap-3">
+      <h3 class="text-2xl text-primary">{title}</h3>
+      <span class="shrink-0 pt-1 text-sm font-bold text-primary"
+        >{timeLabel}</span
+      >
+    </div>
+
+    <div class="mt-3 flex items-center justify-between gap-3">
+      <div class="flex items-center gap-1">
+        {
+          Array.from({ length: 5 }).map((_, index) => (
+            <span
+              class:list={[
+                "text-lg leading-none",
+                index < roundedRating ? "text-primary" : "text-primary/30",
+              ]}
+            >
+              ★
+            </span>
+          ))
+        }
+        <span class="ml-1 text-sm text-primary/80">({safeReviewsCount})</span>
+      </div>
+
+      <span
+        class="rounded-md bg-primary px-3 py-1 text-xs font-bold uppercase tracking-wide text-secondary"
+        >{objectifSante}</span
+      >
+    </div>
+  </a>
+
+  <div class="mt-4 flex flex-wrap items-center gap-3">
+    <a
+      href={editHref}
+      class="rounded-full border-2 border-primary bg-secondary px-4 py-2 text-sm font-bold text-primary shadow-[0_4px_0_0_var(--color-primary)] transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_var(--color-primary)]"
+    >
+      Modifier
+    </a>
+
+    <form method="post" action={actions.deleteRecette}>
+      <input type="hidden" name="recetteId" value={recette.id} />
+      <input type="hidden" name="returnTo" value={returnTo} />
+      <button
+        type="submit"
+        class="rounded-full border-2 border-primary bg-accent2 px-4 py-2 text-sm font-bold text-secondary shadow-[0_4px_0_0_var(--color-primary)] transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_var(--color-primary)]"
+      >
+        Supprimer
+      </button>
+    </form>
+  </div>
+</article>
