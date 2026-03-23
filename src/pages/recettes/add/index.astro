@@ -3,39 +3,26 @@ import ProtectedLayout from "../../../layouts/ProtectedLayout.astro";
 import DamierHero from "../../../components/ui/DamierHero.astro";
 import RecetteEditIngredientsEtapes from "../../../components/ui/RecetteEditIngredientsEtapes.vue";
 import { actions, isInputError } from "astro:actions";
-import { getCompositionByRecetteId } from "../../../lib/services/composition.service";
-import { getEtapesByRecetteId } from "../../../lib/services/etapes.service";
 import { getAllIngredients } from "../../../lib/services/ingredients.service";
 import { getRegimeOptions } from "../../../lib/services/regimes.service";
 
-const { id } = Astro.params as { id?: string };
+const createRecetteResult = Astro.getActionResult(actions.createRecette);
 
-if (!id) {
-  return Astro.redirect("/404");
+if (createRecetteResult?.data?.success && createRecetteResult.data.redirectTo) {
+  return Astro.redirect(createRecetteResult.data.redirectTo);
 }
 
-const updateRecetteResult = Astro.getActionResult(actions.updateRecette);
-
-if (updateRecetteResult?.data?.success && updateRecetteResult.data.redirectTo) {
-  return Astro.redirect(updateRecetteResult.data.redirectTo);
-}
-
-const updateRecetteInputError = isInputError(updateRecetteResult?.error)
-  ? updateRecetteResult.error
+const createRecetteInputError = isInputError(createRecetteResult?.error)
+  ? createRecetteResult.error
   : undefined;
 
-const updateRecetteGlobalError =
-  updateRecetteResult?.error && !isInputError(updateRecetteResult.error)
-    ? updateRecetteResult.error.message
+const createRecetteGlobalError =
+  createRecetteResult?.error && !isInputError(createRecetteResult.error)
+    ? createRecetteResult.error.message
     : undefined;
 const hasFormError = Boolean(
-  updateRecetteGlobalError || updateRecetteInputError,
+  createRecetteGlobalError || createRecetteInputError,
 );
-
-const editSuccess =
-  Astro.url.searchParams.get("recette") === "updated"
-    ? "Recette mise a jour avec succes."
-    : undefined;
 
 const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 if (!isAuthenticated) {
@@ -44,111 +31,45 @@ if (!isAuthenticated) {
   );
 }
 
-const authModel = Astro.locals.pb?.authStore?.model as { id?: string } | null;
-const currentUserId = authModel?.id;
-
-if (!currentUserId) {
-  return Astro.redirect(
-    `/auth/login?returnTo=${encodeURIComponent(Astro.url.pathname)}`,
-  );
-}
-
-let recette: any;
-
-try {
-  recette = await Astro.locals.pb.collection("recettes").getOne(id);
-} catch {
-  return Astro.redirect("/404");
-}
-
-if (recette.user !== currentUserId) {
-  return Astro.redirect("/404");
-}
-
-const [
-  compositionResult,
-  etapesResult,
-  ingredientsResult,
-  regimeOptionsResult,
-] = await Promise.all([
-  getCompositionByRecetteId(Astro.locals.pb, recette.id),
-  getEtapesByRecetteId(Astro.locals.pb, recette.id),
-  getAllIngredients(Astro.locals.pb),
-  getRegimeOptions(Astro.locals.pb),
-]);
-
-const composition = compositionResult.data;
-const etapes = etapesResult.data;
-const ingredients = ingredientsResult.data;
-const regimeOptions = regimeOptionsResult.data;
-
-const initialComposition = composition.map((item) => ({
-  ingredientId: item.expand?.ingredient?.id ?? item.ingredient,
-  nom: item.expand?.ingredient?.nom ?? "Ingredient",
-  categorie: item.expand?.ingredient?.categorie ?? "Autres",
-  quantite: item.quantite ?? 0,
-  unite: item.unite ?? "",
-}));
-
-const initialEtapes = etapes
-  .sort((a, b) => Number(a.numero_ordre ?? 0) - Number(b.numero_ordre ?? 0))
-  .map((item) => ({
-    titre: item.titre ?? "",
-    description: item.description ?? "",
-  }));
+const { data: ingredients } = await getAllIngredients(Astro.locals.pb);
+const { data: regimeOptions } = await getRegimeOptions(Astro.locals.pb);
 
 const ingredientsLite = ingredients.map((item) => ({
   id: item.id,
   nom: item.nom ?? "Ingredient",
   categorie: item.categorie ?? "Autres",
 }));
-
-const returnTo = `/recettes/edit/${recette.id}`;
 ---
 
 <ProtectedLayout>
   <section class="p-0">
     <header>
-      <DamierHero title="Modifier une recette" />
+      <DamierHero title="Ajouter une recette" />
     </header>
   </section>
 
   <section class="section content-container pt-10!">
     <div class="mx-auto max-w-5xl space-y-6">
       {
-        editSuccess && (
-          <p class="rounded-xl border-2 border-primary bg-primary/10 px-4 py-3 text-sm font-bold text-primary">
-            {editSuccess}
-          </p>
-        )
-      }
-
-      {
-        updateRecetteGlobalError && (
+        createRecetteGlobalError && (
           <p class="rounded-xl border-2 border-accent2 bg-accent2/10 px-4 py-3 text-sm font-bold text-accent2">
-            {updateRecetteGlobalError}
+            {createRecetteGlobalError}
           </p>
         )
       }
 
       <form
-        id="edit-recette-form"
+        id="add-recette-form"
         data-has-error={hasFormError ? "true" : "false"}
         method="post"
-        action={actions.updateRecette}
+        action={actions.createRecette}
         enctype="multipart/form-data"
         class="flex flex-col gap-8 lg:gap-16"
       >
         <input
           type="hidden"
-          name="recetteId"
-          value={recette.id}
-          data-persist="true"
-        />
-        <input
-          type="hidden"
           name="returnTo"
-          value={returnTo}
+          value="/profil"
           data-persist="true"
         />
         <input
@@ -176,14 +97,13 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 id="titre"
                 name="titre"
                 class="input mt-2"
-                value={recette.titre ?? ""}
                 required
                 data-persist="true"
               />
               {
-                updateRecetteInputError?.fields.titre?.[0] && (
+                createRecetteInputError?.fields.titre?.[0] && (
                   <p class="mt-2 text-sm font-bold text-accent2">
-                    {updateRecetteInputError.fields.titre[0]}
+                    {createRecetteInputError.fields.titre[0]}
                   </p>
                 )
               }
@@ -198,20 +118,10 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 required
                 data-persist="true"
               >
-                <option value="Entrée" selected={recette.categorie === "Entrée"}
-                  >Entrée</option
-                >
-                <option value="Plat" selected={recette.categorie === "Plat"}
-                  >Plat</option
-                >
-                <option
-                  value="Dessert"
-                  selected={recette.categorie === "Dessert"}>Dessert</option
-                >
-                <option
-                  value="Boisson"
-                  selected={recette.categorie === "Boisson"}>Boisson</option
-                >
+                <option value="Entrée">Entrée</option>
+                <option value="Plat">Plat</option>
+                <option value="Dessert">Dessert</option>
+                <option value="Boisson">Boisson</option>
               </select>
             </div>
 
@@ -224,28 +134,15 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 required
                 data-persist="true"
               >
-                <option
-                  value="Prise de masse"
-                  selected={recette.objectif_sante === "Prise de masse"}
-                  >Prise de masse</option
-                >
-                <option
-                  value="Perte de poids"
-                  selected={recette.objectif_sante === "Perte de poids"}
-                  >Perte de poids</option
-                >
-                <option
-                  value="Équilibre"
-                  selected={recette.objectif_sante === "Équilibre"}
-                  >Équilibre</option
-                >
+                <option value="Prise de masse">Prise de masse</option>
+                <option value="Perte de poids">Perte de poids</option>
+                <option value="Équilibre">Équilibre</option>
               </select>
             </div>
 
             <div class="md:col-span-2">
               <p class="label">Regimes</p>
               <div class="mt-3 grid gap-3 sm:grid-cols-2">
-                <input type="hidden" name="regimes" value="" />
                 {
                   regimeOptions.map((regime) => (
                     <label class="inline-flex items-center gap-2 text-sm font-afacad uppercase">
@@ -253,7 +150,6 @@ const returnTo = `/recettes/edit/${recette.id}`;
                         type="checkbox"
                         name="regimes"
                         value={regime.id}
-                        checked={(recette.regimes ?? []).includes(regime.id)}
                         class="h-4 w-4 appearance-none rounded-sm border-2 border-primary bg-secondary checked:bg-primary"
                         data-persist="true"
                       />
@@ -263,9 +159,9 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 }
               </div>
               {
-                updateRecetteInputError?.fields.regimes?.[0] && (
+                createRecetteInputError?.fields.regimes?.[0] && (
                   <p class="mt-2 text-sm font-bold text-accent2">
-                    {updateRecetteInputError.fields.regimes[0]}
+                    {createRecetteInputError.fields.regimes[0]}
                   </p>
                 )
               }
@@ -278,8 +174,8 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 name="temps_total"
                 type="number"
                 min="1"
+                value="30"
                 class="input mt-2"
-                value={recette.temps_total ?? 1}
                 required
                 data-persist="true"
               />
@@ -292,8 +188,8 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 name="portions"
                 type="number"
                 min="1"
+                value="2"
                 class="input mt-2"
-                value={recette.portions ?? 1}
                 required
                 data-persist="true"
               />
@@ -307,15 +203,15 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 type="number"
                 min="0"
                 step="0.1"
+                value="0"
                 class="input mt-2"
-                value={recette.kcal_portion ?? 0}
                 required
                 data-persist="true"
               />
               {
-                updateRecetteInputError?.fields.kcal_portion?.[0] && (
+                createRecetteInputError?.fields.kcal_portion?.[0] && (
                   <p class="mt-2 text-sm font-bold text-accent2">
-                    {updateRecetteInputError.fields.kcal_portion[0]}
+                    {createRecetteInputError.fields.kcal_portion[0]}
                   </p>
                 )
               }
@@ -331,15 +227,15 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 type="number"
                 min="0"
                 step="0.1"
+                value="0"
                 class="input mt-2"
-                value={recette.total_proteines ?? 0}
                 required
                 data-persist="true"
               />
               {
-                updateRecetteInputError?.fields.total_proteines?.[0] && (
+                createRecetteInputError?.fields.total_proteines?.[0] && (
                   <p class="mt-2 text-sm font-bold text-accent2">
-                    {updateRecetteInputError.fields.total_proteines[0]}
+                    {createRecetteInputError.fields.total_proteines[0]}
                   </p>
                 )
               }
@@ -355,15 +251,15 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 type="number"
                 min="0"
                 step="0.1"
+                value="0"
                 class="input mt-2"
-                value={recette.total_glucides ?? 0}
                 required
                 data-persist="true"
               />
               {
-                updateRecetteInputError?.fields.total_glucides?.[0] && (
+                createRecetteInputError?.fields.total_glucides?.[0] && (
                   <p class="mt-2 text-sm font-bold text-accent2">
-                    {updateRecetteInputError.fields.total_glucides[0]}
+                    {createRecetteInputError.fields.total_glucides[0]}
                   </p>
                 )
               }
@@ -377,37 +273,34 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 type="number"
                 min="0"
                 step="0.1"
+                value="0"
                 class="input mt-2"
-                value={recette.total_lipides ?? 0}
                 required
                 data-persist="true"
               />
               {
-                updateRecetteInputError?.fields.total_lipides?.[0] && (
+                createRecetteInputError?.fields.total_lipides?.[0] && (
                   <p class="mt-2 text-sm font-bold text-accent2">
-                    {updateRecetteInputError.fields.total_lipides[0]}
+                    {createRecetteInputError.fields.total_lipides[0]}
                   </p>
                 )
               }
             </div>
 
             <div>
-              <label class="label" for="image">Nouvelle image (optionnel)</label
-              >
+              <label class="label" for="image">Image</label>
               <input
                 id="image"
                 type="file"
                 name="image"
                 class="mt-2 block w-full rounded-2xl border-2 border-primary bg-secondary px-4 py-3 text-sm text-primary"
                 accept="image/*"
+                required
               />
-              <p class="mt-2 text-xs text-primary/70">
-                Laisser vide pour conserver l'image actuelle.
-              </p>
               {
-                updateRecetteInputError?.fields.image?.[0] && (
+                createRecetteInputError?.fields.image?.[0] && (
                   <p class="mt-2 text-sm font-bold text-accent2">
-                    {updateRecetteInputError.fields.image[0]}
+                    {createRecetteInputError.fields.image[0]}
                   </p>
                 )
               }
@@ -420,18 +313,17 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 name="description"
                 class="mt-2 w-full rounded-2xl border-2 border-primary bg-secondary px-4 py-3 text-primary outline-none"
                 rows={6}
-                data-persist="true">{recette.description ?? ""}</textarea
-              >
+                data-persist="true"></textarea>
             </div>
           </div>
         </article>
 
         {
-          (updateRecetteInputError?.fields.compositionJson?.[0] ||
-            updateRecetteInputError?.fields.etapesJson?.[0]) && (
+          (createRecetteInputError?.fields.compositionJson?.[0] ||
+            createRecetteInputError?.fields.etapesJson?.[0]) && (
             <p class="rounded-xl border-2 border-accent2 bg-accent2/10 px-4 py-3 text-sm font-bold text-accent2">
-              {updateRecetteInputError?.fields.compositionJson?.[0] ??
-                updateRecetteInputError?.fields.etapesJson?.[0]}
+              {createRecetteInputError?.fields.compositionJson?.[0] ??
+                createRecetteInputError?.fields.etapesJson?.[0]}
             </p>
           )
         }
@@ -439,15 +331,15 @@ const returnTo = `/recettes/edit/${recette.id}`;
         <RecetteEditIngredientsEtapes
           client:load
           ingredients={ingredientsLite}
-          initialComposition={initialComposition}
-          initialEtapes={initialEtapes}
+          initialComposition={[]}
+          initialEtapes={[]}
           compositionInputId="compositionJson"
           etapesInputId="etapesJson"
         />
 
         <div class="flex items-center justify-between gap-3">
           <a href="/profil" class="btn-outline">Annuler</a>
-          <button type="submit" class="btn">Mettre a jour</button>
+          <button type="submit" class="btn">Créer la recette</button>
         </div>
       </form>
     </div>
@@ -456,8 +348,8 @@ const returnTo = `/recettes/edit/${recette.id}`;
 
 <script is:inline>
   (() => {
-    const storageKey = `slurpy:recette:edit:draft:${window.location.pathname}`;
-    const form = document.getElementById("edit-recette-form");
+    const storageKey = "slurpy:recette:add:draft";
+    const form = document.getElementById("add-recette-form");
 
     if (!(form instanceof HTMLFormElement)) return;
 

@@ -6,6 +6,14 @@ import IconFacebook from '../../assets/icones/facebook.webp';
 import LogoPositif from '../../assets/icones/logo-positif.webp';
 import { actions, isInputError } from 'astro:actions';
 
+const returnToParam = Astro.url.searchParams.get('returnTo');
+const safeReturnTo =
+	returnToParam && returnToParam.startsWith('/') && !returnToParam.startsWith('//')
+		? returnToParam
+		: '/';
+const googleOAuthHref = `/auth/oauth/google?returnTo=${encodeURIComponent(safeReturnTo)}`;
+const facebookOAuthHref = `/auth/oauth/facebook?returnTo=${encodeURIComponent(safeReturnTo)}`;
+
 const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 
 //Si l'utilisateur est déjà connecté, on le redirige vers l'accueil
@@ -108,10 +116,10 @@ const hasFormError = Boolean(globalError || inputError);
 						</div>
 
 						<div class="flex items-center justify-center gap-6 w-full lg:-mt-1">
-							<BoutonCercle variant="secondary" ariaLabel="Se connecter avec Google">
+							<BoutonCercle variant="secondary" ariaLabel="Se connecter avec Google" href={googleOAuthHref}>
 								<img src={IconGoogle.src} alt="Icône Google" class="w-6 lg:w-7 object-contain" />
 							</BoutonCercle>
-							<BoutonCercle variant="secondary" ariaLabel="Se connecter avec Facebook">
+							<BoutonCercle variant="secondary" ariaLabel="Se connecter avec Facebook" href={facebookOAuthHref}>
 								<img src={IconFacebook.src} alt="Icône Facebook" class="w-6 lg:w-7 object-contain" />
 							</BoutonCercle>
 						</div>

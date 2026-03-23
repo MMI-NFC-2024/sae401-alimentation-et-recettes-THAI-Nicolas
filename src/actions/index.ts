@@ -124,11 +124,15 @@ async function buildUniqueRecetteSlug(
 function pickRecetteUpdatePayload(input: {
   titre?: string;
   description?: string;
-  difficulte?: string;
   categorie?: string;
   objectif_sante?: string;
   temps_total?: number;
   portions?: number;
+  kcal_portion?: number;
+  total_proteines?: number;
+  total_glucides?: number;
+  total_lipides?: number;
+  regimes?: string[];
   image?: File;
 }) {
   const payload: Record<string, unknown> = {};
@@ -140,10 +144,6 @@ function pickRecetteUpdatePayload(input: {
 
   if (typeof input.description === "string") {
     payload.description = input.description;
-  }
-
-  if (typeof input.difficulte === "string") {
-    payload.difficulte = input.difficulte;
   }
 
   if (typeof input.categorie === "string") {
@@ -160,6 +160,26 @@ function pickRecetteUpdatePayload(input: {
 
   if (typeof input.portions === "number") {
     payload.portions = input.portions;
+  }
+
+  if (typeof input.kcal_portion === "number") {
+    payload.kcal_portion = input.kcal_portion;
+  }
+
+  if (typeof input.total_proteines === "number") {
+    payload.total_proteines = input.total_proteines;
+  }
+
+  if (typeof input.total_glucides === "number") {
+    payload.total_glucides = input.total_glucides;
+  }
+
+  if (typeof input.total_lipides === "number") {
+    payload.total_lipides = input.total_lipides;
+  }
+
+  if (Array.isArray(input.regimes)) {
+    payload.regimes = input.regimes;
   }
 
   if (input.image instanceof File && input.image.size > 0) {
@@ -498,19 +518,80 @@ export const server = {
           titre: input.titre,
           slug,
           description: input.description ?? "",
-          difficulte: input.difficulte,
           categorie: input.categorie,
           objectif_sante: input.objectif_sante,
           temps_total: input.temps_total,
           portions: input.portions,
+          kcal_portion: input.kcal_portion,
+          total_proteines: input.total_proteines,
+          total_glucides: input.total_glucides,
+          total_lipides: input.total_lipides,
           user: userId,
         };
+
+        if (Array.isArray(input.regimes) && input.regimes.length > 0) {
+          payload.regimes = input.regimes;
+        }
 
         if (input.image instanceof File && input.image.size > 0) {
           payload.image = input.image;
         }
 
-        await context.locals.pb.collection("recettes").create(payload);
+        const createdRecette = await context.locals.pb
+          .collection("recettes")
+          .create(payload);
+
+        const rawComposition = parseJsonArrayField<CompositionInputItem>(
+          input.compositionJson,
+          "ingredients",
+        );
+        const rawEtapes = parseJsonArrayField<EtapeInputItem>(
+          input.etapesJson,
+          "etapes",
+        );
+
+        const compositionItems = rawComposition
+          ? normalizeCompositionItems(rawComposition)
+          : undefined;
+        const etapesItems = rawEtapes
+          ? normalizeEtapesItems(rawEtapes)
+          : undefined;
+
+        if (!compositionItems || compositionItems.length === 0) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: "Ajoutez au moins un ingredient.",
+          });
+        }
+
+        if (!etapesItems || etapesItems.length === 0) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: "Ajoutez au moins une etape.",
+          });
+        }
+
+        if (compositionItems !== undefined) {
+          for (const item of compositionItems) {
+            await context.locals.pb.collection("composition").create({
+              recette: createdRecette.id,
+              ingredient: item.ingredientId,
+              quantite: item.quantite,
+              unite: item.unite || undefined,
+            });
+          }
+        }
+
+        if (etapesItems !== undefined) {
+          for (const [index, item] of etapesItems.entries()) {
+            await context.locals.pb.collection("etapes").create({
+              recette: createdRecette.id,
+              numero_ordre: index + 1,
+              titre: item.titre,
+              description: item.description,
+            });
+          }
+        }
 
         return {
           success: true,
@@ -564,6 +645,20 @@ export const server = {
         const etapesItems = rawEtapes
           ? normalizeEtapesItems(rawEtapes)
           : undefined;
+
+        if (!compositionItems || compositionItems.length === 0) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: "Ajoutez au moins un ingredient.",
+          });
+        }
+
+        if (!etapesItems || etapesItems.length === 0) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: "Ajoutez au moins une etape.",
+          });
+        }
 
         if (
           Object.keys(payload).length === 0 &&

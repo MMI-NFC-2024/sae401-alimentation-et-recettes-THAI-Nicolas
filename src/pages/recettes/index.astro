@@ -1,72 +1,88 @@
 ---
-import DamierHero from "../../components/ui/DamierHero.astro"
-import Layout from "../../layouts/Layout.astro"
+import DamierHero from "../../components/ui/DamierHero.astro";
+import Layout from "../../layouts/Layout.astro";
 import { getAllRecettes } from "../../lib/services/recettes.service";
 import { getRegimeOptions } from "../../lib/services/regimes.service";
 import { getAvisStatsByRecetteIds } from "../../lib/services/avis.service";
 import CardRecette from "../../components/ui/CardRecette.astro";
 import RecettesFiltersPanel from "../../components/ui/RecettesFiltersPanel.vue";
 
-const { data: recettes, error: recettesError } = await getAllRecettes(Astro.locals.pb);
+const { data: recettes, error: recettesError } = await getAllRecettes(
+  Astro.locals.pb,
+);
 const { data: regimeOptions } = await getRegimeOptions(Astro.locals.pb);
 const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
-    Astro.locals.pb,
-    recettes.map((recette) => recette.id),
+  Astro.locals.pb,
+  recettes.map((recette) => recette.id),
 );
 ---
 
 <Layout>
-    <section class="p-0">
-        <header>
-            <DamierHero title="Nos recettes" />
-        </header>
-    </section>
-    <section class="section content-container pt-10!">
-        <div class="grid grid-cols-1 gap-10 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10">
-            <RecettesFiltersPanel client:load regimes={regimeOptions} />
+  <section class="p-0">
+    <header>
+      <DamierHero title="Nos recettes" />
+    </header>
+  </section>
+  <section class="section content-container pt-10!">
+    <div
+      class="grid grid-cols-1 gap-10 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10"
+    >
+      <RecettesFiltersPanel client:load regimes={regimeOptions} />
 
-            <div>
-                <div class="mb-8 flex justify-center lg:justify-end">
-                    <button type="button" class="btn bg-accent1!">
-                        + Ajouter ma recette
-                    </button>
-                </div>
-
-                { recettes.length > 0 ? (
-                    <div>
-                        <ul class="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3" data-recettes-grid>
-                            {recettes.map((recette) => {
-                                const avisStats = avisStatsByRecette[recette.id] ?? { average: 0, total: 0 };
-
-                                return (
-                                    <li
-                                        data-recette-item
-                                        data-title={recette.titre}
-                                        data-objectif={recette.objectif_sante}
-                                        data-categorie={recette.categorie}
-                                        data-regimes={(recette.regimes ?? []).join(",")}
-                                        data-rating={String(avisStats.average)}
-                                    >
-                                        <CardRecette
-                                            recette={recette}
-                                            rating={avisStats.average}
-                                            reviewsCount={avisStats.total}
-                                        />
-                                    </li>
-                                );
-                            })}
-                        </ul>
-
-                        <div id="recettes-pagination" class="mt-10 flex items-center justify-center"></div>
-                        <p id="recettes-empty" class="mt-8 text-center" hidden></p>
-                    </div>
-                ) : (
-                    <p class="mt-8 text-center">
-                        {recettesError ? "Les recettes sont temporairement indisponibles. Reessaie dans quelques instants." : "Aucune recette trouvée."}
-                    </p>
-                )}
-            </div>
+      <div>
+        <div class="mb-8 flex justify-center lg:justify-end">
+          <a href="/recettes/add" class="btn bg-accent1!">
+            + Ajouter ma recette
+          </a>
         </div>
-    </section>
 
+        {
+          recettes.length > 0 ? (
+            <div>
+              <ul
+                class="grid grid-cols-1 gap-7 md:grid-cols-2 lg:grid-cols-3"
+                data-recettes-grid
+              >
+                {recettes.map((recette) => {
+                  const avisStats = avisStatsByRecette[recette.id] ?? {
+                    average: 0,
+                    total: 0,
+                  };
+
+                  return (
+                    <li
+                      data-recette-item
+                      data-title={recette.titre}
+                      data-objectif={recette.objectif_sante}
+                      data-categorie={recette.categorie}
+                      data-regimes={(recette.regimes ?? []).join(",")}
+                      data-rating={String(avisStats.average)}
+                    >
+                      <CardRecette
+                        recette={recette}
+                        rating={avisStats.average}
+                        reviewsCount={avisStats.total}
+                      />
+                    </li>
+                  );
+                })}
+              </ul>
+
+              <div
+                id="recettes-pagination"
+                class="mt-10 flex items-center justify-center"
+              />
+              <p id="recettes-empty" class="mt-8 text-center" hidden />
+            </div>
+          ) : (
+            <p class="mt-8 text-center">
+              {recettesError
+                ? "Les recettes sont temporairement indisponibles. Reessaie dans quelques instants."
+                : "Aucune recette trouvée."}
+            </p>
+          )
+        }
+      </div>
+    </div>
+  </section>
 </Layout>

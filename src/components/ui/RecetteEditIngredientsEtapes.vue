@@ -181,6 +181,17 @@ interface EtapeItem {
   description: string;
 }
 
+interface DraftCompositionItem {
+  ingredientId?: string;
+  quantite?: number;
+  unite?: string;
+}
+
+interface DraftEtapeItem {
+  titre?: string;
+  description?: string;
+}
+
 const props = withDefaults(
   defineProps<{
     ingredients: IngredientLite[];
@@ -240,7 +251,9 @@ const filteredIngredients = computed(() => {
 });
 
 function isSelected(ingredientId: string) {
-  return compositionState.value.some((item) => item.ingredientId === ingredientId);
+  return compositionState.value.some(
+    (item) => item.ingredientId === ingredientId,
+  );
 }
 
 function addCompositionItem(ingredient: IngredientLite) {
@@ -302,21 +315,75 @@ function updateHiddenInputs() {
   }
 }
 
-onMounted(() => {
-  compositionState.value = props.initialComposition.map((item) => ({
-    ingredientId: item.ingredientId,
-    nom: item.nom,
-    categorie: item.categorie || "Autres",
-    quantite: Number(item.quantite || 0),
-    unite: item.unite || "",
-  }));
+function parseJsonArray<T>(rawValue: string): T[] | null {
+  if (!rawValue || rawValue.trim().length === 0) return null;
 
-  etapesState.value = props.initialEtapes.length
-    ? props.initialEtapes.map((item) => ({
-        titre: item.titre || "",
-        description: item.description || "",
-      }))
-    : [{ titre: "", description: "" }];
+  try {
+    const parsed = JSON.parse(rawValue);
+    return Array.isArray(parsed) ? (parsed as T[]) : null;
+  } catch {
+    return null;
+  }
+}
+
+onMounted(() => {
+  const compositionInput = document.getElementById(
+    props.compositionInputId,
+  ) as HTMLInputElement | null;
+  const etapesInput = document.getElementById(
+    props.etapesInputId,
+  ) as HTMLInputElement | null;
+
+  const draftComposition = parseJsonArray<DraftCompositionItem>(
+    compositionInput?.value ?? "",
+  );
+  const draftEtapes = parseJsonArray<DraftEtapeItem>(etapesInput?.value ?? "");
+
+  if (draftComposition && draftComposition.length > 0) {
+    const restoredComposition: CompositionItem[] = [];
+
+    for (const item of draftComposition) {
+      const ingredient = props.ingredients.find(
+        (candidate) => candidate.id === item.ingredientId,
+      );
+
+      if (!ingredient || !item.ingredientId) {
+        continue;
+      }
+
+      restoredComposition.push({
+        ingredientId: ingredient.id,
+        nom: ingredient.nom,
+        categorie: ingredient.categorie || "Autres",
+        quantite: Number(item.quantite || 0),
+        unite: typeof item.unite === "string" ? item.unite : "",
+      });
+    }
+
+    compositionState.value = restoredComposition;
+  } else {
+    compositionState.value = props.initialComposition.map((item) => ({
+      ingredientId: item.ingredientId,
+      nom: item.nom,
+      categorie: item.categorie || "Autres",
+      quantite: Number(item.quantite || 0),
+      unite: item.unite || "",
+    }));
+  }
+
+  if (draftEtapes && draftEtapes.length > 0) {
+    etapesState.value = draftEtapes.map((item) => ({
+      titre: typeof item.titre === "string" ? item.titre : "",
+      description: typeof item.description === "string" ? item.description : "",
+    }));
+  } else {
+    etapesState.value = props.initialEtapes.length
+      ? props.initialEtapes.map((item) => ({
+          titre: item.titre || "",
+          description: item.description || "",
+        }))
+      : [{ titre: "", description: "" }];
+  }
 
   updateHiddenInputs();
 });

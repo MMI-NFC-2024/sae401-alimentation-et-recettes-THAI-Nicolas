@@ -7,7 +7,17 @@ const objectifSanteSchema = z.enum([
 ]);
 
 const categorieSchema = z.enum(["Entrée", "Plat", "Dessert", "Boisson"]);
-const difficulteSchema = z.enum(["facile", "moyen", "difficile"]);
+
+const requiredFileSchema = z.preprocess(
+  (value) => {
+    if (!(value instanceof File)) {
+      return undefined;
+    }
+
+    return value.size > 0 ? value : undefined;
+  },
+  z.instanceof(File, { message: "L'image est obligatoire" }),
+);
 
 const optionalFileSchema = z.preprocess((value) => {
   if (!(value instanceof File)) {
@@ -25,6 +35,38 @@ const optionalNumberSchema = z.preprocess((value) => {
   return value;
 }, z.coerce.number().optional());
 
+const optionalRegimesSchema = z.preprocess(
+  (value) => {
+    if (value === undefined || value === null) {
+      return undefined;
+    }
+
+    if (Array.isArray(value)) {
+      return value
+        .map((entry) => String(entry).trim())
+        .filter((entry) => entry.length > 0);
+    }
+
+    const normalized = String(value).trim();
+    return normalized.length > 0 ? [normalized] : [];
+  },
+  z.array(z.string().trim().min(1, "Regime invalide")).optional(),
+);
+
+function nonEmptyJsonArraySchema(errorMessage: string) {
+  return z
+    .string()
+    .trim()
+    .refine((value) => {
+      try {
+        const parsed = JSON.parse(value);
+        return Array.isArray(parsed) && parsed.length > 0;
+      } catch {
+        return false;
+      }
+    }, errorMessage);
+}
+
 export const createRecetteSchema = z.object({
   titre: z
     .string()
@@ -37,7 +79,6 @@ export const createRecetteSchema = z.object({
     .max(3000, "La description est trop longue")
     .optional()
     .default(""),
-  difficulte: difficulteSchema,
   categorie: categorieSchema,
   objectif_sante: objectifSanteSchema,
   temps_total: z.coerce
@@ -47,7 +88,22 @@ export const createRecetteSchema = z.object({
     .number()
     .int("Le nombre de portions doit etre un entier")
     .min(1, "Le nombre de portions doit etre superieur a 0"),
-  image: optionalFileSchema,
+  kcal_portion: z.coerce
+    .number()
+    .min(0, "Les kcal par portion doivent etre superieures ou egales a 0"),
+  total_proteines: z.coerce
+    .number()
+    .min(0, "Le total des proteines doit etre superieur ou egal a 0"),
+  total_glucides: z.coerce
+    .number()
+    .min(0, "Le total des glucides doit etre superieur ou egal a 0"),
+  total_lipides: z.coerce
+    .number()
+    .min(0, "Le total des lipides doit etre superieur ou egal a 0"),
+  regimes: optionalRegimesSchema,
+  image: requiredFileSchema,
+  compositionJson: nonEmptyJsonArraySchema("Ajoutez au moins un ingredient."),
+  etapesJson: nonEmptyJsonArraySchema("Ajoutez au moins une etape."),
   returnTo: z.string().trim().optional(),
 });
 
@@ -64,7 +120,6 @@ export const updateRecetteSchema = z.object({
     .trim()
     .max(3000, "La description est trop longue")
     .optional(),
-  difficulte: difficulteSchema.optional(),
   categorie: categorieSchema.optional(),
   objectif_sante: objectifSanteSchema.optional(),
   temps_total: optionalNumberSchema,
@@ -75,9 +130,14 @@ export const updateRecetteSchema = z.object({
 
     return value;
   }, z.coerce.number().int("Le nombre de portions doit etre un entier").min(1, "Le nombre de portions doit etre superieur a 0").optional()),
+  kcal_portion: optionalNumberSchema,
+  total_proteines: optionalNumberSchema,
+  total_glucides: optionalNumberSchema,
+  total_lipides: optionalNumberSchema,
+  regimes: optionalRegimesSchema,
   image: optionalFileSchema,
-  compositionJson: z.string().trim().optional(),
-  etapesJson: z.string().trim().optional(),
+  compositionJson: nonEmptyJsonArraySchema("Ajoutez au moins un ingredient."),
+  etapesJson: nonEmptyJsonArraySchema("Ajoutez au moins une etape."),
   returnTo: z.string().trim().optional(),
 });
 
