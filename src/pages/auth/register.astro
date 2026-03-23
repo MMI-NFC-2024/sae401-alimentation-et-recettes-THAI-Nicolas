@@ -12,7 +12,21 @@ const safeReturnTo =
   returnToParam.startsWith("/") &&
   !returnToParam.startsWith("//")
     ? returnToParam
-    : "/";
+    : "/profil";
+
+const objectifParam = Astro.url.searchParams.get("objectif_sante")?.trim();
+const objectifSanteValues = new Set([
+  "Prise de masse",
+  "Perte de poids",
+  "Se maintenir",
+  "Se Maintenir",
+]);
+const safeObjectifSante =
+  objectifParam && objectifSanteValues.has(objectifParam)
+    ? objectifParam === "Se Maintenir"
+      ? "Se maintenir"
+      : objectifParam
+    : undefined;
 const googleOAuthHref = `/auth/oauth/google?returnTo=${encodeURIComponent(safeReturnTo)}`;
 const facebookOAuthHref = `/auth/oauth/facebook?returnTo=${encodeURIComponent(safeReturnTo)}`;
 
@@ -20,14 +34,14 @@ const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 
 //Si l'utilisateur est déjà connecté, on le redirige vers l'accueil
 if (isAuthenticated) {
-  return Astro.redirect("/");
+  return Astro.redirect(safeReturnTo);
 }
 
 // On lit le resultat de l'action register pour afficher les erreurs Zod/server.
 const actionResult = Astro.getActionResult(actions.register);
 if (actionResult?.data?.success) {
   // PRG: redirection GET apres succes pour eviter la resoumission au refresh.
-  return Astro.redirect("/");
+  return Astro.redirect(actionResult.data.redirectTo ?? safeReturnTo);
 }
 
 const inputError = isInputError(actionResult?.error)
@@ -96,6 +110,16 @@ const hasFormError = Boolean(globalError || inputError);
           class="flex flex-col gap-3 lg:gap-2.5 w-full"
           novalidate
         >
+          <input type="hidden" name="returnTo" value={safeReturnTo} />
+          {
+            safeObjectifSante && (
+              <input
+                type="hidden"
+                name="objectif_sante"
+                value={safeObjectifSante}
+              />
+            )
+          }
           <label class="sr-only" for="email">Adresse email</label>
           <input
             data-persist="true"
@@ -197,7 +221,7 @@ const hasFormError = Boolean(globalError || inputError);
         <p class="text-secondary text-sm lg:text-base">
           Déjà inscrit ?
           <a
-            href="/auth/login"
+            href={`/auth/login?returnTo=${encodeURIComponent(safeReturnTo)}`}
             class="font-bold text-accent1 transition-all duration-200 hover:underline"
             >Se connecter</a
           >

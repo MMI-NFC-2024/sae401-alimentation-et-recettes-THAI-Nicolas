@@ -1,5 +1,5 @@
 <template>
-  <div :class="wrapperClass || 'relative'">
+  <div :class="['relative', wrapperClass]">
     <label :for="id" class="sr-only">{{ label }}</label>
     <input
       :id="id"
@@ -9,7 +9,11 @@
       :class="variantStyles[variant].input"
       @input="onInput"
     />
-    <span :class="variantStyles[variant].iconWrapper" aria-hidden="true">
+    <span
+      v-if="variant === 'article'"
+      :class="variantStyles[variant].iconWrapper"
+      aria-hidden="true"
+    >
       <img :src="searchIcon.src" alt="" :class="variantStyles[variant].icon" />
     </span>
   </div>

@@ -324,18 +324,22 @@ export const server = {
     input: registerSchema,
     handler: async (input, context) => {
       const email = normalizeEmail(input.email);
+      const redirectTo = sanitizeReturnTo(input.returnTo || "/profil");
 
       try {
         await context.locals.pb.collection("users").create({
           email,
           password: input.password,
           passwordConfirm: input.passwordConfirm,
+          ...(typeof input.objectif_sante === "string"
+            ? { objectif_sante: input.objectif_sante }
+            : {}),
         });
 
         await context.locals.pb
           .collection("users")
           .authWithPassword(email, input.password);
-        return { success: true };
+        return { success: true, redirectTo };
       } catch (error) {
         const emailMessage = getPbEmailMessage(error);
 

@@ -28,6 +28,10 @@ const { data: articles, error: articlesError } = await getLatestArticles(
   Astro.locals.pb,
   3,
 );
+
+const registerReturnTo = "/profil";
+const getObjectiveRegisterHref = (objectif: string) =>
+  `/auth/register?returnTo=${encodeURIComponent(registerReturnTo)}&objectif_sante=${encodeURIComponent(objectif)}`;
 ---
 
 <Layout>
@@ -77,6 +81,7 @@ const { data: articles, error: articlesError } = await getLatestArticles(
               description="Prends du volume musculaire avec des recettes riches en protéines et en calories"
               hashtag="#highprotein"
               character={PriseDeMasse}
+              href={getObjectiveRegisterHref("Prise de masse")}
             />
           </li>
           <li class="w-full h-full">
@@ -85,6 +90,7 @@ const { data: articles, error: articlesError } = await getLatestArticles(
               description="Réduis ta masse grasse sans privation, grâce à des plats calibrés et rassasiants."
               hashtag="#lowkcalories"
               character={PerteDePoids}
+              href={getObjectiveRegisterHref("Perte de poids")}
             />
           </li>
           <li
@@ -95,6 +101,7 @@ const { data: articles, error: articlesError } = await getLatestArticles(
               description="Maintiens ton poids de forme et ton niveau d'énergie avec une alimentation équilibrée."
               hashtag="#zen"
               character={MeMaintenir}
+              href={getObjectiveRegisterHref("Se maintenir")}
             />
           </li>
         </ul>

@@ -28,6 +28,17 @@ export const registerSchema = z
       .min(8, "Le mot de passe doit contenir au moins 8 caractères")
       .max(100, "Le mot de passe est trop long"),
     passwordConfirm: z.string(),
+    // Redirection post inscription (chemin interne uniquement, validee cote action).
+    returnTo: z.string().optional(),
+    objectif_sante: z
+      .enum([
+        "Prise de masse",
+        "Perte de poids",
+        "Se maintenir",
+        "Se Maintenir",
+      ])
+      .transform((value) => (value === "Se Maintenir" ? "Se maintenir" : value))
+      .optional(),
   })
   .refine((data) => data.password === data.passwordConfirm, {
     message: "Les mots de passe ne correspondent pas",

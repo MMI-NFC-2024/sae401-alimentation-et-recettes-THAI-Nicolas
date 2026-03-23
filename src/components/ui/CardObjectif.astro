@@ -1,27 +1,36 @@
 ---
-import type { ImageMetadata } from 'astro';
+import type { ImageMetadata } from "astro";
 
 interface Props {
-    title: string;
-    description: string;
-    hashtag: string;
-    character: ImageMetadata;
+  title: string;
+  description: string;
+  hashtag: string;
+  character: ImageMetadata;
+  href: string;
 }
 
-const { title, description, hashtag, character } = Astro.props as Props;
+const { title, description, hashtag, character, href } = Astro.props as Props;
 ---
 
-<div class="rounded-2xl border-2 border-secondary bg-primary p-5 shadow-[4px_7px_0_0_var(--color-secondary)] w-full max-w-sm mx-auto h-full flex flex-col items-center text-center overflow-visible transition-all duration-300 hover:shadow-[6px_10px_0_0_var(--color-secondary)]">
-    <div class="-mt-10 mb-2 flex h-44 w-full items-end justify-center md:h-40 lg:h-36 xl:h-40">
-        <img
-            src={character.src}
-            alt={title}
-            class="h-full w-auto object-contain"
-            loading="lazy"
-        />
-    </div>
-    <h3 class="leading-tight">{title}</h3>
-    <p class="mt-2 flex-1">{description}</p>
-    <span class="mt-3 text-sm uppercase rounded-full bg-secondary text-primary py-1.5 px-5">{hashtag}</span>
-</div>
-
+<a
+  href={href}
+  class="group rounded-2xl border-2 border-secondary bg-primary p-5 shadow-[4px_7px_0_0_var(--color-secondary)] w-full max-w-sm mx-auto h-full flex flex-col items-center text-center overflow-visible transition-all duration-300 hover:shadow-[6px_10px_0_0_var(--color-secondary)] hover:-translate-y-0.5 focus-visible:outline-none focus-visible:ring-4 focus-visible:ring-secondary/70"
+  aria-label={`Choisir l'objectif ${title} et creer un compte`}
+>
+  <div
+    class="-mt-10 mb-2 flex h-44 w-full items-end justify-center md:h-40 lg:h-36 xl:h-40"
+  >
+    <img
+      src={character.src}
+      alt={title}
+      class="h-full w-auto object-contain"
+      loading="lazy"
+    />
+  </div>
+  <h3 class="leading-tight">{title}</h3>
+  <p class="mt-2 flex-1">{description}</p>
+  <span
+    class="mt-3 text-sm uppercase rounded-full bg-secondary text-primary py-1.5 px-5"
+    >{hashtag}</span
+  >
+</a>

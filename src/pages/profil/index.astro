@@ -118,6 +118,7 @@ const returnTo = Astro.url.pathname;
             <div class="space-y-4">
               <label
                 for="avatar"
+                id="avatar-picker"
                 class="group relative block h-40 w-40 cursor-pointer overflow-hidden rounded-2xl border-2 border-primary"
               >
                 <ImgPB
@@ -140,6 +141,9 @@ const returnTo = Astro.url.pathname;
                 class="sr-only"
                 accept="image/*"
               />
+              <p id="avatar-feedback" class="text-xs text-primary/70">
+                Choisissez une image pour voir l'aperçu.
+              </p>
 
               {
                 updateProfileInputError?.fields.avatar?.[0] && (
@@ -299,3 +303,44 @@ const returnTo = Astro.url.pathname;
     </section>
   </section>
 </ProtectedLayout>
+
+<script is:inline>
+  (() => {
+    const avatarInput = document.getElementById("avatar");
+    const avatarPicker = document.getElementById("avatar-picker");
+    const avatarFeedback = document.getElementById("avatar-feedback");
+
+    if (!(avatarInput instanceof HTMLInputElement)) return;
+    if (!(avatarPicker instanceof HTMLElement)) return;
+
+    const avatarImage = avatarPicker.querySelector("img");
+    if (!(avatarImage instanceof HTMLImageElement)) return;
+
+    const originalSrc = avatarImage.src;
+    let previewUrl = "";
+
+    avatarInput.addEventListener("change", () => {
+      const file = avatarInput.files?.[0];
+
+      if (previewUrl) {
+        URL.revokeObjectURL(previewUrl);
+        previewUrl = "";
+      }
+
+      if (!file) {
+        avatarImage.src = originalSrc;
+        if (avatarFeedback instanceof HTMLElement) {
+          avatarFeedback.textContent = "Choisissez une image pour voir l'aperçu.";
+        }
+        return;
+      }
+
+      previewUrl = URL.createObjectURL(file);
+      avatarImage.src = previewUrl;
+
+      if (avatarFeedback instanceof HTMLElement) {
+        avatarFeedback.textContent = `Image sélectionnée: ${file.name}`;
+      }
+    });
+  })();
+</script>
