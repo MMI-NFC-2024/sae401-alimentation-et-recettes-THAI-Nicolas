@@ -121,7 +121,11 @@ export async function handleOAuthStart(
       !authUrl
     ) {
       return context.redirect(
-        buildOAuthLoginErrorRedirect(provider, "provider_not_configured", returnTo),
+        buildOAuthLoginErrorRedirect(
+          provider,
+          "provider_not_configured",
+          returnTo,
+        ),
       );
     }
 

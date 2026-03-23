@@ -5,8 +5,9 @@ import { defineMiddleware } from "astro/middleware";
 
 export const onRequest = defineMiddleware(
   async ({ locals, request, isPrerendered }: any, next: () => any) => {
-    const nodeEnv = (globalThis as { process?: { env?: Record<string, string> } })
-      .process?.env;
+    const nodeEnv = (
+      globalThis as { process?: { env?: Record<string, string> } }
+    ).process?.env;
     const pbUrl = nodeEnv?.POCKETBASE_URL ?? import.meta.env.POCKETBASE_URL;
     locals.pb = new PocketBase(pbUrl);
 
