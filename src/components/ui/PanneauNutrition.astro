@@ -18,10 +18,14 @@ const {
 } = Astro.props as Readonly<Props>;
 ---
 
-<article class="rounded-3xl border-2 border-primary/40 bg-secondary p-5 shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_25%,black_75%)]">
+<article
+  class="rounded-3xl border-2 border-primary/40 bg-secondary p-5 shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_25%,black_75%)]"
+>
   <header class="mb-4 flex items-end justify-between gap-4">
     <div>
-      <p class="text-xs uppercase tracking-[0.16em] text-primary/70">Nutrition</p>
+      <p class="text-xs uppercase tracking-[0.16em] text-primary/70">
+        Nutrition
+      </p>
       <h3 class="font-barlow text-3xl text-primary" data-nutrition-kcal>
         {kcalParPortion} kcal
       </h3>

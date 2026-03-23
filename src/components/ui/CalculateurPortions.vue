@@ -143,7 +143,10 @@ const normaliserEntierPositif = (valeur: number, fallback: number) => {
 };
 
 watch(portionsCible, (valeur) => {
-  const normalisee = normaliserEntierPositif(valeur, Math.max(1, props.portionsBase || 1));
+  const normalisee = normaliserEntierPositif(
+    valeur,
+    Math.max(1, props.portionsBase || 1),
+  );
   if (normalisee !== valeur) {
     portionsCible.value = normalisee;
     return;
@@ -269,7 +272,9 @@ const glucidesAjustes = computed(
 );
 const lipidesAjustes = computed(() => props.lipidesBase * facteurGlobal.value);
 
-const kcalAfficheesParPortion = computed(() => roundTo(kcalAjusteesParPortion.value));
+const kcalAfficheesParPortion = computed(() =>
+  roundTo(kcalAjusteesParPortion.value),
+);
 const kcalTotalesAffichees = computed(() => roundTo(kcalTotalesAjustees.value));
 const proteinesAffichees = computed(() =>
   roundForDisplay(proteinesAjustees.value, 1),
@@ -277,5 +282,7 @@ const proteinesAffichees = computed(() =>
 const glucidesAffiches = computed(() =>
   roundForDisplay(glucidesAjustes.value, 1),
 );
-const lipidesAffiches = computed(() => roundForDisplay(lipidesAjustes.value, 1));
+const lipidesAffiches = computed(() =>
+  roundForDisplay(lipidesAjustes.value, 1),
+);
 </script>
