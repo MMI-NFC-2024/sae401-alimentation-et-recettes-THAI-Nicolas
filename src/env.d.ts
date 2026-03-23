@@ -14,4 +14,5 @@ interface ImportMetaEnv {
   readonly EMAILJS_SERVICE_ID: string;
   readonly EMAILJS_TEMPLATE_ID: string;
   readonly EMAILJS_PUBLIC_ID: string;
+  readonly EMAILJS_PRIVATE_KEY: string;
 }
