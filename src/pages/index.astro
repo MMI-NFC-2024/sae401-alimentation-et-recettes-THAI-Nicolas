@@ -84,6 +84,7 @@ const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
 import { getLatestArticles } from "../lib/services/articles.service";
 import RecettesObjectifTabs from "../components/ui/RecettesObjectifTabs.astro";
 import HomeRegisterCta from "../components/ui/HomeRegisterCta.astro";
+import HomeFaq from "../components/ui/HomeFaq.astro";
 const { data: articles, error: articlesError } = await getLatestArticles(
   Astro.locals.pb,
   3,
@@ -234,16 +235,9 @@ const getObjectiveRegisterHref = (objectif: string) =>
       href={`/auth/register?returnTo=${encodeURIComponent(registerReturnTo)}`}
     />
     <section>
-      <div class="content-container">
-        <div class="flex items-center gap-4 xl:gap-8 justify-center">
-          <span class="border flex-1"></span>
-          <h3 class="text-center">Des questions ?</h3>
-          <span class="border flex-1"></span>
-        </div>
-        <div></div>
-      </div>
+      <HomeFaq />
       <div>
-        <p class="text-center text-xl xl:text-4xl font-bold">
+        <p class="mt-10 text-center text-xl xl:mt-14 xl:text-4xl font-bold">
           Encore des questions ?
         </p>
         <div class="btn-wrapper my-6 xl:my-12">

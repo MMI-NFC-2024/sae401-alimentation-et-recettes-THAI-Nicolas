@@ -1,0 +1,102 @@
+---
+const faqItems = [
+  {
+    question: "Est-ce que je dois payer pour acceder aux fonctionnalites ?",
+    answer:
+      "Non. Les fonctionnalites principales sont accessibles gratuitement. Certaines options avancees pourront etre proposees plus tard, mais ton parcours de base reste disponible.",
+  },
+  {
+    question: "Je ne suis pas tres sportif, Slurpy est-il fait pour moi ?",
+    answer:
+      "Oui. Slurpy est pense pour tous les niveaux, y compris debutant. Les recettes et recommandations s'adaptent a ton objectif, sans imposer un niveau sportif eleve.",
+  },
+  {
+    question: "Est-ce que le calculateur est vraiment fiable pour mes macros ?",
+    answer:
+      "Le calculateur repose sur des references nutritionnelles standard et fournit une estimation pratique. Pour un suivi medical ou clinique, il faut toujours valider avec un professionnel de sante.",
+  },
+  {
+    question: "Est-ce que je peux poster mes propres recettes ?",
+    answer:
+      "Oui. Tu peux proposer tes recettes depuis ton espace personnel. Elles peuvent etre relues pour garantir la qualite des informations avant mise en avant.",
+  },
+];
+---
+
+<div class="content-container">
+  <div class="flex items-center justify-center gap-3 md:gap-4 xl:gap-8">
+    <span class="border border-primary flex-1"></span>
+    <h3 class="text-center text-2xl md:text-3xl">Des questions ?</h3>
+    <span class="border border-primary flex-1"></span>
+  </div>
+
+  <ul class="mt-6 overflow-hidden border-2 border-primary md:mt-8">
+    {
+      faqItems.map((item, index) => (
+        <li
+          class:list={[
+            "border-primary",
+            index !== faqItems.length - 1 && "border-b-2",
+          ]}
+        >
+          <details class="group" name="home-faq-accordion">
+            <summary class="flex cursor-pointer list-none items-center gap-3 px-3 py-3 marker:content-none md:gap-4 md:px-7 md:py-6">
+              <span
+                aria-hidden="true"
+                class="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-primary text-2xl font-barlow leading-none text-secondary md:h-10 md:w-10 md:text-3xl"
+              >
+                ?
+              </span>
+              <span class="flex-1 text-left text-lg leading-snug font-bold text-primary md:text-2xl md:leading-normal">
+                {item.question}
+              </span>
+              <svg
+                class="h-5 w-5 shrink-0 text-primary transition-transform duration-200 group-open:rotate-180 md:h-7 md:w-7"
+                viewBox="0 0 24 24"
+                fill="none"
+                xmlns="http://www.w3.org/2000/svg"
+                aria-hidden="true"
+              >
+                <path
+                  d="M6 9L12 15L18 9"
+                  stroke="currentColor"
+                  stroke-width="2.5"
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                />
+              </svg>
+            </summary>
+            <div class="px-3 pb-4 pr-10 md:px-7 md:pb-7 md:pr-16">
+              <p class="text-base leading-relaxed text-primary/90 md:text-xl">
+                {item.answer}
+              </p>
+            </div>
+          </details>
+        </li>
+      ))
+    }
+  </ul>
+</div>
+
+<script>
+  const accordions = Array.from(
+    document.querySelectorAll<HTMLDetailsElement>(
+      'details[name="home-faq-accordion"]',
+    ),
+  );
+
+  accordions.forEach((currentDetails) => {
+    currentDetails.addEventListener("toggle", () => {
+      if (!currentDetails.open) {
+        return;
+      }
+
+      accordions.forEach((detailsElement) => {
+        if (detailsElement === currentDetails) {
+          return;
+        }
+        detailsElement.open = false;
+      });
+    });
+  });
+</script>
