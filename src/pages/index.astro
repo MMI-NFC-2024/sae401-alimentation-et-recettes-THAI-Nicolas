@@ -83,6 +83,7 @@ const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
 // Fonctions "Nos conseils nutritionnels"
 import { getLatestArticles } from "../lib/services/articles.service";
 import RecettesObjectifTabs from "../components/ui/RecettesObjectifTabs.astro";
+import HomeRegisterCta from "../components/ui/HomeRegisterCta.astro";
 const { data: articles, error: articlesError } = await getLatestArticles(
   Astro.locals.pb,
   3,
@@ -229,6 +230,9 @@ const getObjectiveRegisterHref = (objectif: string) =>
         </div>
       </div>
     </section>
+    <HomeRegisterCta
+      href={`/auth/register?returnTo=${encodeURIComponent(registerReturnTo)}`}
+    />
     <section>
       <div class="content-container">
         <div class="flex items-center gap-4 xl:gap-8 justify-center">

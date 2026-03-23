@@ -1,0 +1,31 @@
+---
+interface Props {
+  href: string;
+}
+
+const { href } = Astro.props as Readonly<Props>;
+---
+
+<section class="pt-0 md:pt-4 lg:pt-6">
+  <div class="content-container bg-primary p-3 md:p-4">
+    <div
+      class="border-2 border-secondary/95 px-6 py-10 text-center text-secondary md:px-12 md:py-14 lg:px-16 lg:py-18"
+    >
+      <h3 class="text-secondary">Prêt à reprendre les commandes ?</h3>
+      <p
+        class="mx-auto mt-5 max-w-2xl text-balance text-xl leading-relaxed text-secondary/95 md:mt-7 md:text-2xl"
+      >
+        Transformer sa silhouette ne devrait <b>PAS ETRE</b> une torture. Déjà
+        <b>5 000 membres</b> sculptent leur corps sans jamais se priver de gourmandise.
+      </p>
+      <div class="mt-8 md:mt-10">
+        <a
+          href={href}
+          class="inline-flex items-center justify-center rounded-full border-2 border-accent1 bg-secondary px-6 py-3 font-afacad text-lg font-bold text-primary shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_70%,black_30%)] transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_color-mix(in_srgb,var(--color-primary)_70%,black_30%)] active:translate-y-0.5 active:shadow-[0_2px_0_0_color-mix(in_srgb,var(--color-primary)_70%,black_30%)]"
+        >
+          Je créer mon compte !
+        </a>
+      </div>
+    </div>
+  </div>
+</section>
