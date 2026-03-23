@@ -330,7 +330,8 @@ const returnTo = Astro.url.pathname;
       if (!file) {
         avatarImage.src = originalSrc;
         if (avatarFeedback instanceof HTMLElement) {
-          avatarFeedback.textContent = "Choisissez une image pour voir l'aperçu.";
+          avatarFeedback.textContent =
+            "Choisissez une image pour voir l'aperçu.";
         }
         return;
       }
