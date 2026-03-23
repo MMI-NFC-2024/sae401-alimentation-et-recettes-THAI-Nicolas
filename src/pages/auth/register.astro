@@ -1,16 +1,18 @@
 ---
-import AuthLayout from '../../layouts/AuthLayout.astro'
-import BoutonCercle from '../../components/ui/BoutonCercle.astro';
-import IconGoogle from '../../assets/icones/google.webp';
-import IconFacebook from '../../assets/icones/facebook.webp';
-import LogoPositif from '../../assets/icones/logo-positif.webp';
-import { actions, isInputError } from 'astro:actions';
+import AuthLayout from "../../layouts/AuthLayout.astro";
+import BoutonCercle from "../../components/ui/BoutonCercle.astro";
+import IconGoogle from "../../assets/icones/google.webp";
+import IconFacebook from "../../assets/icones/facebook.webp";
+import LogoPositif from "../../assets/icones/logo-positif.webp";
+import { actions, isInputError } from "astro:actions";
 
-const returnToParam = Astro.url.searchParams.get('returnTo');
+const returnToParam = Astro.url.searchParams.get("returnTo");
 const safeReturnTo =
-	returnToParam && returnToParam.startsWith('/') && !returnToParam.startsWith('//')
-		? returnToParam
-		: '/';
+  returnToParam &&
+  returnToParam.startsWith("/") &&
+  !returnToParam.startsWith("//")
+    ? returnToParam
+    : "/";
 const googleOAuthHref = `/auth/oauth/google?returnTo=${encodeURIComponent(safeReturnTo)}`;
 const facebookOAuthHref = `/auth/oauth/facebook?returnTo=${encodeURIComponent(safeReturnTo)}`;
 
@@ -18,176 +20,246 @@ const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 
 //Si l'utilisateur est déjà connecté, on le redirige vers l'accueil
 if (isAuthenticated) {
-	return Astro.redirect('/');
+  return Astro.redirect("/");
 }
 
 // On lit le resultat de l'action register pour afficher les erreurs Zod/server.
 const actionResult = Astro.getActionResult(actions.register);
 if (actionResult?.data?.success) {
-	// PRG: redirection GET apres succes pour eviter la resoumission au refresh.
-	return Astro.redirect('/');
+  // PRG: redirection GET apres succes pour eviter la resoumission au refresh.
+  return Astro.redirect("/");
 }
 
-const inputError = isInputError(actionResult?.error) ? actionResult.error : undefined;
-const globalError = actionResult?.error && !isInputError(actionResult.error)
-	? actionResult.error.message
-	: '';
+const inputError = isInputError(actionResult?.error)
+  ? actionResult.error
+  : undefined;
+const globalError =
+  actionResult?.error && !isInputError(actionResult.error)
+    ? actionResult.error.message
+    : "";
 const hasFormError = Boolean(globalError || inputError);
 ---
 
 <AuthLayout
-	title="Inscription - Slurpy"
-	description="Creez votre compte Slurpy pour suivre vos objectifs alimentaires et acceder a vos recettes personnalisees."
-	keywords="inscription, creer un compte, slurpy"
-	ogType="website"
+  title="Inscription - Slurpy"
+  description="Creez votre compte Slurpy pour suivre vos objectifs alimentaires et acceder a vos recettes personnalisees."
+  keywords="inscription, creer un compte, slurpy"
+  ogType="website"
 >
-    <section class="min-h-screen w-full p-0!">
-		<div class="grid grid-cols-1 lg:grid-cols-2 w-full min-h-screen">
-			<div class="hidden lg:flex bg-secondary min-h-screen w-full items-center justify-center px-8 xl:px-10">
-				<div class="flex flex-col items-center justify-center gap-7 xl:gap-8 text-center max-w-md mx-auto">
-					<a href="/"><img src={LogoPositif.src} alt="Logo Slurpy" class="w-56 xl:w-64 h-auto" /></a>
-					<p class="text-primary text-2xl xl:text-3xl leading-snug">Vos objectifs alimentaires à portée de langue.</p>
-				</div>
-			</div>
-			<div class="flex flex-col gap-8 lg:gap-5 justify-center items-center w-5/6 mx-auto lg:w-full lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl lg:justify-self-center min-h-screen">
-							<div class="flex flex-col gap-4 lg:gap-5 w-full">
-                                <h1 class="text-secondary text-center leading-tight lg:text-6xl xl:text-7xl">Creer un compte</h1>
-								<p class="text-secondary/90 text-center lg:max-w-136 lg:mx-auto">Demarrez votre aventure en ajoutant des recettes, en suivant vos objectifs et en bénéficiant de conseils personnalisés.</p>
-                            </div>
-        
-						{globalError && (
-							<p role="alert" class="text-accent2 font-bold">{globalError}</p>
-                        )}
-						<form id="register-form" data-has-error={hasFormError ? "true" : "false"} method="POST" action={actions.register} class="flex flex-col gap-3 lg:gap-2.5 w-full" novalidate>
-						
-						
+  <section class="min-h-screen w-full p-0!">
+    <div class="grid grid-cols-1 lg:grid-cols-2 w-full min-h-screen">
+      <div
+        class="hidden lg:flex bg-secondary min-h-screen w-full items-center justify-center px-8 xl:px-10"
+      >
+        <div
+          class="flex flex-col items-center justify-center gap-7 xl:gap-8 text-center max-w-md mx-auto"
+        >
+          <a href="/"
+            ><img
+              src={LogoPositif.src}
+              alt="Logo Slurpy"
+              class="w-56 xl:w-64 h-auto"
+            /></a
+          >
+          <p class="text-primary text-2xl xl:text-3xl leading-snug">
+            Vos objectifs alimentaires à portée de langue.
+          </p>
+        </div>
+      </div>
+      <div
+        class="flex flex-col gap-8 lg:gap-5 justify-center items-center w-5/6 mx-auto lg:w-full lg:max-w-lg xl:max-w-xl 2xl:max-w-2xl lg:justify-self-center min-h-screen"
+      >
+        <div class="flex flex-col gap-4 lg:gap-5 w-full">
+          <h1
+            class="text-secondary text-center leading-tight lg:text-6xl xl:text-7xl"
+          >
+            Creer un compte
+          </h1>
+          <p class="text-secondary/90 text-center lg:max-w-136 lg:mx-auto">
+            Demarrez votre aventure en ajoutant des recettes, en suivant vos
+            objectifs et en bénéficiant de conseils personnalisés.
+          </p>
+        </div>
 
-						<label class="sr-only" for="email">Adresse email</label>
-						<input
-							data-persist="true"
-							id="email"
-							name="email"
-							type="email"
-							autocomplete="email"
-							required
-							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 lg:py-2.5 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
-							placeholder="Adresse email"
-						/>
-						{inputError?.fields.email?.[0] && (
-							<p class="text-accent2 font-bold text-sm">{inputError.fields.email[0]}</p>
-						)}
+        {
+          globalError && (
+            <p role="alert" class="text-accent2 font-bold">
+              {globalError}
+            </p>
+          )
+        }
+        <form
+          id="register-form"
+          data-has-error={hasFormError ? "true" : "false"}
+          method="POST"
+          action={actions.register}
+          class="flex flex-col gap-3 lg:gap-2.5 w-full"
+          novalidate
+        >
+          <label class="sr-only" for="email">Adresse email</label>
+          <input
+            data-persist="true"
+            id="email"
+            name="email"
+            type="email"
+            autocomplete="email"
+            required
+            class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 lg:py-2.5 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
+            placeholder="Adresse email"
+          />
+          {
+            inputError?.fields.email?.[0] && (
+              <p class="text-accent2 font-bold text-sm">
+                {inputError.fields.email[0]}
+              </p>
+            )
+          }
 
-						<label class="sr-only" for="password">Mot de passe</label>
-						<input
-							data-persist="true"
-							id="password"
-							name="password"
-							type="password"
-							autocomplete="new-password"
-							required
-							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 lg:py-2.5 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
-							placeholder="Mot de passe"
-						/>
-						{inputError?.fields.password?.[0] && (
-							<p class="text-accent2 font-bold text-sm">{inputError.fields.password[0]}</p>
-						)}
+          <label class="sr-only" for="password">Mot de passe</label>
+          <input
+            data-persist="true"
+            id="password"
+            name="password"
+            type="password"
+            autocomplete="new-password"
+            required
+            class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 lg:py-2.5 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
+            placeholder="Mot de passe"
+          />
+          {
+            inputError?.fields.password?.[0] && (
+              <p class="text-accent2 font-bold text-sm">
+                {inputError.fields.password[0]}
+              </p>
+            )
+          }
 
-						<label class="sr-only" for="passwordConfirm">Confirmer le mot de passe</label>
-						<input
-							data-persist="true"
-							id="passwordConfirm"
-							name="passwordConfirm"
-							type="password"
-							autocomplete="new-password"
-							required
-							class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 lg:py-2.5 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
-							placeholder="Confirmer le mot de passe"
-						/>
-						{inputError?.fields.passwordConfirm?.[0] && (
-							<p class="text-accent2 font-bold text-sm">{inputError.fields.passwordConfirm[0]}</p>
-						)}
+          <label class="sr-only" for="passwordConfirm"
+            >Confirmer le mot de passe</label
+          >
+          <input
+            data-persist="true"
+            id="passwordConfirm"
+            name="passwordConfirm"
+            type="password"
+            autocomplete="new-password"
+            required
+            class="bg-secondary text-primary border-2 border-primary rounded-full px-5 py-3 lg:py-2.5 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
+            placeholder="Confirmer le mot de passe"
+          />
+          {
+            inputError?.fields.passwordConfirm?.[0] && (
+              <p class="text-accent2 font-bold text-sm">
+                {inputError.fields.passwordConfirm[0]}
+              </p>
+            )
+          }
 
-						<button type="submit" class="btn mt-1 lg:mt-0 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]">Creer mon compte</button>
-					</form>
-						<div class="flex items-center justify-center gap-4 md:gap-0 text-secondary w-full lg:-mt-1">
-							<span class="flex-1 border bg-secondary"></span>
-							<span class="flex-2/8 md:flex-1 text-center">Ou continuer avec</span>
-							<span class="flex-1 border bg-secondary"></span>
-						</div>
+          <button
+            type="submit"
+            class="btn mt-1 lg:mt-0 shadow-[2px_3px_0_0_rgba(0,0,0,0.90)]"
+            >Creer mon compte</button
+          >
+        </form>
+        <div
+          class="flex items-center justify-center gap-4 md:gap-0 text-secondary w-full lg:-mt-1"
+        >
+          <span class="flex-1 border bg-secondary"></span>
+          <span class="flex-2/8 md:flex-1 text-center">Ou continuer avec</span>
+          <span class="flex-1 border bg-secondary"></span>
+        </div>
 
-						<div class="flex items-center justify-center gap-6 w-full lg:-mt-1">
-							<BoutonCercle variant="secondary" ariaLabel="Se connecter avec Google" href={googleOAuthHref}>
-								<img src={IconGoogle.src} alt="Icône Google" class="w-6 lg:w-7 object-contain" />
-							</BoutonCercle>
-							<BoutonCercle variant="secondary" ariaLabel="Se connecter avec Facebook" href={facebookOAuthHref}>
-								<img src={IconFacebook.src} alt="Icône Facebook" class="w-6 lg:w-7 object-contain" />
-							</BoutonCercle>
-						</div>
+        <div class="flex items-center justify-center gap-6 w-full lg:-mt-1">
+          <BoutonCercle
+            variant="secondary"
+            ariaLabel="Se connecter avec Google"
+            href={googleOAuthHref}
+          >
+            <img
+              src={IconGoogle.src}
+              alt="Icône Google"
+              class="w-6 lg:w-7 object-contain"
+            />
+          </BoutonCercle>
+          <BoutonCercle
+            variant="secondary"
+            ariaLabel="Se connecter avec Facebook"
+            href={facebookOAuthHref}
+          >
+            <img
+              src={IconFacebook.src}
+              alt="Icône Facebook"
+              class="w-6 lg:w-7 object-contain"
+            />
+          </BoutonCercle>
+        </div>
 
-						<p class="text-secondary text-sm lg:text-base">
-                            Déjà inscrit ?
-							<a href="/auth/login" class="font-bold text-accent1 transition-all duration-200 hover:underline">Se connecter</a>
-                        </p>
-			</div>
-		</div>
-	</section>
-
-	
+        <p class="text-secondary text-sm lg:text-base">
+          Déjà inscrit ?
+          <a
+            href="/auth/login"
+            class="font-bold text-accent1 transition-all duration-200 hover:underline"
+            >Se connecter</a
+          >
+        </p>
+      </div>
+    </div>
+  </section>
 </AuthLayout>
 
 <script is:inline>
-	(() => {
-		const storageKey = "slurpy:auth:register:draft";
-		const form = document.getElementById("register-form");
+  (() => {
+    const storageKey = "slurpy:auth:register:draft";
+    const form = document.getElementById("register-form");
 
-		if (!(form instanceof HTMLFormElement)) return;
+    if (!(form instanceof HTMLFormElement)) return;
 
-		const fields = Array.from(
-			form.querySelectorAll("input[data-persist='true']"),
-		);
-		const shouldRestoreDraft = form.dataset.hasError === "true";
+    const fields = Array.from(
+      form.querySelectorAll("input[data-persist='true']"),
+    );
+    const shouldRestoreDraft = form.dataset.hasError === "true";
 
-		// Si la page n'affiche pas d'erreur, on purge un ancien brouillon.
-		if (!shouldRestoreDraft) {
-			sessionStorage.removeItem(storageKey);
-		}
+    // Si la page n'affiche pas d'erreur, on purge un ancien brouillon.
+    if (!shouldRestoreDraft) {
+      sessionStorage.removeItem(storageKey);
+    }
 
-		let draft = {};
-		try {
-			draft = JSON.parse(sessionStorage.getItem(storageKey) ?? "{}");
-		} catch {
-			draft = {};
-		}
+    let draft = {};
+    try {
+      draft = JSON.parse(sessionStorage.getItem(storageKey) ?? "{}");
+    } catch {
+      draft = {};
+    }
 
-		// On restaure le brouillon uniquement lorsqu'une erreur est presente.
-		if (shouldRestoreDraft) {
-			for (const field of fields) {
-				const fieldName = field.getAttribute("name");
-				if (!fieldName || field.value) continue;
+    // On restaure le brouillon uniquement lorsqu'une erreur est presente.
+    if (shouldRestoreDraft) {
+      for (const field of fields) {
+        const fieldName = field.getAttribute("name");
+        if (!fieldName || field.value) continue;
 
-				const draftValue = draft[fieldName];
-				if (typeof draftValue === "string") {
-					field.value = draftValue;
-				}
-			}
-		}
+        const draftValue = draft[fieldName];
+        if (typeof draftValue === "string") {
+          field.value = draftValue;
+        }
+      }
+    }
 
-		const saveDraft = () => {
-			const nextDraft = {};
+    const saveDraft = () => {
+      const nextDraft = {};
 
-			for (const field of fields) {
-				const fieldName = field.getAttribute("name");
-				if (!fieldName) continue;
-				nextDraft[fieldName] = field.value;
-			}
+      for (const field of fields) {
+        const fieldName = field.getAttribute("name");
+        if (!fieldName) continue;
+        nextDraft[fieldName] = field.value;
+      }
 
-			sessionStorage.setItem(storageKey, JSON.stringify(nextDraft));
-		};
+      sessionStorage.setItem(storageKey, JSON.stringify(nextDraft));
+    };
 
-		for (const field of fields) {
-			field.addEventListener("input", saveDraft);
-		}
+    for (const field of fields) {
+      field.addEventListener("input", saveDraft);
+    }
 
-		form.addEventListener("submit", saveDraft);
-	})();
+    form.addEventListener("submit", saveDraft);
+  })();
 </script>

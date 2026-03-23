@@ -5,7 +5,9 @@ import { defineMiddleware } from "astro/middleware";
 
 export const onRequest = defineMiddleware(
   async ({ locals, request, isPrerendered }: any, next: () => any) => {
-    const pbUrl = process.env.POCKETBASE_URL ?? import.meta.env.POCKETBASE_URL;
+    const nodeEnv = (globalThis as { process?: { env?: Record<string, string> } })
+      .process?.env;
+    const pbUrl = nodeEnv?.POCKETBASE_URL ?? import.meta.env.POCKETBASE_URL;
     locals.pb = new PocketBase(pbUrl);
 
     // load the store data from the request cookie string
@@ -25,10 +27,20 @@ export const onRequest = defineMiddleware(
     const response = await next();
 
     if (!isPrerendered) {
+      const forwardedProto = request.headers.get("x-forwarded-proto");
+      const isSecureRequest =
+        request.url.startsWith("https://") ||
+        forwardedProto?.split(",")[0]?.trim() === "https";
+
       // send back the default 'pb_auth' cookie to the client with the latest store state
       response.headers.append(
         "set-cookie",
-        locals.pb.authStore.exportToCookie(),
+        locals.pb.authStore.exportToCookie({
+          path: "/",
+          httpOnly: true,
+          sameSite: "lax",
+          secure: isSecureRequest,
+        }),
       );
     }
 
