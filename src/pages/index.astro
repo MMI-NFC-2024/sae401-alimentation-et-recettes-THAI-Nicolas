@@ -1,169 +1,200 @@
 ---
-import Layout from '../layouts/Layout.astro';
-import Bananelangue from '../assets/personnages/languebanane.webp';
-import PriseDeMasse from '../assets/personnages/prise-de-masse.webp';
-import PerteDePoids from '../assets/personnages/perte-de-poids.webp';
-import MeMaintenir from '../assets/personnages/me-maintenir.webp';
-import CardObjectif from '../components/ui/CardObjectif.astro';
-import CardArticle from '../components/ui/CardArticle.astro';
-import LiquidWave from '../components/ui/LiquidWave.astro';
-import DamierTransition from '../components/ui/DamierTransition.astro';
+import Layout from "../layouts/Layout.astro";
+import Bananelangue from "../assets/personnages/languebanane.webp";
+import PriseDeMasse from "../assets/personnages/prise-de-masse.webp";
+import PerteDePoids from "../assets/personnages/perte-de-poids.webp";
+import MeMaintenir from "../assets/personnages/me-maintenir.webp";
+import CardObjectif from "../components/ui/CardObjectif.astro";
+import CardArticle from "../components/ui/CardArticle.astro";
+import LiquidWave from "../components/ui/LiquidWave.astro";
+import DamierTransition from "../components/ui/DamierTransition.astro";
 
 // Fonctions "Nos recettes"
-import { getLatestRecettes } from '../lib/services/recettes.service';
-const { data: recettes, error: recettesError } = await getLatestRecettes(Astro.locals.pb, 4);
-import { getAvisStatsByRecetteIds } from '../lib/services/avis.service';
+import { getLatestRecettes } from "../lib/services/recettes.service";
+const { data: recettes, error: recettesError } = await getLatestRecettes(
+  Astro.locals.pb,
+  4,
+);
+import { getAvisStatsByRecetteIds } from "../lib/services/avis.service";
 const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
-	Astro.locals.pb,
-	recettes.map((recette) => recette.id),
+  Astro.locals.pb,
+  recettes.map((recette) => recette.id),
 );
 
 // Fonctions "Nos conseils nutritionnels"
-import { getLatestArticles } from '../lib/services/articles.service';
-import CardRecette from '../components/ui/CardRecette.astro';
-const { data: articles, error: articlesError } = await getLatestArticles(Astro.locals.pb, 3);
+import { getLatestArticles } from "../lib/services/articles.service";
+import CardRecette from "../components/ui/CardRecette.astro";
+const { data: articles, error: articlesError } = await getLatestArticles(
+  Astro.locals.pb,
+  3,
+);
 ---
 
 <Layout>
-	<main>
-		<section class="">
-			<div class="content-container flex flex-col gap-10 lg:grid lg:grid-cols-[minmax(260px,1fr)_minmax(0,2fr)] lg:items-center lg:gap-14">
-				<div class="order-1 flex flex-col items-center text-center lg:order-2 lg:items-end lg:text-right">
-					<header>
-						<h1 class="text-4xl xl:text-7xl">Vos objectifs alimentaires à portée de <span class="text-accent1">langue</span> !!</h1>
-					</header>
-					<p class="py-8 text-lg xl:text-3xl">Adieu la frustration. Profitez de nos <b>recettes gourmandes</b> et de <b>conseils nutritionnels experts</b> pour nourrir votre progression avec plaisir.</p>
-					<a href="#aventure" class="btn my-2 text-xl">Commencer l'aventure</a>
-				</div>
-				<div class="order-2 flex justify-center lg:order-1 lg:justify-start lg:self-end relative -left-24 top-14 md:-left-40 md:top-24 lg:-left-10 xl:-left-30 2xl:-left-64">
-					<img
-						src={Bananelangue.src}
-						alt="Bananelangue"
-						class="w-full scale-140 md:scale-120 lg:scale-140 xl:scale-170 2xl:scale-160 object-contain"
-					/>
-				</div>
-			</div>
-		</section>
-		<section id="aventure" class="green-section pt-0 overflow-hidden">
-			<DamierTransition rows={4} tileSize={28} />
-			<div class="content-container pt-8 md:pt-16 lg:pt-20 xl:pt-24 2xl:pt-32">
-				<header class="mt-8 lg:mt-0">
-					<h2 class="text-center">Choisis ton objectif santé </h2>
-				</header>
-				<ul class="ul-grid">
-					<li class="w-full h-full">
-						<CardObjectif
-							title="Prise de masse"
-							description="Prends du volume musculaire avec des recettes riches en protéines et en calories"
-							hashtag="#highprotein"
-							character={PriseDeMasse}
-						/>
-					</li>
-					<li class="w-full h-full">
-						<CardObjectif
-							title="Perte de poids"
-							description="Réduis ta masse grasse sans privation, grâce à des plats calibrés et rassasiants."
-							hashtag="#lowkcalories"
-							character={PerteDePoids}
-						/>
-					</li>
-					<li class="w-full h-full md:col-span-2 md:max-w-md md:mx-auto lg:col-span-1 lg:max-w-none">
-						<CardObjectif
-							title="Maintien de poids"
-							description="Maintiens ton poids de forme et ton niveau d'énergie avec une alimentation équilibrée."
-							hashtag="#zen"
-							character={MeMaintenir}
-						/>
-					</li>
-				</ul>
-			</div>
-		</section>
-		<LiquidWave />
-		<section>
-			<div class="content-container">
-				<header>
-					<h2 class="text-center">Nos recettes "slurps"</h2>
-				</header>
-		
-		
-				{recettes.length > 0 ? (
-					<ul class="ul-grid md:grid-cols-2 lg:grid-cols-4">
-						{recettes.map((recette) => {
-							const avisStats = avisStatsByRecette[recette.id] ?? { average: 0, total: 0 };
-							return (
-							<li class="w-full h-full">
-								<CardRecette
-									recette={recette}
-									rating={avisStats.average}
-									reviewsCount={avisStats.total}
-								/>
-							</li>
-							);
-						})}
-					</ul>
-				) : (
-					<p class="mt-8 text-center">
-						{recettesError
-							? 'Les recettes sont temporairement indisponibles. Reessaie dans quelques instants.'
-							: 'Aucune recette trouve pour le moment.'}
-					</p>
-				)}
-		
-			<div class="btn-wrapper">
-					<a href="/recettes" class="btn">Voir toute les recettes.</a>
-			</div>
-			</div>
-		</section>
-		<section>
-			<div class="content-container">
-				<header class="text-content">
-					<h2 class="text-center">Nos conseils nutritionnels</h2>
-					<p class="text-center">Le secret de vos performances est dans l'assiette. Découvrez comment allier nutrition sportive et gourmandise sans compromis</p>
-				</header>
-				{articles.length > 0 ? (
-					<ul class="ul-grid">
-						{articles.map((article, index) => (
-							<li
-								class:list={[
-									'w-full',
-									articles.length % 2 === 1 && index === articles.length - 1 && 'md:col-span-2 md:max-w-md md:mx-auto lg:col-span-1 lg:max-w-none'
-								]}
-							>
-								<CardArticle article={article} />
-							</li>
-						))}
-					</ul>
-				) : (
-					<p class="mt-8 text-center">
-						{articlesError
-							? 'Les conseils sont temporairement indisponibles. Reessaie dans quelques instants.'
-							: 'Aucun article trouve pour le moment.'}
-					</p>
-				)}
-				<div class="btn-wrapper">
-					<a href="/articles" class="btn">Voir tous les conseils</a>
-				</div>
-			</div>
-		</section>
-		<section>
-			<div class="content-container">
-				<div class="flex items-center gap-4 xl:gap-8 justify-center">
-					<span class="border flex-1"></span>
-					<h3 class=" text-center">Des questions ?</h3>
-					<span class="border flex-1"></span>
-				</div>
-				<div>
-				</div>
-			</div>
-			<div>
-				<p class="text-center text-xl xl:text-4xl font-bold">Encore des questions ?</p>
-				<div class="btn-wrapper my-6 xl:my-12">
-				<a href="/contact" class="btn-outline">Contactez-nous !</a>
-				</div>
-			</div>
-		
-		
-		</section>
-	</main>
+  <main>
+    <section class="">
+      <div
+        class="content-container flex flex-col gap-10 lg:grid lg:grid-cols-[minmax(260px,1fr)_minmax(0,2fr)] lg:items-center lg:gap-14"
+      >
+        <div
+          class="order-1 flex flex-col items-center text-center lg:order-2 lg:items-end lg:text-right"
+        >
+          <header>
+            <h1 class="text-4xl xl:text-7xl">
+              Vos objectifs alimentaires à portée de <span class="text-accent1"
+                >langue</span
+              > !!
+            </h1>
+          </header>
+          <p class="py-8 text-lg xl:text-3xl">
+            Adieu la frustration. Profitez de nos <b>recettes gourmandes</b> et de
+            <b>conseils nutritionnels experts</b> pour nourrir votre progression avec
+            plaisir.
+          </p>
+          <a href="#aventure" class="btn my-2 text-xl">Commencer l'aventure</a>
+        </div>
+        <div
+          class="order-2 flex justify-center lg:order-1 lg:justify-start lg:self-end relative -left-24 top-14 md:-left-40 md:top-24 lg:-left-10 xl:-left-30 2xl:-left-64"
+        >
+          <img
+            src={Bananelangue.src}
+            alt="Bananelangue"
+            class="w-full scale-140 md:scale-120 lg:scale-140 xl:scale-170 2xl:scale-160 object-contain"
+          />
+        </div>
+      </div>
+    </section>
+    <section id="aventure" class="green-section pt-0 overflow-hidden">
+      <DamierTransition rows={4} tileSize={28} />
+      <div class="content-container pt-8 md:pt-16 lg:pt-20 xl:pt-24 2xl:pt-32">
+        <header class="mt-8 lg:mt-0">
+          <h2 class="text-center">Choisis ton objectif santé</h2>
+        </header>
+        <ul class="ul-grid">
+          <li class="w-full h-full">
+            <CardObjectif
+              title="Prise de masse"
+              description="Prends du volume musculaire avec des recettes riches en protéines et en calories"
+              hashtag="#highprotein"
+              character={PriseDeMasse}
+            />
+          </li>
+          <li class="w-full h-full">
+            <CardObjectif
+              title="Perte de poids"
+              description="Réduis ta masse grasse sans privation, grâce à des plats calibrés et rassasiants."
+              hashtag="#lowkcalories"
+              character={PerteDePoids}
+            />
+          </li>
+          <li
+            class="w-full h-full md:col-span-2 md:max-w-md md:mx-auto lg:col-span-1 lg:max-w-none"
+          >
+            <CardObjectif
+              title="Maintien de poids"
+              description="Maintiens ton poids de forme et ton niveau d'énergie avec une alimentation équilibrée."
+              hashtag="#zen"
+              character={MeMaintenir}
+            />
+          </li>
+        </ul>
+      </div>
+    </section>
+    <LiquidWave />
+    <section>
+      <div class="content-container">
+        <header>
+          <h2 class="text-center">Nos recettes "slurps"</h2>
+        </header>
 
+        {
+          recettes.length > 0 ? (
+            <ul class="ul-grid md:grid-cols-2 lg:grid-cols-4">
+              {recettes.map((recette) => {
+                const avisStats = avisStatsByRecette[recette.id] ?? {
+                  average: 0,
+                  total: 0,
+                };
+                return (
+                  <li class="w-full h-full">
+                    <CardRecette
+                      recette={recette}
+                      rating={avisStats.average}
+                      reviewsCount={avisStats.total}
+                    />
+                  </li>
+                );
+              })}
+            </ul>
+          ) : (
+            <p class="mt-8 text-center">
+              {recettesError
+                ? "Les recettes sont temporairement indisponibles. Reessaie dans quelques instants."
+                : "Aucune recette trouve pour le moment."}
+            </p>
+          )
+        }
+
+        <div class="btn-wrapper">
+          <a href="/recettes" class="btn">Voir toute les recettes.</a>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="content-container">
+        <header class="text-content">
+          <h2 class="text-center">Nos conseils nutritionnels</h2>
+          <p class="text-center">
+            Le secret de vos performances est dans l'assiette. Découvrez comment
+            allier nutrition sportive et gourmandise sans compromis
+          </p>
+        </header>
+        {
+          articles.length > 0 ? (
+            <ul class="ul-grid">
+              {articles.map((article, index) => (
+                <li
+                  class:list={[
+                    "w-full",
+                    articles.length % 2 === 1 &&
+                      index === articles.length - 1 &&
+                      "md:col-span-2 md:max-w-md md:mx-auto lg:col-span-1 lg:max-w-none",
+                  ]}
+                >
+                  <CardArticle article={article} />
+                </li>
+              ))}
+            </ul>
+          ) : (
+            <p class="mt-8 text-center">
+              {articlesError
+                ? "Les conseils sont temporairement indisponibles. Reessaie dans quelques instants."
+                : "Aucun article trouve pour le moment."}
+            </p>
+          )
+        }
+        <div class="btn-wrapper">
+          <a href="/articles" class="btn">Voir tous les conseils</a>
+        </div>
+      </div>
+    </section>
+    <section>
+      <div class="content-container">
+        <div class="flex items-center gap-4 xl:gap-8 justify-center">
+          <span class="border flex-1"></span>
+          <h3 class="text-center">Des questions ?</h3>
+          <span class="border flex-1"></span>
+        </div>
+        <div></div>
+      </div>
+      <div>
+        <p class="text-center text-xl xl:text-4xl font-bold">
+          Encore des questions ?
+        </p>
+        <div class="btn-wrapper my-6 xl:my-12">
+          <a href="/contact" class="btn-outline">Contactez-nous !</a>
+        </div>
+      </div>
+    </section>
+  </main>
 </Layout>

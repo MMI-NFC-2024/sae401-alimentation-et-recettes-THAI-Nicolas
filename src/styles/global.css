@@ -20,6 +20,10 @@
 }
 
 @layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
   main {
     @apply overflow-hidden;
   }

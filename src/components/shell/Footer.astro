@@ -1,134 +1,192 @@
 ---
-import LogoNegatif from '../../assets/icones/logo-negatif.webp'
-import LogoInstagram from '../../assets/icones/instagram.webp'
-import LogoFacebook from '../../assets/icones/facebook-white.webp'
-import { actions, isInputError } from 'astro:actions'
+import LogoNegatif from "../../assets/icones/logo-negatif.webp";
+import LogoInstagram from "../../assets/icones/instagram.webp";
+import LogoFacebook from "../../assets/icones/facebook-white.webp";
+import { actions, isInputError } from "astro:actions";
 
-const newsletterResult = Astro.getActionResult(actions.subscribeNewsletter)
+const newsletterResult = Astro.getActionResult(actions.subscribeNewsletter);
 const newsletterInputError = isInputError(newsletterResult?.error)
-    ? newsletterResult.error
-    : undefined
-const newsletterGlobalError = newsletterResult?.error && !isInputError(newsletterResult.error)
+  ? newsletterResult.error
+  : undefined;
+const newsletterGlobalError =
+  newsletterResult?.error && !isInputError(newsletterResult.error)
     ? newsletterResult.error.message
-    : undefined
-const newsletterSuccess = newsletterResult?.data?.success
+    : undefined;
+const newsletterSuccess = newsletterResult?.data?.success;
 ---
-<footer class="bg-primary  py-24 md:py-8 lg:py-20 xl:py-28 px-12 md:flex md:flex-col md:gap-12">
-    <div class="content-container grid grid-cols-1 md:grid-cols-4 gap-12 md:gap-0 md:items-center md:justify-center ">
 
-        <!-- Colonne 1 -->
-        <div class="flex flex-col items-center md:items-start">
-                <a href="/" class="mb-6">
-                    <div class="text-secondary">
-                        <img class="h-12 md:h-20 w-auto " src={LogoNegatif.src} alt="Logo Slurpy" />
-                    </div> 
-                </a>
-                <p class="text-secondary text-center md:text-left opacity-70">
-                    Vos objectifs alimentaires à portée de langue.
-                </p>
-                <div class="text-secondary my-2 md:my-4 flex mt-4 gap-4">
-                    <a href="">
-                        <img class="h-7 w-7" src={LogoInstagram.src} alt="Instagram" />
-                    </a>
-                    <a href="">
-                        <img class="h-7 w-7" src={LogoFacebook.src} alt="Facebook" />
-                    </a>
-                </div>
-            </div>
-        <!-- Colonne 2 -->
-
-        <div class="flex flex-col items-center justify-center">
-                <h3 class="text-secondary mb-8 text-2xl ">Navigation</h3>
-                <nav class="flex flex-col gap-4 text-center">
-                    <a href="/recettes" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
-                        Nos recettes
-                    </a>
-                    <a href="/articles" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
-                        Nos articles
-                    </a>
-                    <a href="/" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
-                        A propos
-                    </a>
-                    <a href="/contact" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
-                        Nous contacter
-                    </a>
-                </nav>
+<footer
+  class="bg-primary py-24 md:py-8 lg:py-14 xl:py-16 2xl:py-20 px-12 lg:px-20 xl:px-24 2xl:px-28 md:flex md:flex-col md:gap-10"
+>
+  <div
+    class="w-full mx-auto max-w-360 grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-12 md:gap-10 lg:gap-10 xl:gap-12 md:items-center 2xl:flex 2xl:items-start 2xl:justify-center 2xl:gap-20"
+  >
+    <!-- Colonne 1 -->
+    <div class="flex flex-col items-center lg:items-start md:w-fit">
+      <a href="/" class="mb-6">
+        <div class="text-secondary">
+          <img
+            class="h-12 md:h-16 2xl:h-18 w-auto"
+            src={LogoNegatif.src}
+            alt="Logo Slurpy"
+          />
         </div>
-
-        <!-- Colonne 3 -->
-
-        <div class="flex flex-col items-center justify-center">
-                <h3 class="text-secondary mb-8 text-2xl">Légalités</h3>
-                <nav class="flex flex-col gap-4 text-center">
-                    <a href="/mentions-legales" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
-                        Mentions légales
-                    </a>
-                    <a href="/mentions-legales" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
-                        Confidentialité
-                    </a>
-                    <a href="/mentions-legales" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
-                        Cookies
-                    </a>
-                    <a href="/mentions-legales" class="text-secondary  text-lg hover:opacity-70 transition-opacity">
-                        CGU
-                    </a>
-                </nav>
-        </div>
-
-         <!-- Colonne 4 -->
-
-         <div class="flex flex-col items-center justify-center text-secondary text-center">
-            <h3 class="mb-8 text-2xl">La newsletter</h3>
-            <div class="flex flex-col gap-4 text-center">
-                <p class="md:text-lg text-center md:text-left">Reçois chaque semaine nos nouvelles recettes et des conseils exclusifs pour tes objectifs.</p>
-                {
-                    newsletterGlobalError && (
-                        <p class="rounded-xl border-2 border-accent2 bg-accent2/10 px-3 py-2 text-sm text-accent2 font-bold">
-                            {newsletterGlobalError}
-                        </p>
-                    )
-                }
-                {
-                    newsletterSuccess && (
-                        <p class="rounded-xl border-2 border-secondary/60 bg-secondary/20 px-3 py-2 text-sm text-secondary font-bold">
-                            Merci, votre email est bien enregistre.
-                        </p>
-                    )
-                }
-                <form class="flex flex-col gap-2 my-8 md:my-4" action={actions.subscribeNewsletter} method="post">
-                    <div class="flex items-center justify-center gap-2">
-                        <input
-                            id="newsletter-email"
-                            name="email"
-                            type="email"
-                            required
-                            placeholder="Entrer votre email"
-                            class="py-3 px-4 text-primary rounded-2xl bg-secondary shadow-[2px_5px_0_rgba(0,0,0,1)] focus:ring-3 focus:ring-accent1 placeholder:text-[#1e1e1e]/60"
-                        />
-                        <button type="submit" class="btn shadow-black/30">S'abonner</button>
-                    </div>
-                    {
-                        newsletterInputError?.fields.email?.[0] && (
-                            <p class="text-sm text-accent2 font-bold text-left">
-                                {newsletterInputError.fields.email[0]}
-                            </p>
-                        )
-                    }
-                </form>
-            </div>
-            
-         </div>
-
-         
-
+      </a>
+      <p class="text-secondary text-center lg:text-left opacity-70">
+        Vos objectifs alimentaires à portée de langue.
+      </p>
+      <div class="text-secondary my-2 md:my-4 flex mt-4 gap-4">
+        <a href="">
+          <img class="h-7 w-7" src={LogoInstagram.src} alt="Instagram" />
+        </a>
+        <a href="">
+          <img class="h-7 w-7" src={LogoFacebook.src} alt="Facebook" />
+        </a>
+      </div>
     </div>
-    <div class="content-container flex flex-col gap-8">
-        <!-- Séparateur -->
-        <div class="border-t border-secondary/60"></div>
+    <!-- Colonne 2 -->
 
-        <!-- Copyright -->
-            <p class="text-secondary mx-auto text-sm opacity-90 text-center md:text-left">
-                © 2026 Slurpy. Tous droits réservés. Les textes, images et autres contenus du site sont protégés par le droit d'auteur et ne peuvent être reproduits sans autorisation.
+    <div
+      class="flex flex-col items-center lg:items-start justify-center md:w-fit text-center"
+    >
+      <h3
+        class="text-secondary mb-8 text-2xl lg:text-xl xl:text-xl 2xl:text-xl"
+      >
+        Navigation
+      </h3>
+      <nav class="flex flex-col gap-4 text-center">
+        <a
+          href="/recettes"
+          class="text-secondary text-lg lg:text-base xl:text-base 2xl:text-base hover:opacity-70 transition-opacity"
+        >
+          Nos recettes
+        </a>
+        <a
+          href="/articles"
+          class="text-secondary text-lg lg:text-base xl:text-base 2xl:text-base hover:opacity-70 transition-opacity"
+        >
+          Nos articles
+        </a>
+        <a
+          href="/"
+          class="text-secondary text-lg lg:text-base xl:text-base 2xl:text-base hover:opacity-70 transition-opacity"
+        >
+          A propos
+        </a>
+        <a
+          href="/contact"
+          class="text-secondary text-lg lg:text-base xl:text-base 2xl:text-base hover:opacity-70 transition-opacity"
+        >
+          Nous contacter
+        </a>
+      </nav>
+    </div>
+
+    <!-- Colonne 3 -->
+
+    <div class="flex flex-col items-center justify-center md:w-fit text-center">
+      <h3
+        class="text-secondary mb-8 text-2xl lg:text-xl xl:text-xl 2xl:text-xl"
+      >
+        Légalités
+      </h3>
+      <nav class="flex flex-col gap-4 text-center">
+        <a
+          href="/mentions-legales"
+          class="text-secondary text-lg lg:text-base xl:text-base 2xl:text-base hover:opacity-70 transition-opacity"
+        >
+          Mentions légales
+        </a>
+        <a
+          href="/mentions-legales"
+          class="text-secondary text-lg lg:text-base xl:text-base 2xl:text-base hover:opacity-70 transition-opacity"
+        >
+          Confidentialité
+        </a>
+        <a
+          href="/mentions-legales"
+          class="text-secondary text-lg lg:text-base xl:text-base 2xl:text-base hover:opacity-70 transition-opacity"
+        >
+          Cookies
+        </a>
+        <a
+          href="/mentions-legales"
+          class="text-secondary text-lg lg:text-base xl:text-base 2xl:text-base hover:opacity-70 transition-opacity"
+        >
+          CGU
+        </a>
+      </nav>
+    </div>
+
+    <!-- Colonne 4 -->
+
+    <div
+      class="flex flex-col items-center lg:items-start justify-center text-secondary text-center lg:text-left md:w-fit"
+    >
+      <h3 class="mb-8 text-2xl lg:text-xl xl:text-xl 2xl:text-xl">
+        La newsletter
+      </h3>
+      <div class="flex flex-col gap-3 text-center max-w-sm">
+        <p
+          class="md:text-lg lg:text-base xl:text-base 2xl:text-base text-center lg:text-left"
+        >
+          Reçois chaque semaine nos nouvelles recettes<br
+            class="hidden lg:block"
+          />
+          et des conseils exclusifs pour tes objectifs.
+        </p>
+        {
+          newsletterGlobalError && (
+            <p class="rounded-xl border-2 border-accent2 bg-accent2/10 px-3 py-2 text-sm text-accent2 font-bold">
+              {newsletterGlobalError}
             </p>
+          )
+        }
+        {
+          newsletterSuccess && (
+            <p class="rounded-xl border-2 border-secondary/60 bg-secondary/20 px-3 py-2 text-sm text-secondary font-bold">
+              Merci, votre email est bien enregistre.
+            </p>
+          )
+        }
+        <form
+          class="flex flex-col gap-2 my-8 md:my-4"
+          action={actions.subscribeNewsletter}
+          method="post"
+        >
+          <div class="flex items-center justify-center gap-2 w-fit mx-auto">
+            <input
+              id="newsletter-email"
+              name="email"
+              type="email"
+              required
+              placeholder="Entrer votre email"
+              class="w-52 lg:w-56 py-3 px-4 text-primary rounded-2xl bg-secondary shadow-[2px_5px_0_rgba(0,0,0,1)] focus:ring-3 focus:ring-accent1 placeholder:text-[#1e1e1e]/60"
+            />
+            <button type="submit" class="btn shadow-black/30">S'abonner</button>
+          </div>
+          {
+            newsletterInputError?.fields.email?.[0] && (
+              <p class="text-sm text-accent2 font-bold text-left">
+                {newsletterInputError.fields.email[0]}
+              </p>
+            )
+          }
+        </form>
+      </div>
     </div>
+  </div>
+  <div class="w-full mx-auto max-w-300 flex flex-col gap-8">
+    <!-- Séparateur -->
+    <div class="border-t border-secondary/60"></div>
+
+    <!-- Copyright -->
+    <p
+      class="text-secondary mx-auto text-sm opacity-90 text-center md:text-left"
+    >
+      © 2026 Slurpy. Tous droits réservés. Les textes, images et autres contenus
+      du site sont protégés par le droit d'auteur et ne peuvent être reproduits
+      sans autorisation.
+    </p>
+  </div>
 </footer>

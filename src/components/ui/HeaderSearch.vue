@@ -7,10 +7,20 @@
       "
       :aria-expanded="isOpen ? 'true' : 'false'"
       aria-controls="global-header-search-panel"
-      class="inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-primary bg-primary text-secondary shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)] transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)]"
+      class="global-search-trigger inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-primary bg-primary text-secondary shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)] transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)]"
       @click.stop="toggleSearch"
     >
-      <img :src="searchIcon.src" alt="" class="h-5 w-5 object-contain" />
+      <img
+        :src="searchIcon.src"
+        alt=""
+        class="global-search-icon-default h-5 w-5 object-contain"
+      />
+      <img
+        v-if="scrolledIconSrc"
+        :src="scrolledIconSrc"
+        alt=""
+        class="global-search-icon-scrolled hidden h-5 w-5 object-contain"
+      />
     </button>
 
     <div
@@ -88,7 +98,10 @@ type SearchItem = {
 
 const props = defineProps<{
   items: SearchItem[];
+  scrolledIconSrc?: string;
 }>();
+
+const { scrolledIconSrc } = props;
 
 const rootRef = ref<HTMLElement | null>(null);
 const inputRef = ref<HTMLInputElement | null>(null);

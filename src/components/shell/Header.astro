@@ -1,12 +1,13 @@
 ---
-import LogoPositif from '../../assets/icones/logo-positif.webp'
-import LogoNegatif from '../../assets/icones/logo-negatif.webp'
-import BoutonCercle from '../ui/BoutonCercle.astro';
-import MenuProfilRapide from '../ui/MenuProfilRapide.astro';
-import GlobalHeaderSearch from '../ui/HeaderSearch.vue';
-import { getAllArticles } from '../../lib/services/articles.service';
-import { getAllRecettes } from '../../lib/services/recettes.service';
-//Variable pour savoir si l'utilisateur est connecté ou pas 
+import LogoPositif from "../../assets/icones/logo-positif.webp";
+import LogoNegatif from "../../assets/icones/logo-negatif.webp";
+import IconeRechercheGreen from "../../assets/icones/search-green.webp";
+import BoutonCercle from "../ui/BoutonCercle.astro";
+import MenuProfilRapide from "../ui/MenuProfilRapide.astro";
+import GlobalHeaderSearch from "../ui/HeaderSearch.vue";
+import { getAllArticles } from "../../lib/services/articles.service";
+import { getAllRecettes } from "../../lib/services/recettes.service";
+//Variable pour savoir si l'utilisateur est connecté ou pas
 const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 const pb = Astro.locals.pb;
 
@@ -14,291 +15,430 @@ const { data: articles } = pb ? await getAllArticles(pb) : { data: [] };
 const { data: recettes } = pb ? await getAllRecettes(pb) : { data: [] };
 
 const globalSearchItems = [
-    ...articles.map((article) => ({
-        id: article.id,
-        kind: 'article' as const,
-        title: article.titre ?? 'Article',
-        href: `/articles/${article.slug ?? article.id}`,
-    })),
-    ...recettes.map((recette) => ({
-        id: recette.id,
-        kind: 'recette' as const,
-        title: recette.titre ?? 'Recette',
-        href: `/recettes/${recette.slug ?? recette.id}`,
-    })),
+  ...articles.map((article) => ({
+    id: article.id,
+    kind: "article" as const,
+    title: article.titre ?? "Article",
+    href: `/articles/${article.slug ?? article.id}`,
+  })),
+  ...recettes.map((recette) => ({
+    id: recette.id,
+    kind: "recette" as const,
+    title: recette.titre ?? "Recette",
+    href: `/recettes/${recette.slug ?? recette.id}`,
+  })),
 ];
 
 // Récupération des infos de l'utilisateur connecté pour afficher son avatar ou une lettre de fallback dans le bouton de profil
-const authUser = (Astro.locals.pb?.authStore?.model as {
+const authUser =
+  (Astro.locals.pb?.authStore?.model as {
     avatar?: string;
     name?: string;
     email?: string;
-} | null) ?? null;
-const avatarUrl = isAuthenticated && authUser?.avatar
-    ? Astro.locals.pb.files.getURL(authUser, authUser.avatar, { thumb: '100x100' })
+  } | null) ?? null;
+const avatarUrl =
+  isAuthenticated && authUser?.avatar
+    ? Astro.locals.pb.files.getURL(authUser, authUser.avatar, {
+        thumb: "100x100",
+      })
     : null;
-const avatarFallback = (authUser?.name || authUser?.email || 'U').trim().charAt(0).toUpperCase();
+const avatarFallback = (authUser?.name || authUser?.email || "U")
+  .trim()
+  .charAt(0)
+  .toUpperCase();
 ---
 
-<header id="site-header" class="header-shell sticky top-0 z-30 bg-secondary text-primary transition-colors duration-300">
-    <div id="header-inner" class="content-container flex items-center justify-between py-8 px-6 transition-all duration-300 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:px-8 xl:px-12 2xl:px-0 ">
-        <!-- Navigation principale (desktop) -->
-        <nav id="header-nav" class="hidden lg:flex items-center gap-6 justify-self-start transition-transform duration-300" aria-label="Menu de navigation principal">
-            <a href="/recettes" aria-label="Lien vers la page de nos recettes" class="header-nav-link text-primary  hover:mb-2 transition-all duration-75 text-xl uppercase ">Nos recettes</a>
-            <a href="/articles" aria-label="Lien vers la page de nos conseils" class="header-nav-link text-primary hover:mb-2 transition-all duration-75 text-xl uppercase ">Nos conseils</a>
-            <a href="/contact" aria-label="Lien vers la page de contact" class="header-nav-link text-primary hover:mb-2 transition-all duration-75 text-xl uppercase ">Nous contacter</a>
-        </nav>
+<header
+  id="site-header"
+  class="header-shell sticky top-0 z-30 bg-secondary text-primary transition-colors duration-300"
+>
+  <div
+    id="header-inner"
+    class="w-full mx-auto max-w-360 2xl:max-w-375 flex items-center justify-between py-8 px-6 transition-all duration-300 lg:grid lg:grid-cols-[1fr_auto_1fr] lg:items-center lg:py-7 lg:px-12 xl:py-7 xl:px-16 2xl:px-20"
+  >
+    <!-- Navigation principale (desktop) -->
+    <nav
+      id="header-nav"
+      class="hidden lg:flex items-center gap-6 justify-self-start transition-transform duration-300"
+      aria-label="Menu de navigation principal"
+    >
+      <a
+        href="/recettes"
+        aria-label="Lien vers la page de nos recettes"
+        class="header-nav-link text-primary hover:mb-2 transition-all duration-75 text-xl uppercase"
+        >Nos recettes</a
+      >
+      <a
+        href="/articles"
+        aria-label="Lien vers la page de nos conseils"
+        class="header-nav-link text-primary hover:mb-2 transition-all duration-75 text-xl uppercase"
+        >Nos conseils</a
+      >
+      <a
+        href="/contact"
+        aria-label="Lien vers la page de contact"
+        class="header-nav-link text-primary hover:mb-2 transition-all duration-75 text-xl uppercase"
+        >Nous contacter</a
+      >
+    </nav>
 
-        <a href="/" id="header-logo" class="logo transition-transform duration-300 lg:justify-self-center" aria-label="Retour à la page d'accueil">
-            <img src={LogoPositif.src} class="w-28 md:w-32 lg:w-36 xl:w-40 logo-light transition-all duration-300" alt="Logo Slurpy" />
-            <img src={LogoNegatif.src} class="w-28 md:w-32 lg:w-36 xl:w-40 logo-dark transition-all duration-300" alt="Logo Slurpy" />
-        </a>
+    <a
+      href="/"
+      id="header-logo"
+      class="logo transition-transform duration-300 lg:justify-self-center"
+      aria-label="Retour à la page d'accueil"
+    >
+      <img
+        src={LogoPositif.src}
+        class="w-28 md:w-32 lg:w-36 xl:w-40 logo-light transition-all duration-300"
+        alt="Logo Slurpy"
+      />
+      <img
+        src={LogoNegatif.src}
+        class="w-28 md:w-32 lg:w-36 xl:w-40 logo-dark transition-all duration-300"
+        alt="Logo Slurpy"
+      />
+    </a>
 
-        <div id="header-actions" class="hidden lg:flex justify-end items-center gap-3 transition-transform duration-300">
-            <GlobalHeaderSearch client:load items={globalSearchItems} />
-            {isAuthenticated ? (
-                <MenuProfilRapide avatarUrl={avatarUrl} avatarFallback={avatarFallback} />
-            ) : (
-                <>
-                    <a href="/auth/login" class="btn-green cursor-pointer" aria-label="Lien vers la page de connexion">Se connecter</a>
-                </>
-            )}
-        </div>
-        
-
-        <!-- Burger menu mobile -->
-        <button type="button" id="open-menu" class="flex flex-col gap-1.5 mr-4 items-end z-50 relative lg:hidden" aria-label="Ouvrir le menu de navigation" aria-expanded="false" aria-controls="menu-overlay">
-            <span class="burger-line burger-line-1 border w-6 transition-all duration-300 ease-in-out"></span>
-            <span class="burger-line burger-line-2 border w-6 transition-all duration-300 ease-in-out"></span>
-            <span class="burger-line burger-line-3 border w-6 transition-all duration-300 ease-in-out"></span>
-        </button>
+    <div
+      id="header-actions"
+      class="hidden lg:flex justify-end items-center gap-3 transition-transform duration-300"
+    >
+      <GlobalHeaderSearch
+        client:load
+        items={globalSearchItems}
+        scrolledIconSrc={IconeRechercheGreen.src}
+      />
+      {
+        isAuthenticated ? (
+          <MenuProfilRapide
+            avatarUrl={avatarUrl}
+            avatarFallback={avatarFallback}
+          />
+        ) : (
+          <>
+            <a
+              href="/auth/login"
+              class="btn-green cursor-pointer"
+              aria-label="Lien vers la page de connexion"
+            >
+              Se connecter
+            </a>
+          </>
+        )
+      }
     </div>
 
-    <!-- Menu mobile overlay -->
-    <nav id="menu-overlay" class="lg:hidden fixed inset-0 pointer-events-none overflow-hidden" aria-hidden="true" aria-label="Menu de navigation mobile">
-        <div class="menu-navigation-overlay"></div>
-        
-        <div class="menu-content">
-            <div class="flex flex-col items-center justify-center gap-24 h-full mt-8 md:mt-0">
-                <ul class="flex flex-col items-center justify-center gap-12">
-                    <li><a href="/recettes" aria-label="Lien vers la page de nos recettes" class="text-secondary text-2xl" >Nos recettes</a></li>
-                    <li><a href="/articles" aria-label="Lien vers la page de nos conseils" class="text-secondary text-2xl" >Nos conseils</a></li>
-                    <li><a href="/contact" aria-label="Lien vers la page de contact" class="text-secondary text-2xl">Nous contacter</a></li>
-                </ul>
+    <!-- Burger menu mobile -->
+    <button
+      type="button"
+      id="open-menu"
+      class="flex flex-col gap-1.5 mr-4 items-end z-50 relative lg:hidden"
+      aria-label="Ouvrir le menu de navigation"
+      aria-expanded="false"
+      aria-controls="menu-overlay"
+    >
+      <span
+        class="burger-line burger-line-1 border w-6 transition-all duration-300 ease-in-out"
+      ></span>
+      <span
+        class="burger-line burger-line-2 border w-6 transition-all duration-300 ease-in-out"
+      ></span>
+      <span
+        class="burger-line burger-line-3 border w-6 transition-all duration-300 ease-in-out"
+      ></span>
+    </button>
+  </div>
 
-                {isAuthenticated ? (
-                    <BoutonCercle variant="secondary" href="/profil" ariaLabel="Aller au profil utilisateur">
-                        {avatarUrl ? (
-                            <img src={avatarUrl} alt="Avatar utilisateur" class="h-full w-full object-cover" />
-                        ) : (
-                            <span class="text-lg font-bold">{avatarFallback}</span>
-                        )}
-                    </BoutonCercle>
-                ) : (
-                    <div class="flex flex-col items-center gap-4">
-                        <a href="/auth/login" class="btn text-xl" aria-label="Lien vers la page de connexion">Se connecter</a>
-                        <a href="/auth/register" class="btn-outline text-xl" aria-label="Lien vers la page d'inscription">Creer un compte</a>
-                    </div>
-                )}
+  <!-- Menu mobile overlay -->
+  <nav
+    id="menu-overlay"
+    class="lg:hidden fixed inset-0 pointer-events-none overflow-hidden"
+    aria-hidden="true"
+    aria-label="Menu de navigation mobile"
+  >
+    <div class="menu-navigation-overlay"></div>
 
-                <a href="/" aria-label="Retour à l'accueil">
-                    <img src={LogoNegatif.src} class="w-32" alt="Logo Slurpy" />
-                </a>
+    <div class="menu-content">
+      <div
+        class="flex flex-col items-center justify-center gap-24 h-full mt-8 md:mt-0"
+      >
+        <ul class="flex flex-col items-center justify-center gap-12">
+          <li>
+            <a
+              href="/recettes"
+              aria-label="Lien vers la page de nos recettes"
+              class="text-secondary text-2xl">Nos recettes</a
+            >
+          </li>
+          <li>
+            <a
+              href="/articles"
+              aria-label="Lien vers la page de nos conseils"
+              class="text-secondary text-2xl">Nos conseils</a
+            >
+          </li>
+          <li>
+            <a
+              href="/contact"
+              aria-label="Lien vers la page de contact"
+              class="text-secondary text-2xl">Nous contacter</a
+            >
+          </li>
+        </ul>
 
+        {
+          isAuthenticated ? (
+            <BoutonCercle
+              variant="secondary"
+              href="/profil"
+              ariaLabel="Aller au profil utilisateur"
+            >
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt="Avatar utilisateur"
+                  class="h-full w-full object-cover"
+                />
+              ) : (
+                <span class="text-lg font-bold">{avatarFallback}</span>
+              )}
+            </BoutonCercle>
+          ) : (
+            <div class="flex flex-col items-center gap-4">
+              <a
+                href="/auth/login"
+                class="btn text-xl"
+                aria-label="Lien vers la page de connexion"
+              >
+                Se connecter
+              </a>
+              <a
+                href="/auth/register"
+                class="btn-outline text-xl"
+                aria-label="Lien vers la page d'inscription"
+              >
+                Creer un compte
+              </a>
             </div>
-        </div>
-     </nav>
+          )
+        }
+
+        <a href="/" aria-label="Retour à l'accueil">
+          <img src={LogoNegatif.src} class="w-32" alt="Logo Slurpy" />
+        </a>
+      </div>
+    </div>
+  </nav>
 </header>
 
 <script>
-    // Éléments utilisés pour le comportement desktop au scroll et les interactions du menu mobile.
-    const siteHeader = document.querySelector<HTMLElement>('#site-header');
-    const menuButton = document.querySelector<HTMLButtonElement>('#open-menu');
-    const menuOverlay = document.querySelector<HTMLElement>('#menu-overlay');
+  // Éléments utilisés pour le comportement desktop au scroll et les interactions du menu mobile.
+  const siteHeader = document.querySelector<HTMLElement>("#site-header");
+  const menuButton = document.querySelector<HTMLButtonElement>("#open-menu");
+  const menuOverlay = document.querySelector<HTMLElement>("#menu-overlay");
 
-    // Le header se compacte visuellement et change de style après un léger défilement.
-    // On utilise une hystérésis (deux seuils) pour éviter le clignotement autour de la limite.
-    if (siteHeader) {
-        const SCROLL_ENTER_THRESHOLD = 28;
-        const SCROLL_EXIT_THRESHOLD = 8;
-        let isScrolled = false;
+  // Le header se compacte visuellement et change de style après un léger défilement.
+  // On utilise une hystérésis (deux seuils) pour éviter le clignotement autour de la limite.
+  if (siteHeader) {
+    const SCROLL_ENTER_THRESHOLD = 28;
+    const SCROLL_EXIT_THRESHOLD = 8;
+    let isScrolled = false;
 
-        const setScrolledState = () => {
-            const y = window.scrollY;
+    const setScrolledState = () => {
+      const y = window.scrollY;
 
-            if (!isScrolled && y >= SCROLL_ENTER_THRESHOLD) {
-                isScrolled = true;
-                siteHeader.classList.add('is-scrolled');
-                return;
-            }
+      if (!isScrolled && y >= SCROLL_ENTER_THRESHOLD) {
+        isScrolled = true;
+        siteHeader.classList.add("is-scrolled");
+        return;
+      }
 
-            if (isScrolled && y <= SCROLL_EXIT_THRESHOLD) {
-                isScrolled = false;
-                siteHeader.classList.remove('is-scrolled');
-            }
-        };
+      if (isScrolled && y <= SCROLL_EXIT_THRESHOLD) {
+        isScrolled = false;
+        siteHeader.classList.remove("is-scrolled");
+      }
+    };
 
-        // Initialisation au premier rendu et synchronisation pendant le scroll.
-        setScrolledState();
-        window.addEventListener('scroll', setScrolledState, { passive: true });
-    }
+    // Initialisation au premier rendu et synchronisation pendant le scroll.
+    setScrolledState();
+    window.addEventListener("scroll", setScrolledState, { passive: true });
+  }
 
-    // Gestion d'état du menu mobile (ouverture/fermeture + attributs d'accessibilité).
-    if (menuButton && menuOverlay) {
-        const setMenuState = (isOpen: boolean) => {
-            menuOverlay.classList.toggle('is-open', isOpen);
-            menuButton.classList.toggle('menu-open', isOpen);
-            menuButton.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
-            menuOverlay.setAttribute('aria-hidden', isOpen ? 'false' : 'true');
-            document.body.style.overflow = isOpen ? 'hidden' : '';
-        };
+  // Gestion d'état du menu mobile (ouverture/fermeture + attributs d'accessibilité).
+  if (menuButton && menuOverlay) {
+    const setMenuState = (isOpen: boolean) => {
+      menuOverlay.classList.toggle("is-open", isOpen);
+      menuButton.classList.toggle("menu-open", isOpen);
+      menuButton.setAttribute("aria-expanded", isOpen ? "true" : "false");
+      menuOverlay.setAttribute("aria-hidden", isOpen ? "false" : "true");
+      document.body.style.overflow = isOpen ? "hidden" : "";
+    };
 
-        menuButton.addEventListener('click', () => {
-            setMenuState(!menuOverlay.classList.contains('is-open'));
-        });
+    menuButton.addEventListener("click", () => {
+      setMenuState(!menuOverlay.classList.contains("is-open"));
+    });
 
-        // Ferme le menu lors d'un clic en dehors du contenu.
-        menuOverlay.addEventListener('click', (event) => {
-            const target = event.target as HTMLElement;
-            if (target.id === 'menu-overlay' || target.classList.contains('menu-navigation-overlay')) {
-                setMenuState(false);
-            }
-        });
+    // Ferme le menu lors d'un clic en dehors du contenu.
+    menuOverlay.addEventListener("click", (event) => {
+      const target = event.target as HTMLElement;
+      if (
+        target.id === "menu-overlay" ||
+        target.classList.contains("menu-navigation-overlay")
+      ) {
+        setMenuState(false);
+      }
+    });
 
-        // Ferme le menu après navigation via un lien de l'overlay.
-        menuOverlay.querySelectorAll('a').forEach((link) => {
-            link.addEventListener('click', () => setMenuState(false));
-        });
+    // Ferme le menu après navigation via un lien de l'overlay.
+    menuOverlay.querySelectorAll("a").forEach((link) => {
+      link.addEventListener("click", () => setMenuState(false));
+    });
 
-        // La touche Échap ferme le menu mobile.
-        document.addEventListener('keydown', (event) => {
-            if (event.key === 'Escape') setMenuState(false);
-        });
-    }
+    // La touche Échap ferme le menu mobile.
+    document.addEventListener("keydown", (event) => {
+      if (event.key === "Escape") setMenuState(false);
+    });
+  }
 </script>
 
 <style>
-    /* Header : mise en page de base et transitions */
-    .header-shell .logo {
-        position: relative;
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-    }
+  /* Header : mise en page de base et transitions */
+  .header-shell .logo {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
 
-    #header-inner,
-    #header-nav,
-    #header-logo,
-    #header-actions,
-    .header-nav-link {
-        transition: all 0.3s ease;
-    }
+  #header-inner,
+  #header-nav,
+  #header-logo,
+  #header-actions,
+  .header-nav-link {
+    transition: all 0.3s ease;
+  }
 
-    .logo-dark {
-        display: none;
-    }
+  .logo-dark {
+    display: none;
+  }
 
-    /* Header : état au scroll (inversion de palette + mode compact) */
-    .header-shell.is-scrolled {
-        background: var(--color-primary);
-        color: var(--color-secondary);
-        box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
-    }
+  /* Header : état au scroll (inversion de palette + mode compact) */
+  .header-shell.is-scrolled {
+    background: var(--color-primary);
+    color: var(--color-secondary);
+    box-shadow: 0 2px 0 rgba(0, 0, 0, 0.12);
+  }
 
-    .header-shell.is-scrolled .logo-light {
-        display: none;
-    }
+  .header-shell.is-scrolled .logo-light {
+    display: none;
+  }
 
-    .header-shell.is-scrolled .logo-dark {
-        display: block;
-    }
+  .header-shell.is-scrolled .logo-dark {
+    display: block;
+  }
 
-    .header-shell.is-scrolled .header-nav-link {
-        color: var(--color-secondary);
-        font-size: 1.125rem;
-    }
+  .header-shell.is-scrolled .header-nav-link {
+    color: var(--color-secondary);
+    font-size: 1.125rem;
+  }
 
-    .header-shell.is-scrolled #header-nav,
-    .header-shell.is-scrolled #header-logo,
-    .header-shell.is-scrolled #header-actions {
-        transform: scale(0.95);
-    }
+  .header-shell.is-scrolled #header-nav,
+  .header-shell.is-scrolled #header-logo,
+  .header-shell.is-scrolled #header-actions {
+    transform: scale(0.95);
+  }
 
-    .header-shell.is-scrolled .btn-green {
-        background: var(--color-secondary);
-        color: var(--color-primary);
-        border-color: var(--color-secondary);
-    }
+  .header-shell.is-scrolled .btn-green {
+    background: var(--color-secondary);
+    color: var(--color-primary);
+    border-color: var(--color-secondary);
+  }
 
-    /* Overlay mobile : visibilité et animation de fondu */
-    #menu-overlay {
-        visibility: hidden;
-        opacity: 0;
-        z-index: 40;
-        transition: opacity 0.3s ease-in-out;
-    }
+  .header-shell.is-scrolled :global(.global-search-trigger) {
+    background: var(--color-secondary);
+    border-color: var(--color-secondary);
+    color: var(--color-primary);
+    box-shadow: 0 4px 0 color-mix(in srgb, var(--color-primary) 65%, black 35%);
+  }
 
-    /* Overlay ouvert : visible et interactif */
-    #menu-overlay.is-open {
-        visibility: visible;
-        opacity: 1;
-        pointer-events: auto;
-    }
-    
-    /* Contenu de l'overlay mobile */
-    .menu-content {
-        opacity: 0;
-        position: relative;
-        z-index: 1;
-        width: 100%;
-        height: 100%;
-    }
-    
-    #menu-overlay.is-open .menu-content {
-        opacity: 1;
-        transition: opacity 0.25s ease-in-out 0.08s;
-    }
+  .header-shell.is-scrolled :global(.global-search-icon-default) {
+    display: none;
+  }
 
-    /* Animation du burger vers l'icône de fermeture */
-    #open-menu.menu-open .burger-line-1 {
-        transform: rotate(45deg) translateY(7.5px);
-        width: 1.5rem;
-    }
-    
-    #open-menu.menu-open .burger-line-2 {
-        opacity: 0;
-        transform: translateX(10px);
-    }
-    
-    #open-menu.menu-open .burger-line-3 {
-        transform: rotate(-45deg) translateY(-11px) translateX(4px);
-        width: 1.5rem;
-    }
-    
-    /* Garantit le contraste quand l'overlay est ouvert */
-    #open-menu.menu-open .burger-line {
-        border-color: white;
-    }
-    
-    #open-menu.menu-open {
-        transform: translateY(0);
-    }
-    
-    /* Fond d'overlay mobile */
-    .menu-navigation-overlay {
-        position: fixed;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        background: var(--color-primary);
-        opacity: 0;
-        pointer-events: none;
-        z-index: 0;
-        transition: opacity 0.2s ease-in-out;
-    }
+  .header-shell.is-scrolled :global(.global-search-icon-scrolled) {
+    display: block;
+  }
 
-    #menu-overlay.is-open .menu-navigation-overlay {
-        opacity: 1;
-    }
+  /* Overlay mobile : visibilité et animation de fondu */
+  #menu-overlay {
+    visibility: hidden;
+    opacity: 0;
+    z-index: 40;
+    transition: opacity 0.3s ease-in-out;
+  }
+
+  /* Overlay ouvert : visible et interactif */
+  #menu-overlay.is-open {
+    visibility: visible;
+    opacity: 1;
+    pointer-events: auto;
+  }
+
+  /* Contenu de l'overlay mobile */
+  .menu-content {
+    opacity: 0;
+    position: relative;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+  }
+
+  #menu-overlay.is-open .menu-content {
+    opacity: 1;
+    transition: opacity 0.25s ease-in-out 0.08s;
+  }
+
+  /* Animation du burger vers l'icône de fermeture */
+  #open-menu.menu-open .burger-line-1 {
+    transform: rotate(45deg) translateY(7.5px);
+    width: 1.5rem;
+  }
+
+  #open-menu.menu-open .burger-line-2 {
+    opacity: 0;
+    transform: translateX(10px);
+  }
+
+  #open-menu.menu-open .burger-line-3 {
+    transform: rotate(-45deg) translateY(-11px) translateX(4px);
+    width: 1.5rem;
+  }
+
+  /* Garantit le contraste quand l'overlay est ouvert */
+  #open-menu.menu-open .burger-line {
+    border-color: white;
+  }
+
+  #open-menu.menu-open {
+    transform: translateY(0);
+  }
+
+  /* Fond d'overlay mobile */
+  .menu-navigation-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--color-primary);
+    opacity: 0;
+    pointer-events: none;
+    z-index: 0;
+    transition: opacity 0.2s ease-in-out;
+  }
+
+  #menu-overlay.is-open .menu-navigation-overlay {
+    opacity: 1;
+  }
 </style>

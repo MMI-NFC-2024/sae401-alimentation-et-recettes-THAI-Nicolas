@@ -22,11 +22,13 @@ const {
   <header class="mb-4 flex items-end justify-between gap-4">
     <div>
       <p class="text-xs uppercase tracking-[0.16em] text-primary/70">Nutrition</p>
-      <h3 class="font-barlow text-3xl text-primary">{kcalParPortion} kcal</h3>
+      <h3 class="font-barlow text-3xl text-primary" data-nutrition-kcal>
+        {kcalParPortion} kcal
+      </h3>
       <p class="text-sm text-primary/80">par portion</p>
     </div>
     <div class="text-right text-xs uppercase tracking-wide text-primary/70">
-      <p>{portions} portions</p>
+      <p data-nutrition-portions>{portions} portions</p>
       <p>{tempsTotal} min</p>
     </div>
   </header>

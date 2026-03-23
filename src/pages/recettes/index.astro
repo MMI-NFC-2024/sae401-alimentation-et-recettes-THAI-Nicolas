@@ -25,9 +25,11 @@ const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
   </section>
   <section class="section content-container pt-10!">
     <div
-      class="grid grid-cols-1 gap-10 lg:grid-cols-[260px_minmax(0,1fr)] lg:gap-10"
+      class="grid grid-cols-1 gap-10 lg:grid-cols-[260px_minmax(0,1fr)] lg:items-start lg:gap-10"
     >
-      <RecettesFiltersPanel client:load regimes={regimeOptions} />
+      <div class="lg:sticky lg:top-28 lg:self-start">
+        <RecettesFiltersPanel client:load regimes={regimeOptions} />
+      </div>
 
       <div>
         <div class="mb-8 flex justify-center lg:justify-end">

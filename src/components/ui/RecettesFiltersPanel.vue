@@ -1,6 +1,8 @@
 <template>
   <!-- Colonne de filtres (recherche + criteres) -->
-  <aside class="w-full lg:max-w-65 lg:pr-8 lg:border-r-2 lg:border-primary/15">
+  <aside
+    class="w-full lg:max-w-65 lg:pr-8 lg:border-r-2 lg:border-primary/15 lg:mt-20"
+  >
     <div class="flex items-center justify-between gap-3">
       <h3 class="text-xl">Filtres</h3>
       <button

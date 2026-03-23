@@ -41,9 +41,9 @@
       </label>
 
       <label class="flex flex-col gap-2">
-        <span class="label">Calories cible / portion</span>
+        <span class="label">Calories cibles</span>
         <input
-          v-model.number="kcalCibleParPortion"
+          v-model.number="kcalCibleTotales"
           class="input"
           type="number"
           min="1"
@@ -60,11 +60,14 @@
     <dl class="mt-4 grid grid-cols-2 gap-2 text-center sm:grid-cols-4">
       <div class="rounded-xl border border-primary/30 bg-primary/5 px-2 py-2">
         <dt class="text-[10px] uppercase tracking-wide text-primary/70">
-          kcal/portion
+          kcal totales
         </dt>
         <dd class="font-bold text-primary text-lg xl:text-xl text">
-          {{ kcalAfficheesParPortion }}
+          {{ kcalTotalesAffichees }}
         </dd>
+        <p class="text-[10px] text-primary/70">
+          {{ kcalAfficheesParPortion }} / portion
+        </p>
       </div>
       <div class="rounded-xl border border-primary/30 bg-primary/5 px-2 py-2">
         <dt class="text-[10px] uppercase tracking-wide text-primary/70">
@@ -101,6 +104,7 @@
 
 <script setup lang="ts">
 import { computed, onMounted, ref, watch } from "vue";
+import { roundForDisplay, roundTo, roundToStep } from "../../lib/utils/number";
 
 interface IngredientCalculateur {
   id: string;
@@ -119,7 +123,11 @@ const props = defineProps<{
 }>();
 
 const portionsCible = ref(Math.max(1, props.portionsBase || 1));
-const kcalCibleParPortion = ref(Math.max(1, props.kcalBaseParPortion || 1));
+const kcalBaseParPortionSecurisees = Math.max(1, props.kcalBaseParPortion || 1);
+const kcalCibleTotales = ref(
+  Math.max(1, roundTo(kcalBaseParPortionSecurisees * portionsCible.value)),
+);
+const syncDepuisCalories = ref(false);
 
 const augmenterPortions = () => {
   portionsCible.value += 1;
@@ -128,6 +136,47 @@ const augmenterPortions = () => {
 const diminuerPortions = () => {
   portionsCible.value = Math.max(1, portionsCible.value - 1);
 };
+
+const normaliserEntierPositif = (valeur: number, fallback: number) => {
+  if (!Number.isFinite(valeur)) return fallback;
+  return Math.max(1, Math.round(valeur));
+};
+
+watch(portionsCible, (valeur) => {
+  const normalisee = normaliserEntierPositif(valeur, Math.max(1, props.portionsBase || 1));
+  if (normalisee !== valeur) {
+    portionsCible.value = normalisee;
+    return;
+  }
+
+  if (syncDepuisCalories.value) {
+    syncDepuisCalories.value = false;
+    return;
+  }
+
+  kcalCibleTotales.value = roundTo(kcalBaseParPortionSecurisees * normalisee);
+});
+
+watch(kcalCibleTotales, (valeur) => {
+  const normalisee = normaliserEntierPositif(
+    valeur,
+    roundTo(kcalBaseParPortionSecurisees * portionsCible.value),
+  );
+  if (normalisee !== valeur) {
+    kcalCibleTotales.value = normalisee;
+    return;
+  }
+
+  const portionsRecalculees = normaliserEntierPositif(
+    normalisee / kcalBaseParPortionSecurisees,
+    portionsCible.value,
+  );
+
+  if (portionsRecalculees !== portionsCible.value) {
+    syncDepuisCalories.value = true;
+    portionsCible.value = portionsRecalculees;
+  }
+});
 
 const facteurPortions = computed(() => {
   const portionsBaseSecurisees = Math.max(1, props.portionsBase || 1);
@@ -138,7 +187,8 @@ const facteurCalories = computed(() => {
   if (!props.kcalBaseParPortion || props.kcalBaseParPortion <= 0) {
     return 1;
   }
-  return Math.max(0.1, kcalCibleParPortion.value / props.kcalBaseParPortion);
+  const kcalCibleParPortion = kcalCibleTotales.value / portionsCible.value;
+  return Math.max(0.1, kcalCibleParPortion / props.kcalBaseParPortion);
 });
 
 const facteurGlobal = computed(
@@ -148,12 +198,12 @@ const facteurGlobal = computed(
 const ingredientsAjustes = computed(() => {
   return props.ingredients.map((ingredient) => ({
     ...ingredient,
-    quantite: Number((ingredient.quantite * facteurGlobal.value).toFixed(2)),
+    quantite: roundToStep(ingredient.quantite * facteurGlobal.value, 0.5),
   }));
 });
 
 const formaterQuantite = (valeur: number) => {
-  const arrondi = Number(valeur.toFixed(2));
+  const arrondi = roundTo(valeur, 1);
   if (Number.isInteger(arrondi)) {
     return String(arrondi);
   }
@@ -177,6 +227,20 @@ const synchroniserListeIngredients = () => {
     element.textContent =
       `${formaterQuantite(ingredient.quantite)} ${ingredient.unite}`.trim();
   }
+
+  const nutritionKcalElement = document.querySelector<HTMLElement>(
+    "[data-nutrition-kcal]",
+  );
+  if (nutritionKcalElement) {
+    nutritionKcalElement.textContent = `${kcalAfficheesParPortion.value} kcal`;
+  }
+
+  const nutritionPortionsElement = document.querySelector<HTMLElement>(
+    "[data-nutrition-portions]",
+  );
+  if (nutritionPortionsElement) {
+    nutritionPortionsElement.textContent = `${Math.round(portionsCible.value)} portions`;
+  }
 };
 
 onMounted(() => {
@@ -193,6 +257,10 @@ const kcalAjusteesParPortion = computed(() => {
   return props.kcalBaseParPortion * facteurCalories.value;
 });
 
+const kcalTotalesAjustees = computed(
+  () => kcalAjusteesParPortion.value * portionsCible.value,
+);
+
 const proteinesAjustees = computed(
   () => props.proteinesBase * facteurGlobal.value,
 );
@@ -201,14 +269,13 @@ const glucidesAjustes = computed(
 );
 const lipidesAjustes = computed(() => props.lipidesBase * facteurGlobal.value);
 
-const kcalAfficheesParPortion = computed(() =>
-  Math.round(kcalAjusteesParPortion.value),
-);
+const kcalAfficheesParPortion = computed(() => roundTo(kcalAjusteesParPortion.value));
+const kcalTotalesAffichees = computed(() => roundTo(kcalTotalesAjustees.value));
 const proteinesAffichees = computed(() =>
-  Number(proteinesAjustees.value.toFixed(1)),
+  roundForDisplay(proteinesAjustees.value, 1),
 );
 const glucidesAffiches = computed(() =>
-  Number(glucidesAjustes.value.toFixed(1)),
+  roundForDisplay(glucidesAjustes.value, 1),
 );
-const lipidesAffiches = computed(() => Number(lipidesAjustes.value.toFixed(1)));
+const lipidesAffiches = computed(() => roundForDisplay(lipidesAjustes.value, 1));
 </script>
