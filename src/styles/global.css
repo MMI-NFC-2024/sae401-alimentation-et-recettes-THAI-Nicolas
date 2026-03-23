@@ -50,7 +50,7 @@
     font-size: clamp(0.95rem, 0.35vw + 0.88rem, 1.2rem);
   }
   section {
-    @apply px-16 md:px-20 lg:px-24 xl:px-28 2xl:px-32 pb-20 pt-8 md:pb-24 md:pt-16 lg:pb-28 lg:pt-20 xl:pb-32 xl:pt-24 2xl:pb-44 2xl:pt-32;
+    @apply px-16 md:px-20 lg:px-24 xl:px-28 2xl:px-32 pb-8 pt-4 md:pb-10 md:pt-6 lg:pb-12 lg:pt-8 xl:pb-16 xl:pt-10 2xl:pb-20 2xl:pt-12;
   }
   .label {
     @apply font-barlow font-black uppercase text-primary tracking-[0.02em] leading-none text-sm md:text-base;
@@ -62,10 +62,10 @@
     @apply px-16 md:px-20 lg:px-24 xl:px-28 2xl:px-32 pb-20 pt-8 md:pb-24 md:pt-16 lg:pb-28 lg:pt-20 xl:pb-32 xl:pt-24 2xl:pb-44 2xl:pt-32;
   }
   .green-section {
-    @apply bg-primary text-secondary;
+    @apply bg-primary text-secondary px-16 md:px-20 lg:px-24 xl:px-28 2xl:px-32 pb-20 pt-8 md:pb-24 md:pt-16 lg:pb-28 lg:pt-20 xl:pb-32 xl:pt-24 2xl:pb-44 2xl:pt-32;
   }
   .btn-wrapper {
-    @apply flex justify-center my-14 md:my-16 lg:my-20;
+    @apply flex justify-center my-12 md:my-12 lg:my-16;
   }
   .text-content {
     @apply flex flex-col mt-10 gap-4 md:gap-6 lg:gap-8 2xl:gap-10;
