@@ -7,7 +7,7 @@
       "
       :aria-expanded="isOpen ? 'true' : 'false'"
       aria-controls="global-header-search-panel"
-      class="global-search-trigger inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-primary bg-primary text-secondary shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)] transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)]"
+      class="global-search-trigger cursor-pointer inline-flex h-14 w-14 items-center justify-center rounded-full border-2 border-primary bg-primary text-secondary shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)] transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)]"
       @click.stop="toggleSearch"
     >
       <img
@@ -43,7 +43,7 @@
         <button
           type="button"
           aria-label="Fermer la recherche"
-          class="absolute right-1.5 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border-2 border-primary text-primary"
+          class="absolute cursor-pointer right-1.5 top-1/2 inline-flex h-8 w-8 -translate-y-1/2 items-center justify-center rounded-full border-2 border-primary text-primary"
           @click.stop="closeSearch"
         >
           ×

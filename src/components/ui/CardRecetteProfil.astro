@@ -85,7 +85,7 @@ const deleteModalId = `delete-recette-modal-${recette.id}`;
     <button
       type="button"
       onclick={`document.getElementById('${deleteModalId}')?.showModal()`}
-      class="rounded-full border-2 border-primary bg-accent2 px-4 py-2 text-sm font-bold text-secondary shadow-[0_4px_0_0_var(--color-primary)] transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_var(--color-primary)]"
+      class="rounded-full border-2 border-primary bg-accent2 cursor-pointer px-4 py-2 text-sm font-bold text-secondary shadow-[0_4px_0_0_var(--color-primary)] transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_var(--color-primary)]"
     >
       Supprimer
     </button>
@@ -111,7 +111,9 @@ const deleteModalId = `delete-recette-modal-${recette.id}`;
         </p>
 
         <div class="mt-5 flex items-center justify-end gap-3">
-          <button value="cancel" class="btn-outline">Annuler</button>
+          <button value="cancel" class="btn-outline cursor-pointer"
+            >Annuler</button
+          >
           <button type="submit" form={deleteFormId} class="btn bg-accent2!">
             Supprimer
           </button>

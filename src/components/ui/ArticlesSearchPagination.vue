@@ -7,7 +7,7 @@
     <div class="flex gap-2">
       <button
         type="button"
-        class="uppercase"
+        class="uppercase cursor-pointer"
         :class="selectedType === 'all' ? 'btn-green' : 'btn-outline'"
         @click="setType('all')"
       >
@@ -15,7 +15,7 @@
       </button>
       <button
         type="button"
-        class="uppercase"
+        class="uppercase cursor-pointer"
         :class="selectedType === 'conseil' ? 'btn-green' : 'btn-outline'"
         @click="setType('conseil')"
       >
@@ -23,7 +23,7 @@
       </button>
       <button
         type="button"
-        class="uppercase"
+        class="uppercase cursor-pointer"
         :class="selectedType === 'fiche_aliment' ? 'btn-green' : 'btn-outline'"
         @click="setType('fiche_aliment')"
       >

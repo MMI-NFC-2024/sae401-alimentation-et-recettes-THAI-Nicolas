@@ -67,8 +67,8 @@ const containerClassName = computed(() => {
 
 const buttonBaseClassName = computed(() => {
   return isLarge.value
-    ? "inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-primary font-barlow text-xl leading-none shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)] transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)] disabled:cursor-not-allowed disabled:opacity-60"
-    : "inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-primary font-barlow text-sm disabled:opacity-50";
+    ? "inline-flex h-11 w-11 items-center justify-center rounded-full border-2 border-primary font-barlow text-xl cursor-pointer leading-none shadow-[0_4px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)] transition-all duration-200 hover:translate-y-px hover:shadow-[0_3px_0_0_color-mix(in_srgb,var(--color-primary)_75%,black_25%)] disabled:cursor-not-allowed disabled:opacity-60"
+    : "inline-flex h-8 w-8 items-center justify-center rounded-full border-2 border-primary font-barlow text-sm disabled:opacity-50 cursor-pointer";
 });
 
 const activeClassName = computed(() => "bg-primary text-secondary");

@@ -7,7 +7,7 @@
       <h3 class="text-xl">Filtres</h3>
       <button
         type="button"
-        class="rounded-sm bg-primary px-3 py-1 text-[10px] font-barlow uppercase tracking-wide text-secondary"
+        class="rounded-sm bg-primary px-3 py-1 text-[10px] font-barlow uppercase tracking-wide text-secondary cursor-pointer"
         @click="resetFilters"
       >
         <!-- Remet tous les filtres à leur valeur initiale -->
@@ -39,7 +39,7 @@
             v-for="goal in goals"
             :key="goal"
             type="button"
-            class="uppercase px-4! py-2! text-xs!"
+            class="uppercase px-4! py-2! text-xs! cursor-pointer"
             :class="selectedGoals.has(goal) ? 'btn-green' : 'btn-outline'"
             @click="toggleGoal(goal)"
           >
@@ -53,7 +53,7 @@
         <p class="label">Regimes</p>
         <select
           v-model="selectedRegime"
-          class="mt-3 w-full rounded-md border-2 border-primary bg-secondary px-3 py-2 text-xs font-barlow uppercase tracking-wide text-primary shadow-[0_3px_0_0_var(--color-primary)] outline-none"
+          class="mt-3 w-full rounded-md cursor-pointer border-2 border-primary bg-secondary px-3 py-2 text-xs font-barlow uppercase tracking-wide text-primary shadow-[0_3px_0_0_var(--color-primary)] outline-none"
         >
           <option value="">Tous</option>
           <option v-for="regime in regimes" :key="regime.id" :value="regime.id">
@@ -73,7 +73,7 @@
           >
             <input
               type="checkbox"
-              class="h-4 w-4 appearance-none rounded-sm border-2 border-primary bg-secondary checked:bg-primary"
+              class="h-4 w-4 appearance-none rounded-sm border-2 border-primary bg-secondary checked:bg-primary cursor-pointer"
               :checked="selectedDishTypes.has(type.value)"
               @change="toggleDishType(type.value)"
             />
@@ -90,7 +90,7 @@
             v-for="star in 5"
             :key="star"
             type="button"
-            class="leading-none"
+            class="leading-none cursor-pointer"
             :class="star <= minRating ? 'text-accent1' : 'text-primary/35'"
             :aria-label="`Filtrer a partir de ${star} etoiles`"
             @click="setRating(star)"

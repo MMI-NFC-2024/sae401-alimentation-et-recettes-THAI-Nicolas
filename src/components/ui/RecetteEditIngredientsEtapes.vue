@@ -12,7 +12,7 @@
         <select
           id="ingredients-categorie-filter"
           v-model="selectedCategory"
-          class="input mt-2"
+          class="input mt-2 cursor-pointer"
         >
           <option value="all">Toutes</option>
           <option
@@ -53,7 +53,7 @@
           v-for="item in filteredIngredients"
           :key="item.id"
           type="button"
-          class="rounded-full border-2 px-3 py-1 text-sm font-bold transition-colors"
+          class="rounded-full border-2 px-3 py-1 text-sm font-bold transition-colors cursor-pointer"
           :class="
             isSelected(item.id)
               ? 'border-green-700 bg-green-600 text-white hover:bg-green-700'
@@ -78,7 +78,7 @@
           </p>
           <button
             type="button"
-            class="text-sm font-bold text-accent2 underline underline-offset-2"
+            class="text-sm font-bold text-accent2 underline underline-offset-2 cursor-pointer"
             @click="removeCompositionItem(item.ingredientId)"
           >
             Retirer
@@ -99,7 +99,7 @@
 
           <label class="text-sm font-bold text-primary">
             Unite
-            <select v-model="item.unite" class="input mt-2">
+            <select v-model="item.unite" class="input mt-2 cursor-pointer">
               <option value="">Choisir</option>
               <option v-for="unite in units" :key="unite" :value="unite">
                 {{ unite }}
@@ -126,7 +126,7 @@
           <p class="font-semibold text-primary">Etape {{ index + 1 }}</p>
           <button
             type="button"
-            class="text-sm font-bold text-accent2 underline underline-offset-2"
+            class="text-sm font-bold text-accent2 underline underline-offset-2 cursor-pointer"
             @click="removeEtapeItem(index)"
           >
             Retirer
@@ -152,7 +152,11 @@
     </ul>
 
     <div class="mt-4">
-      <button type="button" class="btn-outline" @click="addEtapeItem">
+      <button
+        type="button"
+        class="btn-outline cursor-pointer"
+        @click="addEtapeItem"
+      >
         Ajouter une etape
       </button>
     </div>

@@ -220,7 +220,7 @@ const returnTo = Astro.url.pathname;
                   <select
                     id="objectif_sante"
                     name="objectif_sante"
-                    class="input mt-2"
+                    class="input mt-2 cursor-pointer"
                   >
                     <option value="">Choisir un objectif</option>
                     {
@@ -243,7 +243,7 @@ const returnTo = Astro.url.pathname;
                   </select>
                   {
                     updateProfileInputError?.fields.objectif_sante?.[0] && (
-                      <p class="mt-2 text-sm font-bold text-accent2">
+                      <p class="mt-2 text-sm font-bold text-accent2 ">
                         {updateProfileInputError.fields.objectif_sante[0]}
                       </p>
                     )
