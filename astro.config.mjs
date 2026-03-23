@@ -1,6 +1,7 @@
 // @ts-check
 import { defineConfig } from "astro/config";
 import node from "@astrojs/node";
+import sitemap from "@astrojs/sitemap";
 import vue from "@astrojs/vue";
 import tailwindcss from "@tailwindcss/vite";
 
@@ -26,7 +27,7 @@ export default defineConfig({
     ],
   },
 
-  integrations: [vue()],
+  integrations: [vue(), sitemap()],
 
   vite: {
     plugins: [tailwindcss()],
