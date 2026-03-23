@@ -237,6 +237,11 @@ export type RegimesRecord = {
 	updated: IsoAutoDateString
 }
 
+export enum UsersObjectifSanteOptions {
+	"Prise de masse" = "Prise de masse",
+	"Perte de poids" = "Perte de poids",
+	"Se maintenir" = "Se maintenir",
+}
 export type UsersRecord = {
 	age?: number
 	avatar?: FileNameString
@@ -246,6 +251,7 @@ export type UsersRecord = {
 	emailVisibility?: boolean
 	id: string
 	name?: string
+	objectif_sante?: UsersObjectifSanteOptions
 	password: string
 	tokenKey: string
 	updated: IsoAutoDateString

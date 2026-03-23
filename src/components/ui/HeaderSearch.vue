@@ -28,7 +28,7 @@
           v-model="searchQuery"
           type="text"
           placeholder="Rechercher une recette ou un article..."
-          class="w-full rounded-xl border-2 border-primary bg-secondary py-2.5 pl-3 pr-11 text-sm outline-none focus:ring-2 focus:ring-primary"
+          class="w-full rounded-xl border-2 border-primary bg-secondary text-primary py-2.5 pl-3 pr-11 text-sm outline-none focus:ring-2 focus:ring-primary"
         />
         <button
           type="button"
