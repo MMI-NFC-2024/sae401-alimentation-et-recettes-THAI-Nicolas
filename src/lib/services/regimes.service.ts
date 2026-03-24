@@ -1,17 +1,12 @@
 import type { RegimesResponse, TypedPocketBase } from "../../pocketbase-types";
-
-export type ServiceError = "server_error";
-
-export interface ServiceResult<T> {
-  data: T;
-  error: ServiceError | null;
-}
+import type { ServiceResult } from "../types/service";
 
 export interface RegimeOption {
   id: string;
   name: string;
 }
 
+// Récupère tous les régimes disponibles (triés par nom)
 export async function getAllRegimes(
   pb: TypedPocketBase,
 ): Promise<ServiceResult<RegimesResponse[]>> {
@@ -37,6 +32,7 @@ export async function getAllRegimes(
   }
 }
 
+// Récupère les options de régimes pour les formulaires (id et nom)
 export async function getRegimeOptions(
   pb: TypedPocketBase,
 ): Promise<ServiceResult<RegimeOption[]>> {

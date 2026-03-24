@@ -1,12 +1,7 @@
 import type { EtapesResponse, TypedPocketBase } from "../../pocketbase-types";
+import type { ServiceResult } from "../types/service";
 
-export type ServiceError = "not_found" | "server_error";
-
-export interface ServiceResult<T> {
-  data: T;
-  error: ServiceError | null;
-}
-
+// Récupère les étapes d'une recette donnée (triées par numero_ordre)
 export async function getEtapesByRecetteId(
   pb: TypedPocketBase,
   recetteId: string,

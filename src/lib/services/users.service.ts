@@ -1,11 +1,5 @@
 import type { TypedPocketBase, UsersResponse } from "../../pocketbase-types";
-
-export type ServiceError = "not_found" | "server_error";
-
-export interface ServiceResult<T> {
-  data: T;
-  error: ServiceError | null;
-}
+import type { ServiceResult } from "../types/service";
 
 export type UserProfileResponse = UsersResponse & {
   objectif_sante?: string;
@@ -19,6 +13,7 @@ export interface UpdateUserProfileInput {
   avatar?: File;
 }
 
+// Fonction qui nettoie les données d'entrée pour la mise à jour du profil utilisateur (ne garde que les champs valides et non vides, pour éviter d'injecter un champs via le navigateur)
 function sanitizeUpdatePayload(input: UpdateUserProfileInput) {
   const payload: Record<string, unknown> = {};
 
@@ -45,6 +40,7 @@ function sanitizeUpdatePayload(input: UpdateUserProfileInput) {
   return payload;
 }
 
+// Récupère les données d'un utilisateur par son ID
 export async function getUserById(
   pb: TypedPocketBase,
   userId: string,
@@ -74,6 +70,7 @@ export async function getUserById(
   }
 }
 
+// Récupère les données de l'utilisateur actuellement connecté (retourne une erreur "not_found" si aucun utilisateur n'est connecté)
 export async function getCurrentUserProfile(
   pb: TypedPocketBase,
 ): Promise<ServiceResult<UserProfileResponse | null>> {
@@ -90,6 +87,7 @@ export async function getCurrentUserProfile(
   return getUserById(pb, userId);
 }
 
+// Met à jour le profil de l'utilisateur donné avec les données d'entrée fournies, retourne une erreur "not_found" si l'utilisateur n'existe pas
 export async function updateUserProfile(
   pb: TypedPocketBase,
   userId: string,

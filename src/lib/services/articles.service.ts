@@ -1,12 +1,7 @@
 import type { ArticlesResponse, TypedPocketBase } from "../../pocketbase-types";
+import type { ServiceResult } from "../types/service";
 
-export type ServiceError = "not_found" | "server_error";
-
-export interface ServiceResult<T> {
-  data: T;
-  error: ServiceError | null;
-}
-
+//Récupère les derniers articles, avec une limite optionnelle (par défaut 3)
 export async function getLatestArticles(
   pb: TypedPocketBase,
   limit = 3,
@@ -33,6 +28,7 @@ export async function getLatestArticles(
   }
 }
 
+//Récupère tous les articles sans limite, triés par date de création décroissante
 export async function getAllArticles(
   pb: TypedPocketBase,
 ): Promise<ServiceResult<ArticlesResponse[]>> {
@@ -58,6 +54,7 @@ export async function getAllArticles(
   }
 }
 
+//Récupère un article par son slug, retourne une erreur "not_found" si l'article n'existe pas
 export async function getArticleBySlug(
   pb: TypedPocketBase,
   slug: string,

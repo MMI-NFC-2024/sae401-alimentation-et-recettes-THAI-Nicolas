@@ -6,25 +6,22 @@ import type {
   TypedPocketBase,
   UsersResponse,
 } from "../../pocketbase-types";
+import type { ServiceResult } from "../types/service";
 
-export type ServiceError = "not_found" | "server_error";
-
-export interface ServiceResult<T> {
-  data: T;
-  error: ServiceError | null;
-}
-
+// Types spécifiques pour les recettes (avec objectif_sante et categorie comme options de filtre)
 export interface GetLatestRecettesFilters {
   objectif_sante?: RecettesObjectifSanteOptions;
   categorie?: RecettesCategorieOptions;
   exclude_id?: string;
 }
 
+// Type de réponse pour une recette récupérée par son slug (avec expand des relations user et regimes)
 export type RecetteBySlugResponse = RecettesResponse<{
   user?: UsersResponse;
   regimes?: RegimesResponse[];
 }>;
 
+// Récupère les dernières recettes, avec une limite optionnelle (par défaut 4) et des filtres optionnels pour l'objectif santé, la catégorie
 export async function getLatestRecettes(
   pb: TypedPocketBase,
   limit = 4,
@@ -68,6 +65,7 @@ export async function getLatestRecettes(
   }
 }
 
+// Récupère toutes les recettes sans limite, triées par date de création décroissante
 export async function getAllRecettes(
   pb: TypedPocketBase,
 ): Promise<ServiceResult<RecettesResponse[]>> {
@@ -92,6 +90,7 @@ export async function getAllRecettes(
   }
 }
 
+// Récupère les recettes d'un utilisateur donné, triées par date de création décroissante
 export async function getRecettesByUserId(
   pb: TypedPocketBase,
   userId: string,
@@ -119,6 +118,7 @@ export async function getRecettesByUserId(
   }
 }
 
+// Récupère une recette par son slug, retourne une erreur "not_found" si la recette n'existe pas
 export async function getRecetteBySlug(
   pb: TypedPocketBase,
   slug: string,

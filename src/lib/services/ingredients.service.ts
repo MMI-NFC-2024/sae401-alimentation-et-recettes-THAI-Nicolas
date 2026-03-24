@@ -2,14 +2,9 @@ import type {
   IngredientsResponse,
   TypedPocketBase,
 } from "../../pocketbase-types";
+import type { ServiceResult } from "../types/service";
 
-export type ServiceError = "server_error";
-
-export interface ServiceResult<T> {
-  data: T;
-  error: ServiceError | null;
-}
-
+// Récupère tous les ingrédients disponibles (triés par catégorie puis nom)
 export async function getAllIngredients(
   pb: TypedPocketBase,
 ): Promise<ServiceResult<IngredientsResponse[]>> {

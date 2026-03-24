@@ -1,5 +1,6 @@
 import { ActionError } from "astro:actions";
 
+// Typage des paramètres d'entrée pour l'envoi d'un email de contact via EmailJS
 interface SendContactEmailParams {
   firstName: string;
   lastName: string;
@@ -8,6 +9,7 @@ interface SendContactEmailParams {
   message: string;
 }
 
+// Récupère la configuration EmailJS à partir des variables d'environnement, avec une validation pour s'assurer que toutes les variables nécessaires sont présentes.
 function getEmailJsConfig() {
   // En production (service systemd), process.env est la source fiable en runtime.
   const serviceId =
@@ -29,7 +31,10 @@ function getEmailJsConfig() {
   return { serviceId, templateId, publicId, privateKey };
 }
 
-export async function sendContactEmail(params: SendContactEmailParams): Promise<void> {
+// Envoie un email de contact via EmailJS en utilisant les paramètres fournis.
+export async function sendContactEmail(
+  params: SendContactEmailParams,
+): Promise<void> {
   const { serviceId, templateId, publicId, privateKey } = getEmailJsConfig();
 
   const response = await fetch("https://api.emailjs.com/api/v1.0/email/send", {

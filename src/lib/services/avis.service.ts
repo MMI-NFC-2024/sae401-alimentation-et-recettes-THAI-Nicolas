@@ -3,13 +3,7 @@ import type {
   TypedPocketBase,
   UsersResponse,
 } from "../../pocketbase-types";
-
-export type ServiceError = "server_error";
-
-export interface ServiceResult<T> {
-  data: T;
-  error: ServiceError | null;
-}
+import type { ServiceResult } from "../types/service";
 
 export type AvisWithUserResponse = AvisResponse<{
   user?: UsersResponse;
@@ -26,6 +20,7 @@ export interface AvisCardStats {
   total: number;
 }
 
+// Fonction qui permet d'hydrater les avis avec les données des utilisateurs (sans faire une requête par avis pour éviter les problèmes de performances)
 async function hydrateAvisUsers(
   pb: TypedPocketBase,
   avis: AvisWithUserResponse[],
@@ -73,11 +68,11 @@ async function hydrateAvisUsers(
       };
     });
   } catch {
-    // If users cannot be fetched, keep current payload (reviews still visible).
     return avis;
   }
 }
 
+// Parcourt chaque avis et créer une distribution des notes, ainsi que le calcul de la note moyenne et du total d'avis
 function computeAvisStats(avis: AvisWithUserResponse[]): AvisStats {
   const distribution: Record<1 | 2 | 3 | 4 | 5, number> = {
     1: 0,
@@ -104,6 +99,7 @@ function computeAvisStats(avis: AvisWithUserResponse[]): AvisStats {
   return { average, total, distribution };
 }
 
+// Récupère les avis d'une recette donnée avec les données des utilisateurs associés
 export async function getAvisByRecetteId(
   pb: TypedPocketBase,
   recetteId: string,
@@ -118,7 +114,7 @@ export async function getAvisByRecetteId(
         expand: "user",
       })) as AvisWithUserResponse[];
     } catch {
-      // Fallback: if user expansion is blocked, still return comments.
+      // Fallback: Si l'expansion des utilisateurs est bloquée, retourne tout de même les commentaires.
       avis = (await pb.collection("avis").getFullList({
         filter: `recette="${recetteId}"`,
         sort: "-created",
@@ -140,6 +136,7 @@ export async function getAvisByRecetteId(
   }
 }
 
+// Récupère les statistiques des avis d'une recette donnée (note moyenne, total d'avis et distribution des notes)
 export async function getAvisStatsByRecetteId(
   pb: TypedPocketBase,
   recetteId: string,
@@ -170,6 +167,7 @@ export async function getAvisStatsByRecetteId(
   }
 }
 
+// Récupère les statistiques des avis pour plusieurs recettes données (note moyenne et total d'avis par recette)
 export async function getAvisStatsByRecetteIds(
   pb: TypedPocketBase,
   recetteIds: string[],

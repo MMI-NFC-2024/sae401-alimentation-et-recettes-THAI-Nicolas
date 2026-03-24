@@ -3,18 +3,13 @@ import type {
   IngredientsResponse,
   TypedPocketBase,
 } from "../../pocketbase-types";
-
-export type ServiceError = "server_error";
-
-export interface ServiceResult<T> {
-  data: T;
-  error: ServiceError | null;
-}
+import type { ServiceResult } from "../types/service";
 
 export type CompositionWithIngredientResponse = CompositionResponse<{
   ingredient?: IngredientsResponse;
 }>;
 
+// Récupère la composition d'une recette donnée (expand sur les ingredients)
 export async function getCompositionByRecetteId(
   pb: TypedPocketBase,
   recetteId: string,
