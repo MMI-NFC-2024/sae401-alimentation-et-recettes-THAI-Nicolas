@@ -1,8 +1,10 @@
 import { z } from "astro/zod";
 
+// Limite de taille pour les images de recettes (5 Mo)
 const MAX_RECETTE_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
 const MAX_RECETTE_IMAGE_SIZE_MESSAGE = "L'image est trop lourde (max 5 Mo).";
 
+// Schéma de validation pour les objectifs santé des recettes
 const objectifSanteSchema = z.enum([
   "Prise de masse",
   "Perte de poids",
@@ -11,6 +13,7 @@ const objectifSanteSchema = z.enum([
 
 const categorieSchema = z.enum(["Entrée", "Plat", "Dessert", "Boisson"]);
 
+// Schéma pour les images required : on verifie que c'est un fichier, que sa taille est > 0 (pour eviter les fichiers vides) et qu'elle ne depasse pas la limite autorisee.
 const requiredFileSchema = z.preprocess(
   (value) => {
     if (!(value instanceof File)) {
@@ -27,6 +30,7 @@ const requiredFileSchema = z.preprocess(
     ),
 );
 
+// Schema pour les images optionnelles : on verifie que c'est un fichier, que sa taille est > 0 (pour eviter les fichiers vides) et qu'elle ne depasse pas la limite autorisee.
 const optionalFileSchema = z.preprocess(
   (value) => {
     if (!(value instanceof File)) {
@@ -44,6 +48,7 @@ const optionalFileSchema = z.preprocess(
     .optional(),
 );
 
+// Schéma de validation pour les nombres optionnels
 const optionalNumberSchema = z.preprocess((value) => {
   if (value === "" || value === undefined || value === null) {
     return undefined;
@@ -52,6 +57,7 @@ const optionalNumberSchema = z.preprocess((value) => {
   return value;
 }, z.coerce.number().optional());
 
+// Schéma de validation pour les régimes alimentaires (array de strings optionnel, avec nettoyage des entrées)
 const optionalRegimesSchema = z.preprocess(
   (value) => {
     if (value === undefined || value === null) {
@@ -70,6 +76,7 @@ const optionalRegimesSchema = z.preprocess(
   z.array(z.string().trim().min(1, "Regime invalide")).optional(),
 );
 
+// Une fonction qui retourne un schéma de validation pour un champ qui doit etre une string contenant un JSON array non vide ( c'est pour les compositions et les étapes des recettes)
 function nonEmptyJsonArraySchema(errorMessage: string) {
   return z
     .string()
@@ -84,6 +91,7 @@ function nonEmptyJsonArraySchema(errorMessage: string) {
     }, errorMessage);
 }
 
+// Schéma de validation de création d'une recette
 export const createRecetteSchema = z.object({
   titre: z
     .string()
@@ -124,6 +132,7 @@ export const createRecetteSchema = z.object({
   returnTo: z.string().trim().optional(),
 });
 
+// Schéma de validation de modification d'une recette
 export const updateRecetteSchema = z.object({
   recetteId: z.string().trim().min(1, "Recette invalide"),
   titre: z
@@ -158,6 +167,7 @@ export const updateRecetteSchema = z.object({
   returnTo: z.string().trim().optional(),
 });
 
+// Schéma de validation de suppression d'une recette
 export const deleteRecetteSchema = z.object({
   recetteId: z.string().trim().min(1, "Recette invalide"),
   returnTo: z.string().trim().optional(),

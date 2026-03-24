@@ -1,6 +1,6 @@
 import { z } from "astro/zod";
 
-// Schema reutilisable (action serveur + futur usage client si besoin)
+// Schema de validation pour le formulaire de contact (envoi d'un email via EmailJS)
 export const contactFormSchema = z.object({
   firstName: z
     .string()
@@ -30,6 +30,7 @@ export const contactFormSchema = z.object({
   hpField: z.string().optional(),
 });
 
+// Schéma de validation pour l'inscription à la newsletter (seulement un email)
 export const newsletterSchema = z.object({
   email: z
     .string()

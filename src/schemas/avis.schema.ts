@@ -1,5 +1,6 @@
 import { z } from "astro/zod";
 
+// Schéma de validation pour la création d'un avis (note et commentaire) sur une recette,
 export const createAvisSchema = z.object({
   recetteId: z.string().trim().min(1, "Recette invalide"),
   note: z.coerce
@@ -12,9 +13,11 @@ export const createAvisSchema = z.object({
     .trim()
     .max(500, "Le commentaire est trop long")
     .optional(),
+  //redirection optionnelle après la création
   returnTo: z.string().trim().optional(),
 });
 
+// Suppression d'un avis par son ID, avec une redirection optionnelle après suppression
 export const deleteAvisSchema = z.object({
   avisId: z.string().trim().min(1, "Avis invalide"),
   returnTo: z.string().trim().optional(),
