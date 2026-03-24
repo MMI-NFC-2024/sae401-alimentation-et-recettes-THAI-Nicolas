@@ -9,10 +9,11 @@ import CardArticle from "../components/ui/CardArticle.astro";
 import LiquidWave from "../components/ui/LiquidWave.astro";
 import DamierTransition from "../components/ui/DamierTransition.astro";
 
-// Fonctions "Nos recettes"
+// Import de "Nos recettes"
 import { getLatestRecettes } from "../lib/services/recettes.service";
 import { RecettesObjectifSanteOptions } from "../pocketbase-types";
 
+// Normalise les objectifs santé pour la comparaison
 const normalizeObjectiveValue = (value: string | undefined) =>
   (value ?? "")
     .normalize("NFD")
@@ -20,6 +21,7 @@ const normalizeObjectiveValue = (value: string | undefined) =>
     .toLowerCase()
     .trim();
 
+// Récupère les dernières recettes par un rapport à un objectif santé donné (avec une limite de 4 recettes)
 const getLatestRecettesByObjectiveSafe = async (
   objectif: RecettesObjectifSanteOptions,
 ) => {
@@ -50,6 +52,7 @@ const getLatestRecettesByObjectiveSafe = async (
   };
 };
 
+// On lance les 3 requêtes asynchrones en parallèle pour optimiser le temps de chargement
 const [pertePoidsResult, priseMasseResult, equilibreResult] = await Promise.all(
   [
     getLatestRecettesByObjectiveSafe(
@@ -66,6 +69,7 @@ const recettesPertePoids = pertePoidsResult.data;
 const recettesPriseMasse = priseMasseResult.data;
 const recettesEquilibre = equilibreResult.data;
 
+// On extrait les IDs des recettes récupérées pour ensuite aller chercher les stats d'avis (note moyenne et nombre d'avis) de ces recettes, afin de les afficher dans les cards sur la page d'accueil
 const recetteIds = Array.from(
   new Set(
     [...recettesPertePoids, ...recettesPriseMasse, ...recettesEquilibre].map(
@@ -74,13 +78,14 @@ const recetteIds = Array.from(
   ),
 );
 
+// On récupère les stats d'avis (note moyenne et nombre d'avis) pour les recettes affichées sur la page d'accueil, afin de les afficher dans les cards
 import { getAvisStatsByRecetteIds } from "../lib/services/avis.service";
 const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
   Astro.locals.pb,
   recetteIds,
 );
 
-// Fonctions "Nos conseils nutritionnels"
+// Fonctions "Nos conseils nutritionnels" pour afficher les 3 derniers articles publiés
 import { getLatestArticles } from "../lib/services/articles.service";
 import RecettesObjectifTabs from "../components/ui/RecettesObjectifTabs.astro";
 import HomeRegisterCta from "../components/ui/HomeRegisterCta.astro";
@@ -90,6 +95,7 @@ const { data: articles, error: articlesError } = await getLatestArticles(
   3,
 );
 
+// L'utilisateur arrive sur l'objectif santé en fonction de son choix
 const registerReturnTo = "/profil";
 const getObjectiveRegisterHref = (objectif: string) =>
   `/auth/register?returnTo=${encodeURIComponent(registerReturnTo)}&objectif_sante=${encodeURIComponent(objectif)}`;

@@ -9,12 +9,14 @@ import { getUserById } from "../../lib/services/users.service";
 import { getRecettesByUserId } from "../../lib/services/recettes.service";
 import { getAvisStatsByRecetteIds } from "../../lib/services/avis.service";
 
+// Recupere l'id de l'utilisateur depuis l'URL et redirige vers 404 si absent
 const { id } = Astro.params as { id?: string };
 
 if (!id) {
   return Astro.redirect("/404");
 }
 
+// Charge l'utilisateur cible; redirige vers 404 en cas d'absence ou d'erreur serveur.
 const { data: profileUser, error: profileError } = await getUserById(
   Astro.locals.pb,
   id,
@@ -28,6 +30,7 @@ if (!profileUser) {
   return Astro.redirect("/404");
 }
 
+// Charge ses recettes publiques puis les stats d'avis pour les cards
 const { data: userRecettes, error: userRecettesError } =
   await getRecettesByUserId(Astro.locals.pb, profileUser.id);
 
@@ -36,6 +39,7 @@ const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
   userRecettes.map((recette) => recette.id),
 );
 
+// Determine si le visiteur est le proprietaire du profil pour afficher les actions de modifiation
 const objectifSante = (profileUser as { objectif_sante?: string })
   .objectif_sante;
 const authModel = Astro.locals.pb?.authStore?.model as { id?: string } | null;
@@ -43,6 +47,7 @@ const currentUserId = authModel?.id;
 const isOwner = Boolean(currentUserId && currentUserId === profileUser.id);
 const returnTo = Astro.url.pathname;
 
+// Recupere l'eventuelle erreur de suppression recette issue d'une action precedente.
 const deleteRecetteResult = Astro.getActionResult(actions.deleteRecette);
 const deleteRecetteGlobalError = deleteRecetteResult?.error?.message;
 ---

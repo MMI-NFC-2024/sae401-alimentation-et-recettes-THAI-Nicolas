@@ -7,10 +7,15 @@ import { getAvisStatsByRecetteIds } from "../../lib/services/avis.service";
 import CardRecette from "../../components/ui/CardRecette.astro";
 import RecettesFiltersPanel from "../../components/ui/RecettesFiltersPanel.vue";
 
+// Récupérer toutes les recettes pour les afficher sur la page d'accueil
 const { data: recettes, error: recettesError } = await getAllRecettes(
   Astro.locals.pb,
 );
+
+// Récupérer toutes les options de régimes 
 const { data: regimeOptions } = await getRegimeOptions(Astro.locals.pb);
+
+// Récupération de tous les avis pour les recettes affichées
 const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
   Astro.locals.pb,
   recettes.map((recette) => recette.id),

@@ -4,7 +4,7 @@ import DamierHero from "../../components/ui/DamierHero.astro";
 import CardArticle from "../../components/ui/CardArticle.astro";
 import ArticlesSearchPagination from "../../components/ui/ArticlesSearchPagination.vue";
 
-// Fonctions sur les articles
+// Charge la liste complete des articles pour la grille et la recherche côté client.
 import { getAllArticles } from "../../lib/services/articles.service";
 const { data: articles, error: articlesError } = await getAllArticles(Astro.locals.pb);
 

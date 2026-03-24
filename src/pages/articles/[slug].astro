@@ -10,11 +10,13 @@ import type { RecettesResponse } from "../../pocketbase-types";
 import PriseDeMasse from "../../assets/personnages/prise-de-masse.webp";
 import MeMaintenir from "../../assets/personnages/me-maintenir.webp";
 
+// Recupere le slug d'article depuis l'URL et redirige vers 404 si absent
 const { slug } = Astro.params as { slug: string };
 if (!slug) {
     return Astro.redirect("/404");
 }
 
+// Charge l'article cible et sa gestion d'erreurs
 const { data: article, error } = await getArticleBySlug(Astro.locals.pb, slug);
 
 if (error === "server_error") {
@@ -26,6 +28,7 @@ if (!article) {
     return Astro.redirect("/404");
 }
 
+// Charge des contenus similaires => même type 
 const { data: latestArticles } = await getLatestArticles(Astro.locals.pb, 8);
 const articlesSimilaires = latestArticles
     .filter((item) => item.id !== article.id)
@@ -35,6 +38,7 @@ const articlesSimilaires = latestArticles
 let recetteLiee: RecettesResponse | null = null;
 let recetteLieeAvis = { average: 0, total: 0 };
 
+// Pour une fiche aliment, essaie de retrouver une recette liee via la composition
 if (article.type === "fiche_aliment" && article.ingredient_lie) {
     try {
         const compositionList = await Astro.locals.pb.collection("composition").getList(1, 1, {
@@ -57,6 +61,7 @@ if (article.type === "fiche_aliment" && article.ingredient_lie) {
     }
 }
 
+// Prepare labels et metadonnees SEO utilises dans le Layout
 const typeArticleLabel = article.type === "fiche_aliment"
     ? "Fiche aliment"
     : "Conseil nutrition";

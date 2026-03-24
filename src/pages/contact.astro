@@ -14,9 +14,11 @@ if (actionResult?.data?.success) {
 }
 
 const inputError = isInputError(actionResult?.error) ? actionResult.error : undefined;
+
 const globalError = actionResult?.error && !isInputError(actionResult.error)
     ? actionResult.error.message
     : undefined;
+    
 const successMessage = Astro.url.searchParams.get("sent") === "1"
     ? "Message envoye avec succes. Merci pour votre retour."
     : undefined;

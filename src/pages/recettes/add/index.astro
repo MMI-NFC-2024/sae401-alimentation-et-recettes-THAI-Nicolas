@@ -6,12 +6,14 @@ import { actions, isInputError } from "astro:actions";
 import { getAllIngredients } from "../../../lib/services/ingredients.service";
 import { getRegimeOptions } from "../../../lib/services/regimes.service";
 
+// Lit le resultat d'action createRecette pour gerer redirection et messages d'erreur
 const createRecetteResult = Astro.getActionResult(actions.createRecette);
 
 if (createRecetteResult?.data?.success && createRecetteResult.data.redirectTo) {
   return Astro.redirect(createRecetteResult.data.redirectTo);
 }
 
+// Separe erreurs de champs (input) et erreurs globales (server) pour l'affichage du formulaire
 const createRecetteInputError = isInputError(createRecetteResult?.error)
   ? createRecetteResult.error
   : undefined;
@@ -24,6 +26,7 @@ const hasFormError = Boolean(
   createRecetteGlobalError || createRecetteInputError,
 );
 
+// Verifie l'authentification avant de donner l'accès à l'ajout d'une recette
 const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 if (!isAuthenticated) {
   return Astro.redirect(
@@ -31,9 +34,11 @@ if (!isAuthenticated) {
   );
 }
 
+// Charge les referentiels utilises par le formulaire (ingredients + regimes)
 const { data: ingredients } = await getAllIngredients(Astro.locals.pb);
 const { data: regimeOptions } = await getRegimeOptions(Astro.locals.pb);
 
+// Reduit les ingredients au format minimal requis par le composant dynamique.
 const ingredientsLite = ingredients.map((item) => ({
   id: item.id,
   nom: item.nom ?? "Ingredient",

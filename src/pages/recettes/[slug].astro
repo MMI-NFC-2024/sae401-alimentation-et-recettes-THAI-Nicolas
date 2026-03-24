@@ -17,13 +17,16 @@ import PanneauNutrition from "../../components/ui/PanneauNutrition.astro";
 import EtapeRecette from "../../components/ui/EtapeRecette.astro";
 import CalculateurPortions from "../../components/ui/CalculateurPortions.vue";
 
+// Recupere le resultat des actions avis pour gerer les retours UI apres soumission
 const createAvisResult = Astro.getActionResult(actions.createAvis);
 const deleteAvisResult = Astro.getActionResult(actions.deleteAvis);
 
+// Redirige apres succes pour eviter la resoumission du formulaire au refresh
 if (createAvisResult?.data?.success || deleteAvisResult?.data?.success) {
   return Astro.redirect(`${Astro.url.pathname}?avis=1`);
 }
 
+// Distingue les erreurs de validation d'input des erreurs globales.
 const createAvisInputError = isInputError(createAvisResult?.error)
   ? createAvisResult.error
   : undefined;
@@ -43,6 +46,7 @@ const avisSuccessMessage =
     ? "Votre action sur les avis a bien ete prise en compte."
     : undefined;
 
+// Verifie le slug puis charge la recette cible et redirige vers 404 en cas d'absence ou d'erreur serveur.
 const { slug } = Astro.params as { slug: string };
 if (!slug) {
   return Astro.redirect("/404");
@@ -58,6 +62,7 @@ if (!recette) {
   return Astro.redirect("/404");
 }
 
+// Charge en parallele les blocs lies a la recette (ingredients, etapes, avis)
 const [compositionResult, etapesResult, avisResult] = await Promise.all([
   getCompositionByRecetteId(Astro.locals.pb, recette.id),
   getEtapesByRecetteId(Astro.locals.pb, recette.id),
@@ -75,6 +80,7 @@ const distributionAvis: Record<1 | 2 | 3 | 4 | 5, number> = {
   5: 0,
 };
 
+// Calcule moyenne + distribution des notes pour l'affichage des avis
 let sommeNotes = 0;
 for (const avisItem of avis) {
   const note = Number(avisItem.note ?? 0);
@@ -91,6 +97,7 @@ const avisStats = {
   distribution: distributionAvis,
 };
 
+// Prepare les infos user courante, auteur de la recette et labels SEO/UI
 const currentUser =
   (Astro.locals.pb?.authStore?.model as {
     id?: string;
@@ -117,6 +124,7 @@ const ingredientsKeyword = composition
   .filter(Boolean)
   .join(", ");
 
+// Adapte les ingredients au format attendu par le composant calculateur
 const ingredientsCalculateur = composition.map((item) => ({
   id: item.id,
   nom: item.expand?.ingredient?.nom ?? "Ingredient",
@@ -124,6 +132,7 @@ const ingredientsCalculateur = composition.map((item) => ({
   unite: item.unite ?? "",
 }));
 
+// Recupere les ids ingredients uniques pour lier d'eventuelles fiches articles
 const ingredientIds = Array.from(
   new Set(
     composition
@@ -134,6 +143,7 @@ const ingredientIds = Array.from(
 
 let ficheByIngredientId: Record<string, { href: string }> = {};
 
+// Construit un index ingredient -> fiche article lorsqu'une fiche existe
 if (ingredientIds.length > 0) {
   try {
     const ingredientsFilter = ingredientIds
@@ -171,6 +181,7 @@ if (ingredientIds.length > 0) {
   }
 }
 
+// Charge des recettes similaires puis leurs stats d'avis pour les cards en bas de page
 const { data: recettesSimilaires } = await getLatestRecettes(
   Astro.locals.pb,
   3,
@@ -185,6 +196,7 @@ const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
   recettesSimilaires.map((recette) => recette.id),
 );
 
+// Fournit l'ordre d'affichage des notes et l'URL de retour pour les formulaires avis
 const notesOrder: Array<1 | 2 | 3 | 4 | 5> = [5, 4, 3, 2, 1];
 const returnTo = Astro.url.pathname;
 ---

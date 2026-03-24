@@ -8,6 +8,7 @@ import { getCurrentUserProfile } from "../../lib/services/users.service";
 import { getRecettesByUserId } from "../../lib/services/recettes.service";
 import { getAvisStatsByRecetteIds } from "../../lib/services/avis.service";
 
+// Lit les retours des actions profil/recette pour gerer redirections et messages
 const updateProfileResult = Astro.getActionResult(actions.updateProfile);
 const deleteRecetteResult = Astro.getActionResult(actions.deleteRecette);
 
@@ -19,10 +20,12 @@ if (deleteRecetteResult?.data?.success && deleteRecetteResult.data.redirectTo) {
   return Astro.redirect(deleteRecetteResult.data.redirectTo);
 }
 
+// Extrait les erreurs de champs du formulaire profil
 const updateProfileInputError = isInputError(updateProfileResult?.error)
   ? updateProfileResult.error
   : undefined;
 
+// Fusionne les erreurs globales potentielles de mise a jour profil ou suppression recette
 const actionGlobalError =
   (updateProfileResult?.error && !isInputError(updateProfileResult.error)
     ? updateProfileResult.error.message
@@ -41,6 +44,7 @@ const recetteSuccess =
     ? "Recette supprimee avec succes."
     : undefined;
 
+// Charge le profil de l'utilisateur connecte et redirige vers le login si la session est invalide
 const { data: currentUser, error: currentUserError } =
   await getCurrentUserProfile(Astro.locals.pb);
 
@@ -52,6 +56,7 @@ if (!currentUser) {
   return Astro.redirect("/auth/login?returnTo=/profil");
 }
 
+// Charge les recettes de l'utilisateur et les stats d'avis associees
 const { data: myRecettes, error: myRecettesError } = await getRecettesByUserId(
   Astro.locals.pb,
   currentUser.id,
@@ -62,6 +67,7 @@ const { data: avisStatsByRecette } = await getAvisStatsByRecetteIds(
   myRecettes.map((recette) => recette.id),
 );
 
+// Fournit les options du select objectif et l'URL de retour pour les actions recette
 const objectifSanteOptions: Array<
   "Prise de masse" | "Perte de poids" | "Se maintenir"
 > = ["Prise de masse", "Perte de poids", "Se maintenir"];
