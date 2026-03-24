@@ -109,6 +109,7 @@ const isOpen = ref(false);
 const searchQuery = ref("");
 const debouncedSearchQuery = useDebouncedRef(searchQuery, 250);
 
+// Normalise les chaines pour une recherche tolerant accents/casse/espaces.
 const normalize = (value: string) =>
   value
     .trim()
@@ -120,6 +121,7 @@ const sortedResults = computed(() => {
   const query = normalize(debouncedSearchQuery.value);
   if (!query) return [];
 
+  // Priorise les titres qui commencent par la requete avant les correspondances partielles.
   const startsWith: SearchItem[] = [];
   const includes: SearchItem[] = [];
 
@@ -139,6 +141,7 @@ const sortedResults = computed(() => {
 
 const visibleResults = computed(() => sortedResults.value.slice(0, 8));
 
+// Ouvre/ferme le panneau via un seul point d'entree pour centraliser le comportement.
 const toggleSearch = async () => {
   if (isOpen.value) {
     closeSearch();
@@ -150,6 +153,7 @@ const toggleSearch = async () => {
 
 const openSearch = async () => {
   isOpen.value = true;
+  // Attend le rendu du panneau avant de focus l'input.
   await nextTick();
   inputRef.value?.focus();
 };
@@ -162,6 +166,7 @@ const closeSearch = () => {
 const onDocumentClick = (event: MouseEvent) => {
   if (!isOpen.value || !rootRef.value) return;
   const target = event.target as Node;
+  // Ferme le panneau si le clic est en dehors du composant.
   if (!rootRef.value.contains(target)) {
     closeSearch();
   }
@@ -174,11 +179,13 @@ const onEscape = (event: KeyboardEvent) => {
 };
 
 onMounted(() => {
+  // Gere fermeture au clic externe et a la touche Echap.
   document.addEventListener("click", onDocumentClick);
   document.addEventListener("keydown", onEscape);
 });
 
 onUnmounted(() => {
+  // Nettoie les listeners globaux pour eviter les fuites.
   document.removeEventListener("click", onDocumentClick);
   document.removeEventListener("keydown", onEscape);
 });

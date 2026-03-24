@@ -127,6 +127,7 @@ const kcalBaseParPortionSecurisees = Math.max(1, props.kcalBaseParPortion || 1);
 const kcalCibleTotales = ref(
   Math.max(1, roundTo(kcalBaseParPortionSecurisees * portionsCible.value)),
 );
+// Evite les boucles entre les deux watchers (portions <-> calories).
 const syncDepuisCalories = ref(false);
 
 const augmenterPortions = () => {
@@ -142,6 +143,7 @@ const normaliserEntierPositif = (valeur: number, fallback: number) => {
   return Math.max(1, Math.round(valeur));
 };
 
+// Quand les portions changent, on recalcule les kcal totales sauf si la source est deja le watcher kcal.
 watch(portionsCible, (valeur) => {
   const normalisee = normaliserEntierPositif(
     valeur,
@@ -160,6 +162,7 @@ watch(portionsCible, (valeur) => {
   kcalCibleTotales.value = roundTo(kcalBaseParPortionSecurisees * normalisee);
 });
 
+// Quand les kcal changent, on recalcule des portions entieres puis on declenche la synchro inverse.
 watch(kcalCibleTotales, (valeur) => {
   const normalisee = normaliserEntierPositif(
     valeur,
@@ -198,6 +201,7 @@ const facteurGlobal = computed(
   () => facteurPortions.value * facteurCalories.value,
 );
 
+// Ajuste toutes les quantites ingredients avec un pas de 0.5 pour garder une valeur cuisine lisible.
 const ingredientsAjustes = computed(() => {
   return props.ingredients.map((ingredient) => ({
     ...ingredient,
@@ -215,6 +219,7 @@ const formaterQuantite = (valeur: number) => {
     .replace(/(\.\d*?)0+$/, "$1");
 };
 
+// Synchronise les valeurs affichees dans les autres blocs Astro (ingredients + panneau nutrition).
 const synchroniserListeIngredients = () => {
   if (typeof document === "undefined") {
     return;
@@ -247,6 +252,7 @@ const synchroniserListeIngredients = () => {
 };
 
 onMounted(() => {
+  // Surveille les ingredients ajustes et pousse immediatement les valeurs dans le DOM cible.
   watch(ingredientsAjustes, synchroniserListeIngredients, {
     immediate: true,
     deep: true,

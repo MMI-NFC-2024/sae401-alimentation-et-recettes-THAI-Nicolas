@@ -56,6 +56,7 @@ LLM pour poser des questions pour avoir la meilleure architecture possible, ques
 - CRUD complet pour les recettes (création, lecture, modification, suppression)
 - Profil utilisateur personnalisé (biographie, avatar, objectif santé) avec la possibilité de voir ses recettes
 - Formulaire de contact avec EmailJS pour envoyer des emails directement depuis le site
+- Mise en place d'une fausse Newsletter qui m'envoie une notif quand quelqu'un s'inscrit
 - Système de filtrage et de recherche côté client pour les recettes et les articles (objectifs, régimes, types de plates, notes...)
 - Calculateur de calories pour les recettes, avec une estimation basée sur les ingrédients et les quantités
 - Poster un commentaire avec une note sur une recette

@@ -234,6 +234,7 @@ const searchQuery = ref("");
 const compositionState = ref<CompositionItem[]>([]);
 const etapesState = ref<EtapeItem[]>([]);
 
+// Construit la liste des categories disponibles a partir du catalogue ingredients.
 const categoryOptions = computed(() => {
   const categories = new Set(
     props.ingredients.map((item) => item.categorie || "Autres"),
@@ -241,6 +242,7 @@ const categoryOptions = computed(() => {
   return [...categories].sort();
 });
 
+// Applique successivement le filtre categorie puis le filtre texte.
 const filteredIngredients = computed(() => {
   const query = searchQuery.value.trim().toLowerCase();
 
@@ -264,6 +266,7 @@ function addCompositionItem(ingredient: IngredientLite) {
   const exists = isSelected(ingredient.id);
   if (exists) return;
 
+  // Place l'ingredient en tete pour garder visible le dernier ajout.
   compositionState.value.unshift({
     ingredientId: ingredient.id,
     nom: ingredient.nom,
@@ -286,11 +289,13 @@ function addEtapeItem() {
 function removeEtapeItem(index: number) {
   etapesState.value.splice(index, 1);
 
+  // Garde toujours au moins une etape editable pour eviter un etat vide.
   if (etapesState.value.length === 0) {
     addEtapeItem();
   }
 }
 
+// Serialize l'etat Vue dans les champs hidden utilises par Astro Actions.
 function updateHiddenInputs() {
   const compositionInput = document.getElementById(
     props.compositionInputId,
@@ -343,6 +348,7 @@ onMounted(() => {
   );
   const draftEtapes = parseJsonArray<DraftEtapeItem>(etapesInput?.value ?? "");
 
+  // Priorite aux brouillons deja saisis dans les hidden inputs (retour apres erreur serveur).
   if (draftComposition && draftComposition.length > 0) {
     const restoredComposition: CompositionItem[] = [];
 
@@ -392,5 +398,6 @@ onMounted(() => {
   updateHiddenInputs();
 });
 
+// Maintient les champs hidden synchronises a chaque modification de la composition ou des etapes.
 watch([compositionState, etapesState], updateHiddenInputs, { deep: true });
 </script>

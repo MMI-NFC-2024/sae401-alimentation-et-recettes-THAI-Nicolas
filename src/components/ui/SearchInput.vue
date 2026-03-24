@@ -39,10 +39,12 @@ const props = withDefaults(
   },
 );
 
+// synchronisation auto du v-model
 const emit = defineEmits<{
   "update:modelValue": [value: string];
 }>();
 
+//Centralisation des classes pour garder le HTML propre et faciliter la maintenance des styles
 const variantStyles = {
   article: {
     input:
@@ -59,7 +61,7 @@ const variantStyles = {
     icon: "h-3.5 w-3.5 invert",
   },
 } as const;
-
+// On récupère la valeur de l'élément HTML (target) et on l'envoie vers le haut (emit).
 const onInput = (event: Event) => {
   const target = event.target as HTMLInputElement;
   emit("update:modelValue", target.value);

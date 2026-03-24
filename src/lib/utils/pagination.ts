@@ -1,3 +1,5 @@
+// Fonction qui calcule les numéros de pages à afficher dans la pagination, en fonction de la page courante, du nombre total de
+// pages et du nombre maximum de boutons à afficher
 export function getVisiblePages(
   currentPage: number,
   totalPages: number,
