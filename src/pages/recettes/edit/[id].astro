@@ -103,7 +103,7 @@ const ingredientsLite = ingredients.map((item) => ({
   categorie: item.categorie ?? "Autres",
 }));
 
-const returnTo = `/recettes/edit/${recette.id}`;
+const returnTo = `/profil/${currentUserId}`;
 ---
 
 <ProtectedLayout>
