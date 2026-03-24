@@ -1,9 +1,10 @@
 ---
-import Layout from './Layout.astro'
+import Layout from "./Layout.astro";
 
 const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 const returnTo = encodeURIComponent(`${Astro.url.pathname}${Astro.url.search}`);
 
+// Si l'utilisateur n'est pas authentifié, on le redirige vers la page de login
 if (!isAuthenticated) {
   return Astro.redirect(`/auth/login?returnTo=${returnTo}`);
 }

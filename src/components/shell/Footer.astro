@@ -4,14 +4,21 @@ import LogoInstagram from "../../assets/icones/instagram.webp";
 import LogoFacebook from "../../assets/icones/facebook-white.webp";
 import { actions, isInputError } from "astro:actions";
 
+// On recupere le resultat de la derniere soumission (si formulaire poste)
 const newsletterResult = Astro.getActionResult(actions.subscribeNewsletter);
+
+// Gestion erreur de saisie
 const newsletterInputError = isInputError(newsletterResult?.error)
   ? newsletterResult.error
   : undefined;
+
+// Gestion des erreurs globales (non liées à un champ spécifique donc quand ça vient du serveur)
 const newsletterGlobalError =
   newsletterResult?.error && !isInputError(newsletterResult.error)
     ? newsletterResult.error.message
     : undefined;
+
+// Message de succès après soumission réussie
 const newsletterSuccess = newsletterResult?.data?.success;
 ---
 

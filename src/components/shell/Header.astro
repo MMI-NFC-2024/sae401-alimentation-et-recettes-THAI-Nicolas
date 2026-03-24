@@ -11,9 +11,11 @@ import { getAllRecettes } from "../../lib/services/recettes.service";
 const isAuthenticated = Astro.locals.pb?.authStore?.isValid ?? false;
 const pb = Astro.locals.pb;
 
+// On récupère les données qui seront inclus dans la barre de recherche du header (articles + recettes)
 const { data: articles } = pb ? await getAllArticles(pb) : { data: [] };
 const { data: recettes } = pb ? await getAllRecettes(pb) : { data: [] };
 
+//Transformation des données en un format unifié pour la recherche globale du header
 const globalSearchItems = [
   ...articles.map((article) => ({
     id: article.id,
