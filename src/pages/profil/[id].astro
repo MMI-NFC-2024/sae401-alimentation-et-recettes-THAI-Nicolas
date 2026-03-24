@@ -144,22 +144,20 @@ const deleteRecetteGlobalError = deleteRecetteResult?.error?.message;
 
                 return (
                   <li>
-                    {
-                      isOwner ? (
-                        <CardRecetteProfil
-                          recette={recette}
-                          rating={avisStats.average}
-                          reviewsCount={avisStats.total}
-                          returnTo={returnTo}
-                        />
-                      ) : (
-                        <CardRecette
-                          recette={recette}
-                          rating={avisStats.average}
-                          reviewsCount={avisStats.total}
-                        />
-                      )
-                    }
+                    {isOwner ? (
+                      <CardRecetteProfil
+                        recette={recette}
+                        rating={avisStats.average}
+                        reviewsCount={avisStats.total}
+                        returnTo={returnTo}
+                      />
+                    ) : (
+                      <CardRecette
+                        recette={recette}
+                        rating={avisStats.average}
+                        reviewsCount={avisStats.total}
+                      />
+                    )}
                   </li>
                 );
               })}
@@ -173,7 +171,6 @@ const deleteRecetteGlobalError = deleteRecetteResult?.error?.message;
           )
         }
       </article>
-
     </section>
   </main>
 </Layout>
