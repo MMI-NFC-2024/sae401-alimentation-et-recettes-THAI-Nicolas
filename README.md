@@ -2,9 +2,7 @@ URL du site : https://slurpy.nicolas-thai.fr/
 URL du Pocketbase : https://slurpy.nicolas-thai.fr/_/
 URL du dépôt : https://github.com/MMI-NFC-2024/sae401-alimentation-et-recettes-THAI-Nicolas
 
-# Explication de mon code
-
-## Architecture
+## Architecture du projet
 
 Tout d'abord, même si je me doute que vous attendiez la même structure que dans nos TP précédents, j'ai décidé de réaliser une architecture le plus proche d'une web app scalable qui a besoin d'être maintenable et facilement modifiable par couche. Je suis donc parti sur une architecture par couche, avec une séparation claire entre le front-end et le back-end. Ainsi le backend peut facilement être remplacé par un autre sans devoir toucher au front-end, et inversement.
 
@@ -26,6 +24,11 @@ La couche Auth (src/pages/auth) : La gestion de l'authentification
 Le middleware (src/middleware) : gère la session PocketBase.
 => Il initialise la session PocketBase à chaque requête dans le contexte (Astro.locals), ce qui permet de vérifier l'authentification de l'utilisateur et d'accéder à ses données de manière sécurisée.
 
+La couch Layouts (src/layouts) : Les layouts de l'application
+=> Le Layout principal qui inclut le header et le footer optimisé SEO
+=> Le layoutAuth pour les pages de login et register (sans header ni footer)
+=> Et le ProtectedLayout pour les pages qui nécessitent une authentification (profil utilisateur, ajout/modification de recette, etc)
+
 Les pages (src/pages) : Les pages de l'application
 => Page d'accueil
 => Page les recettes et page d'une recette en particulier (lecture, ajout, modification d'une recette et suppression d'une recette)
@@ -40,6 +43,7 @@ Note : J'ai utilisé [slug].astro pour les pages de recette et d'article, ce qui
 Astro & TailwindCSS (App) et PocketBase (Backend) avec Pocketbase-types.
 Typescript pour la sécurité de type.
 Zod pour la validation de données.
+Les astros Actions pour gérer les soumissions de formulaires et la logique côté serveur de façon sécurisée.
 Vue.js pour les composants interactifs (filtrages, barre de recherches, calculateur).
 EmailJS pour l'envoi d'emails de contact.
 Le MCP PocketBase pour ajouter des records facilement dans les tables de PocketBase.

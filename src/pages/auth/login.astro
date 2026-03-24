@@ -30,6 +30,7 @@ if (actionResult?.data?.success) {
   return Astro.redirect(actionResult.data.redirectTo ?? "/");
 }
 
+// On affiche les erreurs de validation du formulaire (Zod) ou une erreur globale (ex: compte non trouve, mot de passe incorrect, etc).
 const inputError = isInputError(actionResult?.error)
   ? actionResult.error
   : undefined;
@@ -41,6 +42,7 @@ const actionGlobalError =
 const oauthErrorCode = Astro.url.searchParams.get("oauthError");
 const oauthProvider = Astro.url.searchParams.get("provider");
 
+// Dictionnaire de message d'erreur pour éviter un simple "Error 403" après echec
 const oauthErrorMessageByCode: Record<string, string> = {
   provider_not_allowed: "Provider OAuth non autorise.",
   provider_not_configured: "Provider OAuth non configure dans PocketBase.",
@@ -51,10 +53,12 @@ const oauthErrorMessageByCode: Record<string, string> = {
   pb_unavailable: "Le service d'authentification est indisponible.",
 };
 
+// Affichage d'un message d'erreur plus clair en cas d'echec de connexion OAuth, avec indication du provider
 const oauthErrorMessage = oauthErrorCode
   ? `${oauthProvider ? `${oauthProvider}: ` : ""}${oauthErrorMessageByCode[oauthErrorCode] ?? "Erreur OAuth inconnue."}`
   : "";
 
+// Affichage si on a une erreur d'action globale (ex: echec de connexion) ou une erreur OAuth (ex: echec de connexion avec Google)
 const globalError = actionGlobalError || oauthErrorMessage;
 const hasFormError = Boolean(globalError || inputError);
 ---
@@ -211,6 +215,7 @@ const hasFormError = Boolean(globalError || inputError);
 </AuthLayout>
 
 <script is:inline>
+  // Script qui permet de sauvegarder en sessionStorage les champs du formulaire. Pour ne pas les faire disparaitre en cas d'erreur de validation.
   (() => {
     const storageKey = "slurpy:auth:login:draft";
     const form = document.getElementById("login-form");

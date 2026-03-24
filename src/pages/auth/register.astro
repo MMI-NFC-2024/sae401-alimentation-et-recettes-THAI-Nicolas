@@ -6,6 +6,7 @@ import IconFacebook from "../../assets/icones/facebook.webp";
 import LogoPositif from "../../assets/icones/logo-positif.webp";
 import { actions, isInputError } from "astro:actions";
 
+//Mise en place d'une redirection sécurisée après inscription vers la page où l'utilisateur voulait aller de base, ou vers le profil si première connexion.
 const returnToParam = Astro.url.searchParams.get("returnTo");
 const safeReturnTo =
   returnToParam &&
@@ -14,6 +15,7 @@ const safeReturnTo =
     ? returnToParam
     : "/profil";
 
+// Normalisation et validation de l'objectif santé
 const objectifParam = Astro.url.searchParams.get("objectif_sante")?.trim();
 const objectifSanteValues = new Set([
   "Prise de masse",
@@ -21,12 +23,16 @@ const objectifSanteValues = new Set([
   "Se maintenir",
   "Se Maintenir",
 ]);
+
+// Normalisation de l'objectif santé pour éviter les problèmes de casse, d'accents, d'espaces, etc. lors de la validation et du stockage.
 const safeObjectifSante =
   objectifParam && objectifSanteValues.has(objectifParam)
     ? objectifParam === "Se Maintenir"
       ? "Se maintenir"
       : objectifParam
     : undefined;
+
+// Préparation des URIs de redirection pour les connexions OAuth
 const googleOAuthHref = `/auth/oauth/google?returnTo=${encodeURIComponent(safeReturnTo)}`;
 const facebookOAuthHref = `/auth/oauth/facebook?returnTo=${encodeURIComponent(safeReturnTo)}`;
 
@@ -44,6 +50,7 @@ if (actionResult?.data?.success) {
   return Astro.redirect(actionResult.data.redirectTo ?? safeReturnTo);
 }
 
+// On affiche les erreurs de validation du formulaire (Zod) ou une erreur globale (ex: compte non trouve, mot de passe incorrect, etc).
 const inputError = isInputError(actionResult?.error)
   ? actionResult.error
   : undefined;
@@ -232,6 +239,7 @@ const hasFormError = Boolean(globalError || inputError);
 </AuthLayout>
 
 <script is:inline>
+  // Script qui permet de sauvegarder en sessionStorage les champs du formulaire. Pour ne pas les faire disparaitre en cas d'erreur de validation.
   (() => {
     const storageKey = "slurpy:auth:register:draft";
     const form = document.getElementById("register-form");

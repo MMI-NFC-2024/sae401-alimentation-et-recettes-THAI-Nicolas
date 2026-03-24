@@ -1,5 +1,6 @@
 import type { APIContext } from "astro";
 
+// Liste des providers autorisés pour l'auth pour éviter les injections externes via les paramètres d'URL
 export const OAUTH_ALLOWED_PROVIDERS = ["google", "facebook"] as const;
 
 export type OAuthProvider = (typeof OAUTH_ALLOWED_PROVIDERS)[number];
@@ -19,6 +20,7 @@ interface AuthMethodsShape {
   authProviders?: OAuth2ProviderConfig[];
 }
 
+// Fonction qui nettoie et valide le paramètre "returnTo" pour éviter les redirections ouvertes vers des sites externes malveillants.
 function sanitizeReturnTo(returnTo: string | null | undefined): string {
   if (returnTo && returnTo.startsWith("/") && !returnTo.startsWith("//")) {
     return returnTo;
@@ -27,6 +29,7 @@ function sanitizeReturnTo(returnTo: string | null | undefined): string {
   return "/";
 }
 
+// Fonction qui consruit l'url de retour en cas d'erreur
 function buildOAuthLoginErrorRedirect(
   provider: string,
   reason: string,
@@ -44,6 +47,7 @@ function buildOAuthLoginErrorRedirect(
   return `/auth/login?${params.toString()}`;
 }
 
+// FOnction qui récupère les noms des cookies utilisés pour stocker les données temporaires de l'auth OAuth
 function getCookieNames(provider: OAuthProvider) {
   return {
     state: `slurpy_oauth_${provider}_state`,
@@ -52,11 +56,13 @@ function getCookieNames(provider: OAuthProvider) {
   };
 }
 
+// Vérifie que le provider passé en paramètre est bien dans la liste des providers autorisés
 function isAllowedProvider(value: string | undefined): value is OAuthProvider {
   if (!value) return false;
   return (OAUTH_ALLOWED_PROVIDERS as readonly string[]).includes(value);
 }
 
+// Récupère la configuration du provider OAuth à partir des méthodes d'authentification disponibles dans PocketBase
 function getProviderConfig(
   methods: AuthMethodsShape,
   provider: OAuthProvider,
@@ -65,6 +71,7 @@ function getProviderConfig(
   return providers.find((item) => item.name === provider);
 }
 
+// Fonction qui récupère l'instance de PocketBase à partir du contexte de la route API
 function getPb(context: APIContext) {
   const locals = context.locals as {
     pb?: {
@@ -83,6 +90,7 @@ function getPb(context: APIContext) {
   return locals.pb;
 }
 
+// Route pour démarrer le flux d'authentification OAuth : redirige vers la page d'auth du provider avec les bons paramètres
 export async function handleOAuthStart(
   context: APIContext,
   providerParam: string | undefined,
@@ -154,6 +162,7 @@ export async function handleOAuthStart(
   }
 }
 
+// Fonction pour vérifier que c'est bien la même personne qui se connecte et on valide la connexion
 export async function handleOAuthCallback(
   context: APIContext,
   providerParam: string | undefined,

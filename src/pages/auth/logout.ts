@@ -1,3 +1,5 @@
+// Route pour déconnecter l'utilisateur en POST, pour éviter les déconnexions par erreur
+
 import type { APIRoute } from "astro";
 
 //Route POST pour se déconnecter : on efface les données d'authentification de PocketBase et on redirige vers la page d'accueil
