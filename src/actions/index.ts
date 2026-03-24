@@ -513,6 +513,36 @@ export const server = {
       const userId = ensureAuthenticatedUserId(context);
 
       try {
+        const rawComposition = parseJsonArrayField<CompositionInputItem>(
+          input.compositionJson,
+          "ingredients",
+        );
+        const rawEtapes = parseJsonArrayField<EtapeInputItem>(
+          input.etapesJson,
+          "etapes",
+        );
+
+        const compositionItems = rawComposition
+          ? normalizeCompositionItems(rawComposition)
+          : undefined;
+        const etapesItems = rawEtapes
+          ? normalizeEtapesItems(rawEtapes)
+          : undefined;
+
+        if (!compositionItems || compositionItems.length === 0) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: "Ajoutez au moins un ingredient.",
+          });
+        }
+
+        if (!etapesItems || etapesItems.length === 0) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: "Ajoutez au moins une etape.",
+          });
+        }
+
         const slug = await buildUniqueRecetteSlug(
           context.locals.pb,
           input.titre,
@@ -545,37 +575,7 @@ export const server = {
           .collection("recettes")
           .create(payload);
 
-        const rawComposition = parseJsonArrayField<CompositionInputItem>(
-          input.compositionJson,
-          "ingredients",
-        );
-        const rawEtapes = parseJsonArrayField<EtapeInputItem>(
-          input.etapesJson,
-          "etapes",
-        );
-
-        const compositionItems = rawComposition
-          ? normalizeCompositionItems(rawComposition)
-          : undefined;
-        const etapesItems = rawEtapes
-          ? normalizeEtapesItems(rawEtapes)
-          : undefined;
-
-        if (!compositionItems || compositionItems.length === 0) {
-          throw new ActionError({
-            code: "BAD_REQUEST",
-            message: "Ajoutez au moins un ingredient.",
-          });
-        }
-
-        if (!etapesItems || etapesItems.length === 0) {
-          throw new ActionError({
-            code: "BAD_REQUEST",
-            message: "Ajoutez au moins une etape.",
-          });
-        }
-
-        if (compositionItems !== undefined) {
+        try {
           for (const item of compositionItems) {
             await context.locals.pb.collection("composition").create({
               recette: createdRecette.id,
@@ -584,9 +584,7 @@ export const server = {
               unite: item.unite || undefined,
             });
           }
-        }
 
-        if (etapesItems !== undefined) {
           for (const [index, item] of etapesItems.entries()) {
             await context.locals.pb.collection("etapes").create({
               recette: createdRecette.id,
@@ -595,6 +593,17 @@ export const server = {
               description: item.description,
             });
           }
+        } catch (error) {
+          try {
+            await context.locals.pb.collection("recettes").delete(createdRecette.id);
+          } catch (rollbackError) {
+            console.error(
+              "[actions.createRecette] Echec du rollback de la recette",
+              rollbackError,
+            );
+          }
+
+          throw error;
         }
 
         return {
@@ -603,6 +612,10 @@ export const server = {
             sanitizeReturnTo(input.returnTo || "/profil") + "?recette=created",
         };
       } catch (error) {
+        if (error instanceof ActionError) {
+          throw error;
+        }
+
         console.error(
           "[actions.createRecette] Impossible de creer la recette",
           error,
