@@ -3,6 +3,7 @@ import Layout from "../../layouts/Layout.astro";
 import DamierHero from "../../components/ui/DamierHero.astro";
 import ImgPB from "../../components/ui/ImgPB.astro";
 import CardRecette from "../../components/ui/CardRecette.astro";
+import CardRecetteProfil from "../../components/ui/CardRecetteProfil.astro";
 import { actions } from "astro:actions";
 import { getUserById } from "../../lib/services/users.service";
 import { getRecettesByUserId } from "../../lib/services/recettes.service";
@@ -143,25 +144,20 @@ const deleteRecetteGlobalError = deleteRecetteResult?.error?.message;
 
                 return (
                   <li>
-                    <CardRecette
-                      recette={recette}
-                      rating={avisStats.average}
-                      reviewsCount={avisStats.total}
-                    />
-
                     {
-                      isOwner && (
-                        <div class="mt-3 flex justify-end">
-                          <button
-                            type="button"
-                            class="text-sm font-bold text-accent2 underline underline-offset-2"
-                            data-delete-open
-                            data-recette-id={recette.id}
-                            data-recette-title={recette.titre ?? "cette recette"}
-                          >
-                            Supprimer
-                          </button>
-                        </div>
+                      isOwner ? (
+                        <CardRecetteProfil
+                          recette={recette}
+                          rating={avisStats.average}
+                          reviewsCount={avisStats.total}
+                          returnTo={returnTo}
+                        />
+                      ) : (
+                        <CardRecette
+                          recette={recette}
+                          rating={avisStats.average}
+                          reviewsCount={avisStats.total}
+                        />
                       )
                     }
                   </li>
@@ -178,78 +174,6 @@ const deleteRecetteGlobalError = deleteRecetteResult?.error?.message;
         }
       </article>
 
-      {
-        isOwner && (
-          <dialog
-            id="delete-recette-modal"
-            class="w-full max-w-md rounded-2xl border-2 border-primary bg-secondary p-0 text-primary backdrop:bg-primary/40"
-          >
-            <form method="dialog" class="p-5">
-              <h3 class="text-xl font-bold">Confirmer la suppression</h3>
-              <p class="mt-3 text-sm text-primary/90">
-                Voulez-vous vraiment supprimer <span id="delete-recette-title" class="font-bold"></span> ?
-              </p>
-
-              <div class="mt-5 flex items-center justify-end gap-3">
-                <button value="cancel" class="btn-outline">Annuler</button>
-                <button type="button" id="delete-recette-confirm" class="btn bg-accent2!">
-                  Supprimer
-                </button>
-              </div>
-            </form>
-          </dialog>
-        )
-      }
-
-      {
-        isOwner && (
-          <form id="delete-recette-form" method="post" action={actions.deleteRecette} class="hidden">
-            <input type="hidden" name="recetteId" id="delete-recette-id-input" />
-            <input type="hidden" name="returnTo" value={returnTo} />
-          </form>
-        )
-      }
     </section>
   </main>
 </Layout>
-
-{
-  isOwner && (
-    <script>
-      const modal = document.getElementById("delete-recette-modal");
-      const openButtons = document.querySelectorAll("[data-delete-open]");
-      const titleNode = document.getElementById("delete-recette-title");
-      const confirmButton = document.getElementById("delete-recette-confirm");
-      const form = document.getElementById("delete-recette-form");
-      const recetteIdInput = document.getElementById("delete-recette-id-input");
-
-      let selectedRecetteId = "";
-
-      openButtons.forEach((button) => {
-        button.addEventListener("click", () => {
-          selectedRecetteId = button.dataset.recetteId || "";
-          const recetteTitle = button.dataset.recetteTitle || "cette recette";
-
-          if (titleNode) {
-            titleNode.textContent = recetteTitle;
-          }
-
-          if (modal && typeof modal.showModal === "function") {
-            modal.showModal();
-          }
-        });
-      });
-
-      if (confirmButton) {
-        confirmButton.addEventListener("click", () => {
-          if (!selectedRecetteId || !form || !recetteIdInput) {
-            return;
-          }
-
-          recetteIdInput.value = selectedRecetteId;
-          form.submit();
-        });
-      }
-    </script>
-  )
-}
