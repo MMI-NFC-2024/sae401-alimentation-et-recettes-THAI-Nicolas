@@ -213,6 +213,13 @@ const returnTo = `/recettes/edit/${recette.id}`;
                   selected={recette.categorie === "Boisson"}>Boisson</option
                 >
               </select>
+              {
+                updateRecetteInputError?.fields.categorie?.[0] && (
+                  <p class="mt-2 text-sm font-bold text-accent2">
+                    {updateRecetteInputError.fields.categorie[0]}
+                  </p>
+                )
+              }
             </div>
 
             <div>
@@ -240,6 +247,13 @@ const returnTo = `/recettes/edit/${recette.id}`;
                   >Équilibre</option
                 >
               </select>
+              {
+                updateRecetteInputError?.fields.objectif_sante?.[0] && (
+                  <p class="mt-2 text-sm font-bold text-accent2">
+                    {updateRecetteInputError.fields.objectif_sante[0]}
+                  </p>
+                )
+              }
             </div>
 
             <div class="md:col-span-2">
@@ -283,6 +297,13 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 required
                 data-persist="true"
               />
+              {
+                updateRecetteInputError?.fields.temps_total?.[0] && (
+                  <p class="mt-2 text-sm font-bold text-accent2">
+                    {updateRecetteInputError.fields.temps_total[0]}
+                  </p>
+                )
+              }
             </div>
 
             <div>
@@ -297,6 +318,13 @@ const returnTo = `/recettes/edit/${recette.id}`;
                 required
                 data-persist="true"
               />
+              {
+                updateRecetteInputError?.fields.portions?.[0] && (
+                  <p class="mt-2 text-sm font-bold text-accent2">
+                    {updateRecetteInputError.fields.portions[0]}
+                  </p>
+                )
+              }
             </div>
 
             <div>
@@ -404,6 +432,7 @@ const returnTo = `/recettes/edit/${recette.id}`;
               <p class="mt-2 text-xs text-primary/70">
                 Laisser vide pour conserver l'image actuelle.
               </p>
+              <p class="mt-1 text-xs text-primary/70">Taille maximale: 5 Mo.</p>
               {
                 updateRecetteInputError?.fields.image?.[0] && (
                   <p class="mt-2 text-sm font-bold text-accent2">
@@ -457,9 +486,36 @@ const returnTo = `/recettes/edit/${recette.id}`;
 <script is:inline>
   (() => {
     const storageKey = `slurpy:recette:edit:draft:${window.location.pathname}`;
+    const maxImageSizeBytes = 5 * 1024 * 1024;
+    const maxImageSizeMessage = "L'image est trop lourde (max 5 Mo).";
     const form = document.getElementById("edit-recette-form");
+    const imageInput = document.getElementById("image");
 
     if (!(form instanceof HTMLFormElement)) return;
+
+    const validateImageSize = () => {
+      if (!(imageInput instanceof HTMLInputElement)) {
+        return true;
+      }
+
+      const selectedFile = imageInput.files?.[0];
+
+      if (!selectedFile) {
+        imageInput.setCustomValidity("");
+        return true;
+      }
+
+      const isValidSize = selectedFile.size <= maxImageSizeBytes;
+      imageInput.setCustomValidity(isValidSize ? "" : maxImageSizeMessage);
+      return isValidSize;
+    };
+
+    if (imageInput instanceof HTMLInputElement) {
+      imageInput.addEventListener("change", () => {
+        validateImageSize();
+        imageInput.reportValidity();
+      });
+    }
 
     const shouldRestoreDraft = form.dataset.hasError === "true";
     const fields = Array.from(form.querySelectorAll("[data-persist='true']"));
@@ -548,6 +604,16 @@ const returnTo = `/recettes/edit/${recette.id}`;
       field.addEventListener("change", saveDraft);
     }
 
-    form.addEventListener("submit", saveDraft);
+    form.addEventListener("submit", (event) => {
+      if (!validateImageSize()) {
+        event.preventDefault();
+        if (imageInput instanceof HTMLInputElement) {
+          imageInput.reportValidity();
+        }
+        return;
+      }
+
+      saveDraft();
+    });
   })();
 </script>

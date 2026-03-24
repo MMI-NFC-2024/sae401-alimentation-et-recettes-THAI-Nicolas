@@ -933,9 +933,53 @@ export const server = {
           throw error;
         }
 
+        const pbFieldMessage = getPbFirstFieldMessage(error, [
+          "image",
+          "slug",
+          "titre",
+          "regimes",
+          "categorie",
+          "objectif_sante",
+          "ingredient",
+          "recette",
+          "unite",
+          "quantite",
+          "numero_ordre",
+          "description",
+          "compositionJson",
+          "etapesJson",
+          "user",
+        ]);
+
+        if (pbFieldMessage) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: pbFieldMessage,
+          });
+        }
+
+        const pbMessage = getPbErrorMessage(error);
+
+        if (pbMessage) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: pbMessage,
+          });
+        }
+
+        const pbStatus = getPbErrorStatus(error);
+
+        if (typeof pbStatus === "number" && pbStatus >= 400 && pbStatus < 500) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message:
+              "Certaines donnees de la recette sont invalides. Verifiez l'image, les ingredients et les etapes.",
+          });
+        }
+
         console.error(
           "[actions.updateRecette] Impossible de modifier la recette",
-          error,
+          formatErrorForLog(error),
         );
         throw new ActionError({
           code: "INTERNAL_SERVER_ERROR",
