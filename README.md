@@ -26,4 +26,13 @@ La couche Auth (src/lib/auth) : La gestion de l'authentification
 Le middleware (src/middleware) : gère la session PocketBase.
 => Il initialise la session PocketBase à chaque requête dans le contexte (Astro.locals), ce qui permet de vérifier l'authentification de l'utilisateur et d'accéder à ses données de manière sécurisée.
 
-## Fonctionnalités
+## Technologies utilisées
+
+Astro & TailwindCSS (App) et PocketBase (Backend) avec Pocketbase-types.
+Typescript pour la sécurité de type.
+Zod pour la validation de données.
+Vue.js pour les composants interactifs (filtrages, barre de recherches, calculateur).
+EmailJS pour l'envoi d'emails de contact.
+Le MCP PocketBase pour ajouter des records facilement dans les tables de PocketBase.
+IDE IA pour la correction et génération de code : VsCode avec Github Copilot, LLM : Claude Sonnet 4.6 et GPT-5.3 Codex
+LLM pour poser des questions pour avoir la meilleure architecture possible, questions de code : Gemini 3.1 Pro
