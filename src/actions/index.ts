@@ -94,7 +94,11 @@ function getPbFirstFieldMessage(
   for (const fieldName of fieldNames) {
     const entry = data[fieldName] as { message?: unknown } | undefined;
 
-    if (entry && typeof entry.message === "string" && entry.message.length > 0) {
+    if (
+      entry &&
+      typeof entry.message === "string" &&
+      entry.message.length > 0
+    ) {
       return entry.message;
     }
   }
@@ -112,9 +116,8 @@ function getPbErrorMessage(error: unknown): string | undefined {
       return responseMessage;
     }
 
-    const responseDataMessage = (
-      response as { data?: { message?: unknown } }
-    ).data?.message;
+    const responseDataMessage = (response as { data?: { message?: unknown } })
+      .data?.message;
     if (
       typeof responseDataMessage === "string" &&
       responseDataMessage.length > 0
@@ -336,13 +339,39 @@ function parseJsonArrayField<T>(
   }
 }
 
+function normalizeCompositionUnite(rawUnite: string): string {
+  const unite = rawUnite.trim();
+  if (unite.length === 0) return "";
+
+  const key = unite
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "")
+    .replace(/\s+/g, " ");
+
+  const aliases: Record<string, string> = {
+    "c. a soupe": "c. à soupe",
+    "c a soupe": "c. à soupe",
+    "c. a cafe": "c. à café",
+    "c a cafe": "c. à café",
+    pincee: "pincée",
+    piece: "pièce",
+    l: "L",
+  };
+
+  return aliases[key] ?? unite;
+}
+
 function normalizeCompositionItems(items: CompositionInputItem[]) {
   return items
     .map((item) => {
       const ingredientId =
         typeof item.ingredientId === "string" ? item.ingredientId.trim() : "";
       const quantite = Number(item.quantite ?? 0);
-      const unite = typeof item.unite === "string" ? item.unite.trim() : "";
+      const unite =
+        typeof item.unite === "string"
+          ? normalizeCompositionUnite(item.unite)
+          : "";
 
       return {
         ingredientId,

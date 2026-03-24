@@ -123,6 +123,13 @@ const ingredientsLite = ingredients.map((item) => ({
                 <option value="Dessert">Dessert</option>
                 <option value="Boisson">Boisson</option>
               </select>
+              {
+                createRecetteInputError?.fields.categorie?.[0] && (
+                  <p class="mt-2 text-sm font-bold text-accent2">
+                    {createRecetteInputError.fields.categorie[0]}
+                  </p>
+                )
+              }
             </div>
 
             <div>
@@ -138,6 +145,13 @@ const ingredientsLite = ingredients.map((item) => ({
                 <option value="Perte de poids">Perte de poids</option>
                 <option value="Équilibre">Équilibre</option>
               </select>
+              {
+                createRecetteInputError?.fields.objectif_sante?.[0] && (
+                  <p class="mt-2 text-sm font-bold text-accent2">
+                    {createRecetteInputError.fields.objectif_sante[0]}
+                  </p>
+                )
+              }
             </div>
 
             <div class="md:col-span-2">
@@ -179,6 +193,13 @@ const ingredientsLite = ingredients.map((item) => ({
                 required
                 data-persist="true"
               />
+              {
+                createRecetteInputError?.fields.temps_total?.[0] && (
+                  <p class="mt-2 text-sm font-bold text-accent2">
+                    {createRecetteInputError.fields.temps_total[0]}
+                  </p>
+                )
+              }
             </div>
 
             <div>
@@ -193,6 +214,13 @@ const ingredientsLite = ingredients.map((item) => ({
                 required
                 data-persist="true"
               />
+              {
+                createRecetteInputError?.fields.portions?.[0] && (
+                  <p class="mt-2 text-sm font-bold text-accent2">
+                    {createRecetteInputError.fields.portions[0]}
+                  </p>
+                )
+              }
             </div>
 
             <div>
