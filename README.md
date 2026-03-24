@@ -26,6 +26,15 @@ La couche Auth (src/lib/auth) : La gestion de l'authentification
 Le middleware (src/middleware) : gère la session PocketBase.
 => Il initialise la session PocketBase à chaque requête dans le contexte (Astro.locals), ce qui permet de vérifier l'authentification de l'utilisateur et d'accéder à ses données de manière sécurisée.
 
+Les pages (src/pages) : Les pages de l'application
+=> Page d'accueil
+=> Page les recettes et page d'une recette en particulier (lecture, ajout, modification d'une recette et suppression d'une recette)
+=> Page les articles et page d'un article en particulier (fiche_aliment ou article de conseil)
+=> Page gestion de profil utilisateur et page public de profil utilisateur
+=> Page Contact, 404 et mentions légales
+
+Note : J'ai utilisé [slug].astro pour les pages de recette et d'article, ce qui permet d'avoir des URLs propres et facilement compréhensibles (ex: /recettes/ma-recette au lieu de /recettes?id=123).
+
 ## Technologies utilisées
 
 Astro & TailwindCSS (App) et PocketBase (Backend) avec Pocketbase-types.
@@ -36,3 +45,14 @@ EmailJS pour l'envoi d'emails de contact.
 Le MCP PocketBase pour ajouter des records facilement dans les tables de PocketBase.
 IDE IA pour la correction et génération de code : VsCode avec Github Copilot, LLM : Claude Sonnet 4.6 et GPT-5.3 Codex
 LLM pour poser des questions pour avoir la meilleure architecture possible, questions de code : Gemini 3.1 Pro
+
+## Fonctionnalités
+
+- Authentification avec Email ou plusieurs providers (Google et Facebook actuellement)
+- CRUD complet pour les recettes (création, lecture, modification, suppression)
+- Profil utilisateur personnalisé (biographie, avatar, objectif santé) avec la possibilité de voir ses recettes
+- Formulaire de contact avec EmailJS pour envoyer des emails directement depuis le site
+- Système de filtrage et de recherche côté client pour les recettes et les articles (objectifs, régimes, types de plates, notes...)
+- Calculateur de calories pour les recettes, avec une estimation basée sur les ingrédients et les quantités
+- Poster un commentaire avec une note sur une recette
+- Utilisation de Zod pour valider tous les formulaires et les données avant de les envoyer à PocketBase, garantissant ainsi l'intégrité des données et une meilleure expérience utilisateur (contact, ajout/modification recette, avis, etc)
