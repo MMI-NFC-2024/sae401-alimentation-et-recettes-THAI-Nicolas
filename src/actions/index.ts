@@ -61,6 +61,118 @@ function getPbEmailMessage(error: unknown): string | undefined {
   return typeof message === "string" ? message : undefined;
 }
 
+function getPbErrorData(error: unknown): Record<string, unknown> | undefined {
+  if (typeof error !== "object" || error === null) return undefined;
+
+  const response = (error as { response?: unknown }).response;
+
+  if (typeof response === "object" && response !== null) {
+    const responseData = (response as { data?: unknown }).data;
+
+    if (typeof responseData === "object" && responseData !== null) {
+      return responseData as Record<string, unknown>;
+    }
+  }
+
+  const directData = (error as { data?: unknown }).data;
+  if (typeof directData === "object" && directData !== null) {
+    return directData as Record<string, unknown>;
+  }
+
+  return undefined;
+}
+
+function getPbFirstFieldMessage(
+  error: unknown,
+  fieldNames: string[],
+): string | undefined {
+  const data = getPbErrorData(error);
+  if (!data) {
+    return undefined;
+  }
+
+  for (const fieldName of fieldNames) {
+    const entry = data[fieldName] as { message?: unknown } | undefined;
+
+    if (entry && typeof entry.message === "string" && entry.message.length > 0) {
+      return entry.message;
+    }
+  }
+
+  return undefined;
+}
+
+function getPbErrorMessage(error: unknown): string | undefined {
+  if (typeof error !== "object" || error === null) return undefined;
+
+  const response = (error as { response?: unknown }).response;
+  if (typeof response === "object" && response !== null) {
+    const responseMessage = (response as { message?: unknown }).message;
+    if (typeof responseMessage === "string" && responseMessage.length > 0) {
+      return responseMessage;
+    }
+
+    const responseDataMessage = (
+      response as { data?: { message?: unknown } }
+    ).data?.message;
+    if (
+      typeof responseDataMessage === "string" &&
+      responseDataMessage.length > 0
+    ) {
+      return responseDataMessage;
+    }
+  }
+
+  const genericMessage = (error as { message?: unknown }).message;
+  if (typeof genericMessage === "string" && genericMessage.length > 0) {
+    return genericMessage;
+  }
+
+  return undefined;
+}
+
+function getPbErrorStatus(error: unknown): number | undefined {
+  if (typeof error !== "object" || error === null) return undefined;
+
+  const status = (error as { status?: unknown }).status;
+  if (typeof status === "number") {
+    return status;
+  }
+
+  const response = (error as { response?: unknown }).response;
+  if (typeof response === "object" && response !== null) {
+    const code = (response as { code?: unknown }).code;
+    if (typeof code === "number") {
+      return code;
+    }
+  }
+
+  return undefined;
+}
+
+function formatErrorForLog(error: unknown) {
+  const status = getPbErrorStatus(error);
+  const message = getPbErrorMessage(error);
+  const data = getPbErrorData(error);
+
+  if (typeof error === "object" && error !== null) {
+    const name = (error as { name?: unknown }).name;
+    return {
+      name: typeof name === "string" ? name : undefined,
+      status,
+      message,
+      data,
+      raw: error,
+    };
+  }
+
+  return {
+    status,
+    message,
+    raw: error,
+  };
+}
+
 function ensureAuthenticatedUserId(context: {
   locals: {
     pb?: {
@@ -595,11 +707,13 @@ export const server = {
           }
         } catch (error) {
           try {
-            await context.locals.pb.collection("recettes").delete(createdRecette.id);
+            await context.locals.pb
+              .collection("recettes")
+              .delete(createdRecette.id);
           } catch (rollbackError) {
             console.error(
               "[actions.createRecette] Echec du rollback de la recette",
-              rollbackError,
+              formatErrorForLog(rollbackError),
             );
           }
 
@@ -616,9 +730,53 @@ export const server = {
           throw error;
         }
 
+        const pbFieldMessage = getPbFirstFieldMessage(error, [
+          "image",
+          "slug",
+          "titre",
+          "regimes",
+          "categorie",
+          "objectif_sante",
+          "ingredient",
+          "recette",
+          "unite",
+          "quantite",
+          "numero_ordre",
+          "description",
+          "compositionJson",
+          "etapesJson",
+          "user",
+        ]);
+
+        if (pbFieldMessage) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: pbFieldMessage,
+          });
+        }
+
+        const pbMessage = getPbErrorMessage(error);
+
+        if (pbMessage) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message: pbMessage,
+          });
+        }
+
+        const pbStatus = getPbErrorStatus(error);
+
+        if (typeof pbStatus === "number" && pbStatus >= 400 && pbStatus < 500) {
+          throw new ActionError({
+            code: "BAD_REQUEST",
+            message:
+              "Certaines donnees de la recette sont invalides. Verifiez l'image, les ingredients et les etapes.",
+          });
+        }
+
         console.error(
           "[actions.createRecette] Impossible de creer la recette",
-          error,
+          formatErrorForLog(error),
         );
         throw new ActionError({
           code: "INTERNAL_SERVER_ERROR",

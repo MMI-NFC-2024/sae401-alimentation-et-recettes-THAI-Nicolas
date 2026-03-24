@@ -297,6 +297,7 @@ const ingredientsLite = ingredients.map((item) => ({
                 accept="image/*"
                 required
               />
+              <p class="mt-2 text-xs text-primary/80">Taille maximale: 5 Mo.</p>
               {
                 createRecetteInputError?.fields.image?.[0] && (
                   <p class="mt-2 text-sm font-bold text-accent2">
@@ -349,9 +350,36 @@ const ingredientsLite = ingredients.map((item) => ({
 <script is:inline>
   (() => {
     const storageKey = "slurpy:recette:add:draft";
+    const maxImageSizeBytes = 5 * 1024 * 1024;
+    const maxImageSizeMessage = "L'image est trop lourde (max 5 Mo).";
     const form = document.getElementById("add-recette-form");
+    const imageInput = document.getElementById("image");
 
     if (!(form instanceof HTMLFormElement)) return;
+
+    const validateImageSize = () => {
+      if (!(imageInput instanceof HTMLInputElement)) {
+        return true;
+      }
+
+      const selectedFile = imageInput.files?.[0];
+
+      if (!selectedFile) {
+        imageInput.setCustomValidity("");
+        return true;
+      }
+
+      const isValidSize = selectedFile.size <= maxImageSizeBytes;
+      imageInput.setCustomValidity(isValidSize ? "" : maxImageSizeMessage);
+      return isValidSize;
+    };
+
+    if (imageInput instanceof HTMLInputElement) {
+      imageInput.addEventListener("change", () => {
+        validateImageSize();
+        imageInput.reportValidity();
+      });
+    }
 
     const shouldRestoreDraft = form.dataset.hasError === "true";
     const fields = Array.from(form.querySelectorAll("[data-persist='true']"));
@@ -440,6 +468,16 @@ const ingredientsLite = ingredients.map((item) => ({
       field.addEventListener("change", saveDraft);
     }
 
-    form.addEventListener("submit", saveDraft);
+    form.addEventListener("submit", (event) => {
+      if (!validateImageSize()) {
+        event.preventDefault();
+        if (imageInput instanceof HTMLInputElement) {
+          imageInput.reportValidity();
+        }
+        return;
+      }
+
+      saveDraft();
+    });
   })();
 </script>

@@ -1,5 +1,8 @@
 import { z } from "astro/zod";
 
+const MAX_RECETTE_IMAGE_SIZE_BYTES = 5 * 1024 * 1024;
+const MAX_RECETTE_IMAGE_SIZE_MESSAGE = "L'image est trop lourde (max 5 Mo).";
+
 const objectifSanteSchema = z.enum([
   "Prise de masse",
   "Perte de poids",
@@ -16,16 +19,30 @@ const requiredFileSchema = z.preprocess(
 
     return value.size > 0 ? value : undefined;
   },
-  z.instanceof(File, { message: "L'image est obligatoire" }),
+  z
+    .instanceof(File, { message: "L'image est obligatoire" })
+    .refine(
+      (file) => file.size <= MAX_RECETTE_IMAGE_SIZE_BYTES,
+      MAX_RECETTE_IMAGE_SIZE_MESSAGE,
+    ),
 );
 
-const optionalFileSchema = z.preprocess((value) => {
-  if (!(value instanceof File)) {
-    return undefined;
-  }
+const optionalFileSchema = z.preprocess(
+  (value) => {
+    if (!(value instanceof File)) {
+      return undefined;
+    }
 
-  return value.size > 0 ? value : undefined;
-}, z.instanceof(File).optional());
+    return value.size > 0 ? value : undefined;
+  },
+  z
+    .instanceof(File)
+    .refine(
+      (file) => file.size <= MAX_RECETTE_IMAGE_SIZE_BYTES,
+      MAX_RECETTE_IMAGE_SIZE_MESSAGE,
+    )
+    .optional(),
+);
 
 const optionalNumberSchema = z.preprocess((value) => {
   if (value === "" || value === undefined || value === null) {
