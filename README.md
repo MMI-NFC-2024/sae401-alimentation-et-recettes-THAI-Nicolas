@@ -1,97 +1,107 @@
-URL du site : https://slurpy.nicolas-thai.fr/
-URL du Pocketbase : https://slurpy.nicolas-thai.fr/_/
-URL du dépôt : https://github.com/MMI-NFC-2024/sae401-alimentation-et-recettes-THAI-Nicolas
+- URL du site : https://slurpy.nicolas-thai.fr/
+- URL du Pocketbase : https://slurpy.nicolas-thai.fr/_/
+- URL du dépôt : https://github.com/MMI-NFC-2024/sae401-alimentation-et-recettes-THAI-Nicolas
 
-Note : Pour les formulaires, mon serveur nginx accepte seulement les images inférieur à 1Mo, sinon => "Erreur 413 Request Entity Too Large"
+> Note : Pour les formulaires, mon serveur nginx accepte seulement les images inférieur à 1Mo, sinon => "Erreur 413 Request Entity Too Large"
 
 ## Architecture du projet
 
 Tout d'abord, même si je me doute que vous attendiez la même structure que dans nos TP précédents, j'ai décidé de réaliser une architecture le plus proche d'une web app scalable qui a besoin d'être maintenable et facilement modifiable par couche. Je suis donc parti sur une architecture par couche, avec une séparation claire entre le front-end et le back-end. Ainsi le backend peut facilement être remplacé par un autre sans devoir toucher au front-end, et inversement.
 
-La couche Services (src/lib/services) : Les fonctions de données pocketbases
-=> Toute mes fonctions de données sont regroupées par table de PocketBase dans des fichier typescript dédiés.
+- La couche Services (src/lib/services) : Les fonctions de données pocketbases
+  => Toute mes fonctions de données sont regroupées par table de PocketBase dans des fichier typescript dédiés.
 
-La couche components (src/components) : Les composants réutilisables séparés dans deux dossier
-=> shell pour les composants de structure (header, footer, etc) et ui pour les composants d'interface (boutons, champs de formulaire, etc)
+- La couche components (src/components) : Les composants réutilisables séparés dans deux dossier
+  => shell pour les composants de structure (header, footer, etc) et ui pour les composants d'interface (boutons, champs de formulaire, etc)
 
-La couche schemas (src/schemas) : Les schémas de validation de données
-=> J'ai utilisé zod pour créer des schémas de validation de données pour les formulaires (ajout d'une recette, modification d'une recette, formulaire de contact, )
+- La couche schemas (src/schemas) : Les schémas de validation de données
+  => J'ai utilisé zod pour créer des schémas de validation de données pour les formulaires (ajout d'une recette, modification d'une recette, formulaire de contact, )
 
-Les actions Astro (src/actions) : Les actions pour les formulaires
-=> J'ai utilisé les actions Astro pour gérer les soumissions de formulaires, en utilisant les fonctions de données de la couche services pour interagir avec PocketBase. (Utilisation avec l'IA)
+- Les actions Astro (src/actions) : Les actions pour les formulaires
+  => J'ai utilisé les actions Astro pour gérer les soumissions de formulaires, en utilisant les fonctions de données de la couche services pour interagir avec PocketBase. (Utilisation avec l'IA)
 
-La couche Auth (src/pages/auth) : La gestion de l'authentification
-=> J'ai créé une couche d'authentification pour gérer les connexions et les inscriptions. Mise en place d'une Oauth avec un provider dynamique (route imbriquée de Astro) pour changer facilement de provider d'authentification (Google, Facebook, etc), avec une sécurité renforcée CSRF et une gestion des tokens d'authentification. Déconnexion en POST dans un logout.ts pour garantir que la déconnexion est intentionnel (évite les bugs de prefetch ou de navigation qui pourraient entraîner une déconnexion accidentelle).
+- La couche Auth (src/pages/auth) : La gestion de l'authentification
+  => J'ai créé une couche d'authentification pour gérer les connexions et les inscriptions. Mise en place d'une Oauth avec un provider dynamique (route imbriquée de Astro) pour changer facilement de provider d'authentification (Google, Facebook, etc), avec une sécurité renforcée CSRF et une gestion des tokens d'authentification. Déconnexion en POST dans un logout.ts pour garantir que la déconnexion est intentionnel (évite les bugs de prefetch ou de navigation qui pourraient entraîner une déconnexion accidentelle).
 
-Le middleware (src/middleware) : gère la session PocketBase.
-=> Il initialise la session PocketBase à chaque requête dans le contexte (Astro.locals), ce qui permet de vérifier l'authentification de l'utilisateur et d'accéder à ses données de manière sécurisée.
+- Le middleware (src/middleware) : gère la session PocketBase.
+  => Il initialise la session PocketBase à chaque requête dans le contexte (Astro.locals), ce qui permet de vérifier l'authentification de l'utilisateur et d'accéder à ses données de manière sécurisée.
 
-La couch Layouts (src/layouts) : Les layouts de l'application
-=> Le Layout principal qui inclut le header et le footer optimisé SEO
-=> Le layoutAuth pour les pages de login et register (sans header ni footer)
-=> Et le ProtectedLayout pour les pages qui nécessitent une authentification (profil utilisateur, ajout/modification de recette, etc)
+- La couch Layouts (src/layouts) : Les layouts de l'application
+  => Le Layout principal qui inclut le header et le footer optimisé SEO
+  => Le layoutAuth pour les pages de login et register (sans header ni footer)
+  => Et le ProtectedLayout pour les pages qui nécessitent une authentification (profil utilisateur, ajout/modification de recette, etc)
 
-Les pages (src/pages) : Les pages de l'application
-=> Page d'accueil
-=> Page les recettes et page d'une recette en particulier (lecture, ajout, modification d'une recette et suppression d'une recette)
-=> Page les articles et page d'un article en particulier (fiche_aliment ou article de conseil)
-=> Page gestion de profil utilisateur et page public de profil utilisateur
-=> Page Contact, 404 et mentions légales
+- Les pages (src/pages) : Les pages de l'application
+  => Page d'accueil
+  => Page les recettes et page d'une recette en particulier (lecture, ajout, modification d'une recette et suppression d'une recette)
+  => Page les articles et page d'un article en particulier (fiche_aliment ou article de conseil)
+  => Page gestion de profil utilisateur et page public de profil utilisateur
+  => Page Contact, 404 et mentions légales
 
-Note : J'ai utilisé [slug].astro pour les pages de recette et d'article, ce qui permet d'avoir des URLs propres et facilement compréhensibles (ex: /recettes/ma-recette au lieu de /recettes?id=123).
+> Note : J'ai utilisé [slug].astro pour les pages de recette et d'article, ce qui permet d'avoir des URLs propres et facilement compréhensibles (ex: /recettes/ma-recette au lieu de /recettes?id=123).
 
 ## Technologies utilisées
 
-Astro & TailwindCSS (App) et PocketBase (Backend) avec Pocketbase-types.
-Typescript pour la sécurité de type.
-Zod pour la validation de données.
-Les astros Actions pour gérer les soumissions de formulaires et la logique côté serveur de façon sécurisée.
-Vue.js pour les composants interactifs (filtrages, barre de recherches, calculateur).
-EmailJS pour l'envoi d'emails de contact.
-Le MCP PocketBase pour ajouter des records facilement dans les tables de PocketBase.
-IDE IA pour la correction et génération de code : VsCode avec Github Copilot, LLM : Claude Sonnet 4.6 et GPT-5.3 Codex
-LLM pour poser des questions pour avoir la meilleure architecture possible, questions de code : Gemini 3.1 Pro
+- Astro & TailwindCSS (App) et PocketBase (Backend) avec Pocketbase-types.
+- Typescript pour la sécurité de type.
+- Zod pour la validation de données.
+- Les astros Actions pour gérer les soumissions de formulaires et la logique côté serveur de façon sécurisée.
+- Vue.js pour les composants interactifs (filtrages, barre de recherches, calculateur).
+- EmailJS pour l'envoi d'emails de contact et la fausse newsletter.
+- Le MCP PocketBase pour ajouter des records facilement dans les tables de PocketBase.
+- IDE IA pour la correction et génération de code : VsCode avec Github Copilot, LLM : Claude Sonnet 4.6 et GPT-5.3 Codex
+- LLM pour poser des questions pour avoir la meilleure architecture possible, questions de code : Gemini 3.1 Pro
 
 ## Fonctionnalités
 
-- Authentification avec Email ou plusieurs providers (Google et Facebook actuellement)
-- CRUD complet pour les recettes (création, lecture, modification, suppression)
-- Profil utilisateur personnalisé (biographie, avatar, objectif santé) avec la possibilité de voir ses recettes
-- Formulaire de contact avec EmailJS pour envoyer des emails directement depuis le site
-- Mise en place d'une fausse Newsletter qui m'envoie une notif quand quelqu'un s'inscrit
-- Système de filtrage et de recherche côté client pour les recettes et les articles (objectifs, régimes, types de plates, notes...)
-- Calculateur de calories pour les recettes, avec une estimation basée sur les ingrédients et les quantités
-- Poster un commentaire avec une note sur une recette
-- Utilisation de Zod pour valider tous les formulaires et les données avant de les envoyer à PocketBase, garantissant ainsi l'intégrité des données et une meilleure expérience utilisateur (contact, ajout/modification recette, avis, etc)
+- [https://slurpy.nicolas-thai.fr/auth/login](https://slurpy.nicolas-thai.fr/auth/login) : Authentification avec Email ou plusieurs providers (Google et Facebook actuellement)
+- [https://slurpy.nicolas-thai.fr/recettes](https://slurpy.nicolas-thai.fr/recettes) : Voir la liste des recettes avec un système de filtrage et de recherche côté client (objectifs, régimes, types de plates, notes...)
+- [https://slurpy.nicolas-thai.fr/recettes/add](https://slurpy.nicolas-thai.fr/recettes/add) : Ajouter une recette avec un formulaire complet (informations de la recette, ingrédients, étapes, etc) et validation avec Zod (quand connecté)
+- [https://slurpy.nicolas-thai.fr/profil](https://slurpy.nicolas-thai.fr/profil) : Profil utilisateur personnalisé (biographie, avatar, objectif santé) avec la possibilité de voir ses recettes. Possibilité de supprimer ses recettes ou les modifier depuis sa page profil (quand connecté)
+- [https://slurpy.nicolas-thai.fr/contact](https://slurpy.nicolas-thai.fr/contact) : Formulaire de contact avec EmailJS pour envoyer des emails directement depuis le site, également fausse newsletter fonctionnel dans le footer qui m'envoie un message quand quelqu'un s'inscrit.
 
-## Mon utilisation de l'IA POUR le projet
+- [https://slurpy.nicolas-thai.fr/articles](https://slurpy.nicolas-thai.fr/articles) : Voir la liste des article, qu'on peut filtrer entre fiche aliment et article de conseil, barre de recherche côté client pour filtrer les articles par titre ou contenu
+- [https://slurpy.nicolas-thai.fr/recettes/tofu-brocoli](https://slurpy.nicolas-thai.fr/recettes/tofu-brocoli) : Calculateur de calories pour les recettes, avec une estimation basée sur les ingrédients et les quantités. Possibilité d'ajouter un avis si connecté et de le supprimer. Et ingrédients cliquable lien vers une fiche article si elle existe (ex: fiche du brocoli par exemple)
+- [https://slurpy.nicolas-thai.fr/profil/jvwkedn3n96zbjm](https://slurpy.nicolas-thai.fr/profil/jvwkedn3n96zbjm) : Page utilisateur public pour voir les recettes d'un utilisateur, sa biographie, son objectif santé, etc
+- [https://slurpy.nicolas-thai.fr](https://slurpy.nicolas-thai.fr) : Barre de recherche globale côté client dans le headerpour rechercher des recettes ou des articles depuis la page d'accueil.
+
+## Mon utilisation de l'IA POUR cadre le projet
 
 J'ai utilisé l'IA comme un mentor sénior en développement pour m'aider à structurer mon projet et mettre en place des pratiques qui se rapprochent le plus possible d'un code de niveau sénior, pour une app web moderne, scalable et maintenable. Dès que j'avais une question sur mon code, pour savoir la meilleure pratique à adopter, pourquoi celle-là ? Quand utiliser un composant Vue ou Astro ? L'intêret de Zod avec les Astro Actions ? Je demandais directement à l'IA.
 
 Prompt que je lui ai donné pour qu'il soit adapté à mon projet :
 
-"Tu es un mentor sénior en développement web Fullstack et Architecte logiciel. Je construis 'Slurpy', une application web de nutrition healthy moderne utilisant Astro (SSR/Hybrid), Tailwind CSS, TypeScript et PocketBase.
+```text
+Tu es un mentor sénior en développement web Fullstack et Architecte logiciel. Je construis 'Slurpy', une application web de nutrition healthy moderne utilisant Astro (SSR/Hybrid), Tailwind CSS, TypeScript et PocketBase.
 
 TA MISSION
 M'accompagner dans la création d'une architecture scalable et maintenable, en me guidant sur les meilleures pratiques de développement, les choix technologiques et la structuration du code. Je veux que mon projet soit organisé de manière professionnelle, avec une séparation claire des responsabilités et une utilisation efficace des technologies.
 
 METHODE
 Ne te contentes pas de me donner une réponse directe à mes questions. Adopte une approche pédagogique en m'expliquant les raisons derrière chaque recommandation, les avantages et les inconvénients des différentes options, et comment elles s'appliquent spécifiquement à mon projet 'Slurpy'. Fournis-moi des exemples concrets et des références à la documentation officielle recénte quand c'est pertinent.
-"
+
+```
+
+J'utilise à la fois un onglet chat IA pour toutes mes questions générales ou bien généré des promptsavec Gemini 3.1 Pro. Puis j'implémente les prompts en les donnant à l'IA de mon IDE Vscode (Github Copilot) pour m'aider à générer des bouts de code spécifiques, comme des composants Vue, des fonctions de données, des schémas Zod, poser des questions sur plusieurs pages en même temps etc.
 
 ### L'utilisation de l'IA POUR le code
 
 - Structuration de l'architecture du projet (couches, organisation des fichiers, etc)
 
+- Grosse partie pour m'aider à combler des lacunes techniques au niveau de la génération de schemas Zod avec les actions Astro pour la validation de mes formulaires. Les typages avec Typescript, les composants Vue (qui sont nouveaux pour moi), la sécurisation de l'authentification OAuth (CSRF, gestion des tokens, etc), la gestion des erreurs (fallbacks) et la refactorisation du code en plusieurs composants réutilisables pour éviter la duplication de code.
+
 - Pour le debuggage, j'utilise le principe du CoT (Chain of Thought) en décomposant mon problème en 3 étapes : lui expliquer le problème en lui donnant mon opinion sur la cause du bug, lui demander de me donner les étapes pour corriger le bug et ensuite lui demander d'appliquer les étapes pour corriger le bug.
 
   Exemple de prompt de debug d'un boutton flottant :
 
+  ```text
   "On retourne vers la page des recettes #file:index.astro : J’ai un bug que j’ai vraiment du mal à gérer, c’est que j’aperçois un bouton de recherche non cliquable sur ma page des recettes à droite. Je pense que de base il était avec la barre de recherche, sauf que vu que c’est une barre de recherche coté client je n’ai plus besoin de ce bouton de toute façon. J’aimerai comprendre pourquoi il traine là (je ne peux meme pas l’inspecter), et avoir les étapes pour le trouver et l’enlever. Passe ensuite à l’action et enlève le définitivement"
+  ```
 
 - Création de composants Vue ou de fonctions avec typescript en utilisant le principe SPEC (Stack, Purpose, Exigences, Contraintes) qui sert de cahier des charges pour l'IA afin d'avoir une réponse la plus adaptée possible à mon besoin.
   Exemple de prompt pour la création du calculateur dynamique des calories en Vue.js :
 
+  ```text
   "STACK
   Utilise la dernière version de Vue.JS, tailwindcss pour les styles avec mes variables dans le #global.css, et typescript pour le typage.
 
@@ -110,7 +120,6 @@ Ne te contentes pas de me donner une réponse directe à mes questions. Adopte u
   - Utilise les classes Tailwind CSS pour le styling, en respectant la charte graphique de Slurpy définie dans le #global.css.
   - Gère les arrondis de calories à une virgule près pour éviter les chiffres à virgules trop longs.
     "
-
-- Grosse partie pour m'aider à "combler" des lacunes techniques au niveau de la génération de schemas Zod avec les actions Astro pour la validation de mes formulaires. Les typages avec Typescript, les composants Vue (qui sont nouveaux pour moi), la sécurisation de l'authentification OAuth (CSRF, gestion des tokens, etc), la gestion des erreurs (fallbacks) et la refactorisation du code en plusieurs composants réutilisables pour éviter la duplication de code.
+  ```
 
 Note : Pour le debug ou pour donner des exemples à mon IA, je lui donne quasiment toujours des captures d'écrans pour montrer le résultat attendu (maquette) ou le résultat actuel (bug). J'utilise aussi un # pour nommer un fichier précis pour réduire les hallucinations et la perte de tokens inutile.
