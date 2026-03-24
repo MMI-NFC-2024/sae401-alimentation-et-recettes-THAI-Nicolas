@@ -2,6 +2,8 @@ URL du site : https://slurpy.nicolas-thai.fr/
 URL du Pocketbase : https://slurpy.nicolas-thai.fr/_/
 URL du dépôt : https://github.com/MMI-NFC-2024/sae401-alimentation-et-recettes-THAI-Nicolas
 
+Note : Pour les formulaires, mon serveur nginx accepte seulement les images inférieur à 1Mo, sinon => "Erreur 413 Request Entity Too Large"
+
 ## Architecture du projet
 
 Tout d'abord, même si je me doute que vous attendiez la même structure que dans nos TP précédents, j'ai décidé de réaliser une architecture le plus proche d'une web app scalable qui a besoin d'être maintenable et facilement modifiable par couche. Je suis donc parti sur une architecture par couche, avec une séparation claire entre le front-end et le back-end. Ainsi le backend peut facilement être remplacé par un autre sans devoir toucher au front-end, et inversement.
